@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a8f6a">
+<title>WalkPilot Pad Scanner</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#14202b;--muted:#5d6b78;--line:#dde3e9;--accent:#0a8f6a;--accent-ink:#fff;--hi:#fff4d6}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f1419;--card:#18212b;--ink:#e7edf3;--muted:#93a1ae;--line:#2a3642;--accent:#22c592;--accent-ink:#06261b;--hi:#3a3216}}
+:root[data-theme="dark"]{--bg:#0f1419;--card:#18212b;--ink:#e7edf3;--muted:#93a1ae;--line:#2a3642;--accent:#22c592;--accent-ink:#06261b;--hi:#3a3216}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0 0 4px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0}
+.card h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:0 0 8px}
+button{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:10px 14px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button:disabled{opacity:.4}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
+input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%}
+label{display:block;font-size:13px;color:var(--muted);margin:8px 0 4px}
+.hint{font-size:13px;color:var(--muted)}
+ol{padding-left:20px;margin:6px 0}
+.cand{background:var(--hi);border-radius:10px;padding:10px;margin:6px 0}
+.big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+pre{font:12px/1.4 ui-monospace,monospace;white-space:pre-wrap;word-break:break-all;background:var(--bg);border-radius:10px;padding:10px;max-height:320px;overflow:auto;margin:0}
+</style>
+</head>
+<body>
+<main>
+  <h1>WalkPilot Pad Scanner</h1>
+  <div class="hint">Finds out whether your walking pad sends its own step count over Bluetooth. Your WalkPilot app and data are not affected.</div>
+
+  <div class="card">
+    <h2>How to run the test (about 3 minutes)</h2>
+    <ol>
+      <li>Close WalkPilot and the pad's own app. Switch the pad on, standing still.</li>
+      <li>Tap <b>Connect &amp; scan</b> and pick your pad.</li>
+      <li>Type the pad's <b>step count now</b> (0 if just switched on), then start walking with the pad's remote at a steady pace.</li>
+      <li>Walk for <b>2–3 minutes</b> – the timer below counts up.</li>
+      <li>Stop walking, type the pad's <b>step count at the end</b>, tap <b>Finish</b>, then <b>Copy report</b> and paste it into the chat with Claude.</li>
+    </ol>
+    <div class="row" style="margin-top:8px">
+      <button class="primary" id="go">Connect &amp; scan</button>
+      <button id="fin" disabled>Finish</button>
+    </div>
+    <div class="row">
+      <div><label for="s0">Pad steps at start</label><input id="s0" type="number" inputmode="numeric" placeholder="e.g. 0"></div>
+      <div><label for="s1">Pad steps at end</label><input id="s1" type="number" inputmode="numeric" placeholder="e.g. 280"></div>
+    </div>
+    <div style="margin-top:10px"><span class="big" id="timer">0:00</span> <span class="hint" id="status">Not connected</span></div>
+  </div>
+
+  <div class="card">
+    <h2>Possible step counters</h2>
+    <div id="cands" class="hint">Start walking – anything that counts up like steps will appear here.</div>
+  </div>
+
+  <div class="card">
+    <h2>Report</h2>
+    <div class="row"><button id="copy" disabled>Copy report</button><button id="share" disabled>Share report</button></div>
+    <div class="hint" id="copied" style="margin:6px 0"></div>
+    <pre id="report">The report appears here after you tap Finish.</pre>
+  </div>
+
+  <div class="card">
+    <h2>Live log</h2>
+    <pre id="log"></pre>
+  </div>
+</main>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const hex=dv=>{const a=[];for(let i=0;i<dv.byteLength;i++)a.push(dv.getUint8(i).toString(16).padStart(2,'0'));return a.join(' ');};
+const fmt=s=>`${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+const logLines=[];
+function log(m){ const t=((Date.now()-(t0||Date.now()))/1000).toFixed(1); logLines.push(`[${t}s] ${m}`); if(logLines.length>400) logLines.shift(); $('log').textContent=logLines.slice(-60).join('\n'); }
+
+/* Candidate service UUIDs: Web Bluetooth only exposes services listed in advance, so list the standard
+   fitness ones plus the 16-bit ranges manufacturers commonly use for their own channels. */
+const BLOCK=new Set([0x1812,0x1530,0x1531,0x1532,0xfffd,0xfde2,0xfe59]);
+const SERVICES=[];
+for(let u=0x1800;u<=0x18ff;u++) if(!BLOCK.has(u)) SERVICES.push(u);
+for(let u=0xfe00;u<=0xffff;u++) if(!BLOCK.has(u)) SERVICES.push(u);
+['6e400001-b5a3-f393-e0a9-e50e24dcca9e','0000ffe0-0000-1000-8000-00805f9b34fb','49535343-fe7d-4ae5-8fa9-9fafd205e455',
+ '0000fff0-0000-1000-8000-00805f9b34fb','00010203-0405-0607-0809-0a0b0c0d1910'].forEach(u=>SERVICES.push(u));
+const NAMES={'1826':'Fitness Machine (FTMS)','1814':'Running Speed & Cadence','180a':'Device Information','180f':'Battery','180d':'Heart Rate','1800':'Generic Access','1801':'Generic Attribute',
+  '2acd':'Treadmill Data','2ad9':'FTMS Control Point','2ada':'FTMS Status','2acc':'FTMS Feature','2ad4':'Speed Range','2ad5':'Incline Range','2ad3':'Training Status','2a53':'RSC Measurement','2a29':'Manufacturer','2a24':'Model Number','2a26':'Firmware','2a28':'Software','2a27':'Hardware'};
+const short=u=>{ const m=String(u).match(/^0000([0-9a-f]{4})-0000-1000-8000-00805f9b34fb$/i); return m?m[1].toLowerCase():String(u).toLowerCase(); };
+const nm=u=>NAMES[short(u)]?`${short(u)} (${NAMES[short(u)]})`:short(u);
+
+let dev=null, t0=0, tick=null, running=false;
+const chars={};   // key -> {svc,uuid,props,samples:[{t,bytes}],count,first,last}
+const info=[];
+
+async function scan(){
+  if(!navigator.bluetooth){ $('status').textContent='This browser has no Bluetooth – use Chrome on Android.'; return; }
+  try{
+    dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:SERVICES});
+    $('status').textContent='Connecting to '+(dev.name||'device')+'…';
+    dev.addEventListener('gattserverdisconnected',()=>{ log('Disconnected'); $('status').textContent='Disconnected'; });
+    const server=await dev.gatt.connect();
+    t0=Date.now(); running=true; info.length=0;
+    info.push(`Device: ${dev.name||'(no name)'}`);
+    const svcs=await server.getPrimaryServices();
+    info.push(`Services found: ${svcs.length}`);
+    for(const s of svcs){
+      let cs=[]; try{ cs=await s.getCharacteristics(); }catch(e){ info.push(`  ${nm(s.uuid)}: characteristics not readable`); continue; }
+      info.push(`Service ${nm(s.uuid)}`);
+      for(const c of cs){
+        const p=c.properties, props=['read','write','writeWithoutResponse','notify','indicate'].filter(k=>p[k]).join(',');
+        const key=short(s.uuid)+'/'+short(c.uuid);
+        const rec=chars[key]={svc:short(s.uuid),uuid:short(c.uuid),props,samples:[],count:0,first:null,last:null};
+        let line=`  char ${nm(c.uuid)} [${props}]`;
+        if(p.read){ try{ const v=await c.readValue(); const h=hex(v); let txt=''; try{ txt=new TextDecoder().decode(v.buffer).replace(/[^\x20-\x7e]/g,''); }catch(e){} line+=` = ${h}${txt.length>2?`  "${txt}"`:''}`; }catch(e){ line+=' (read failed)'; } }
+        info.push(line);
+        if(p.notify||p.indicate){
+          try{ await c.startNotifications();
+            c.addEventListener('characteristicvaluechanged',e=>onValue(key,e.target.value));
+          }catch(e){ info.push(`    (could not subscribe: ${e.message})`); }
+        }
+      }
+    }
+    log(info.join('\n'));
+    $('status').textContent=`Scanning ${dev.name||''} – start walking`;
+    $('fin').disabled=false; $('go').disabled=true;
+    tick=setInterval(()=>{ $('timer').textContent=fmt((Date.now()-t0)/1000); renderCands(); },1000);
+  }catch(e){ $('status').textContent='Could not connect: '+e.message; }
+}
+
+function onValue(key,dv){
+  const r=chars[key], t=(Date.now()-t0)/1000, b=new Uint8Array(dv.buffer.slice(dv.byteOffset,dv.byteOffset+dv.byteLength));
+  r.count++; if(!r.first) r.first={t,h:hex(dv)}; r.last={t,h:hex(dv)};
+  r.samples.push({t,b}); if(r.samples.length>3000) r.samples.shift();
+  if(r.count<=3 || r.count%20===0) log(`${key} #${r.count}: ${hex(dv)}`);
+}
+
+/* Look for fields that only ever count up, at a walking-step rate (0.6–3.5 per second). */
+function findCandidates(){
+  const out=[];
+  for(const [key,r] of Object.entries(chars)){
+    const S=r.samples; if(S.length<5) continue;
+    const len=Math.min(...S.slice(-20).map(s=>s.b.length));
+    for(let off=0; off<len; off++){
+      for(const w of [2,3,4]){
+        if(off+w>len) continue;
+        const vals=S.filter(s=>s.b.length>=off+w).map(s=>{ let v=0; for(let i=w-1;i>=0;i--) v=v*256+s.b[off+i]; return {t:s.t,v}; });
+        if(vals.length<5) continue;
+        let mono=true; for(let i=1;i<vals.length;i++){ if(vals[i].v<vals[i-1].v){ mono=false; break; } }
+        if(!mono) continue;
+        const a=vals[0], z=vals[vals.length-1], dv=z.v-a.v, dt=z.t-a.t;
+        if(dv<8 || dt<8) continue;
+        const rate=dv/dt;
+        if(rate<0.6 || rate>3.5) continue;
+        if(w>2 && out.some(o=>o.key===key && o.off===off)) continue;   // prefer the shortest width
+        out.push({key,off,w,start:a.v,end:z.v,inc:dv,rate});
+      }
+    }
+  }
+  return out;
+}
+function knownLabel(c){
+  if(c.key==='1826/2acd') return ' – this is the standard Treadmill Data (likely distance in metres or elapsed time, not steps)';
+  if(c.key.startsWith('1814/')) return ' – Running Speed & Cadence';
+  return ' – manufacturer channel';
+}
+function renderCands(){
+  const cs=findCandidates(), s0=parseInt($('s0').value), s1=parseInt($('s1').value);
+  if(!cs.length){ $('cands').innerHTML='Nothing counting up at step speed yet. Keep walking.'; return; }
+  const padInc = (!isNaN(s0)&&!isNaN(s1)) ? s1-s0 : null;
+  $('cands').innerHTML=cs.map(c=>{
+    const match = padInc ? ` · <b>${Math.abs(c.inc-padInc)<=Math.max(3,padInc*0.03)?'✅ matches the pad display!':'pad display went up '+padInc}</b>` : '';
+    return `<div class="cand"><b>${c.key}</b> byte ${c.off} (${c.w}-byte)${knownLabel(c)}<br>value ${c.start} → ${c.end} (+${c.inc}, ${c.rate.toFixed(2)}/s)${match}</div>`;
+  }).join('');
+}
+
+function finish(){
+  running=false; clearInterval(tick); renderCands();
+  try{ dev && dev.gatt.connected && dev.gatt.disconnect(); }catch(e){}
+  const s0=$('s0').value, s1=$('s1').value, dur=((Date.now()-t0)/1000).toFixed(0);
+  const lines=['WALKPILOT PAD SCAN REPORT', `Date: ${new Date().toISOString()}`, `Duration: ${dur}s`, `Pad display steps: start ${s0||'?'} → end ${s1||'?'}`, '', ...info, '', 'NOTIFICATIONS (count, first, last):'];
+  for(const [k,r] of Object.entries(chars)) if(r.count) lines.push(`${k} [${r.props}] x${r.count}`, `   first @${r.first.t.toFixed(1)}s: ${r.first.h}`, `   last  @${r.last.t.toFixed(1)}s: ${r.last.h}`);
+  lines.push('', 'STEP-COUNTER CANDIDATES:');
+  const cs=findCandidates(); if(!cs.length) lines.push('  none found');
+  cs.forEach(c=>lines.push(`  ${c.key} off ${c.off} w${c.w}: ${c.start} -> ${c.end} (+${c.inc}, ${c.rate.toFixed(2)}/s)`));
+  lines.push('', 'SAMPLE TRACE (manufacturer + RSC channels, every 5th):');
+  for(const [k,r] of Object.entries(chars)){
+    if(k==='1826/2acd' || !r.count) continue;
+    r.samples.filter((_,i)=>i%5===0).slice(0,40).forEach(s=>lines.push(`  ${k} @${s.t.toFixed(1)}s: ${Array.from(s.b).map(x=>x.toString(16).padStart(2,'0')).join(' ')}`));
+  }
+  const tm=chars['1826/2acd'];
+  if(tm && tm.count){ lines.push('', 'TREADMILL DATA TRACE (every 10th):'); tm.samples.filter((_,i)=>i%10===0).slice(0,30).forEach(s=>lines.push(`  @${s.t.toFixed(1)}s: ${Array.from(s.b).map(x=>x.toString(16).padStart(2,'0')).join(' ')}`)); }
+  $('report').textContent=lines.join('\n');
+  $('copy').disabled=false; $('share').disabled=!navigator.share; $('fin').disabled=true; $('go').disabled=false;
+  $('status').textContent='Finished – copy the report and paste it into the chat.';
+}
+$('go').onclick=scan;
+$('fin').onclick=finish;
+['s0','s1'].forEach(id=>$(id).addEventListener('input',renderCands));
+$('copy').onclick=async()=>{ try{ await navigator.clipboard.writeText($('report').textContent); $('copied').textContent='Copied – now paste it into the chat.'; }catch(e){ $('copied').textContent='Copy failed – press and hold the report text to select and copy it.'; } };
+$('share').onclick=()=>{ navigator.share({title:'WalkPilot pad scan',text:$('report').textContent}).catch(()=>{}); };
+// test hook
+window.__scan={chars,onValue,findCandidates,finish,setT0:v=>t0=v};
+</script>
+</body>
+</html>
