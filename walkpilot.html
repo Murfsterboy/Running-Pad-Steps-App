@@ -438,12 +438,67 @@ function cpSend(bytes, label){
     .then(()=>log('→ '+label)).catch(e=>log('✗ '+label+': '+e.message));
   return cpQueue;
 }
-const padRequestControl=()=>cpSend([0x00],'request control');
-const padStart=()=>cpSend([0x07],'start');
-const padStop=()=>cpSend([0x08,0x01],'stop');
-const padPause=()=>cpSend([0x08,0x02],'pause');
-const padSpeed=k=>{ const v=Math.round(k*100); return cpSend([0x02,v&255,(v>>8)&255],'speed '+k.toFixed(1)); };
-const padIncline=lvl=>{ const v=Math.round(lvl*S.inclUnit*10); return cpSend([0x03,v&255,(v>>8)&255],'incline '+lvl); };
+// When the UREVO channel (FFF0) is present, control goes through it – that is what the UREVO app itself uses.
+const padRequestControl=()=>UR.ch ? Promise.resolve() : cpSend([0x00],'request control');
+const padStart=()=>UR.ch ? urSend([0x53,0x01,0x00,0x00,0x08,0x07,0x00,0x00,0x00,0x00],'start') : cpSend([0x07],'start');
+const padStop=()=>UR.ch ? urSend([0x53,0x03],'stop') : cpSend([0x08,0x01],'stop');
+const padPause=()=>UR.ch ? urSend([0x53,0x0a],'pause') : cpSend([0x08,0x02],'pause');
+const padSpeed=k=>{ if(UR.ch) return urSetBelt(k,setIncl,'speed '+k.toFixed(1)); const v=Math.round(k*100); return cpSend([0x02,v&255,(v>>8)&255],'speed '+k.toFixed(1)); };
+const padIncline=lvl=>{ if(UR.ch) return urSetBelt(setSpeed,lvl,'incline '+lvl); const v=Math.round(lvl*S.inclUnit*10); return cpSend([0x03,v&255,(v>>8)&255],'incline '+lvl); };
+
+/* ---------- UREVO native protocol on FFF0 (FitShow-style, decoded from a btsnoop capture) ----------
+   Frame: 02 <cmd> <data…> <chk> 03, chk = (sum of cmd+data bytes & 0xFF) XOR 0x5A.
+   Notify FFF1, write FFF2. Status (0x51) arrives about once a second:
+   51 <state> <speed 0.1km/h> <incline> <time s u16> <dist 10m u16> <kcal 0.1 u16> <steps u16> …
+   state: 0 idle, 1 stopped/summary, 2 countdown, 3 running, 4 slowing to pause, 10 paused. */
+const UR={ch:null, active:false, q:Promise.resolve(), state:null, lastRx:0, buf:[]};
+function urFrame(bytes){ let s=0; for(const x of bytes) s=(s+x)&255; return new Uint8Array([0x02,...bytes,s^0x5a,0x03]); }
+function urSend(bytes,label){
+  if(live.demo){ if(label) log('demo → '+label); return Promise.resolve(); }
+  if(!UR.ch) return Promise.resolve();
+  const f=urFrame(bytes);
+  UR.q=UR.q.then(()=>UR.ch.writeValueWithResponse ? UR.ch.writeValueWithResponse(f) : UR.ch.writeValue(f))
+    .then(()=>{ if(label) log('→ '+label); }).catch(e=>log('✗ '+(label||'status')+': '+e.message));
+  return UR.q;
+}
+function urSetBelt(kmh,lvl,label){
+  const sp=Math.max(0,Math.min(255,Math.round(kmh*10))), inc=Math.max(0,Math.min(255,Math.round(lvl)));
+  return urSend([0x53,0x02,sp,inc],label);
+}
+const UR_STATES={0:'idle',1:'stopped',2:'countdown',3:'running',4:'slowing',10:'paused'};
+function urFeed(chunk){
+  UR.buf.push(...chunk); if(UR.buf.length>128) UR.buf.splice(0,UR.buf.length-128);
+  for(;;){
+    const st=UR.buf.indexOf(0x02); if(st<0){ UR.buf.length=0; return; }
+    if(st>0) UR.buf.splice(0,st);
+    let got=false;
+    for(let j=3;j<UR.buf.length;j++){
+      if(UR.buf[j]!==0x03) continue;
+      let s=0; for(let i=1;i<j-1;i++) s=(s+UR.buf[i])&255;
+      if((s^0x5a)===UR.buf[j-1]){ urFrameIn(UR.buf.slice(1,j-1)); UR.buf.splice(0,j+1); got=true; break; }
+    }
+    if(!got){ if(UR.buf.length>40) UR.buf.shift(); else return; }
+  }
+}
+function urFrameIn(b){ // b = cmd + data, no framing
+  UR.lastRx=Date.now();
+  if(b[0]===0x50 && b[1]===0x02 && b.length>=4){
+    if(b[2]>0){ live.speedMax=b[2]/10; live.speedMin=Math.max(0.1,b[3]/10); log(`speed range ${live.speedMin}–${live.speedMax} (UREVO)`); }
+    return;
+  }
+  if(b[0]!==0x51 || b.length<2) return;
+  const st=b[1], prev=UR.state; UR.state=st;
+  if(!UR.active){ UR.active=true; log('UREVO channel active – using the pad\'s own step count'); }
+  if(prev!==st) log('pad state: '+(UR_STATES[st]??st));
+  if(b.length>=12){
+    onData({ speed: (st===3||st===4) ? b[2]/10 : 0, incline: b[3]*S.inclUnit,
+      elapsed: b[4]|(b[5]<<8), dist: (b[6]|(b[7]<<8))*10, kcal: (b[8]|(b[9]<<8))/10 });
+    feedPadSteps(b[10]|(b[11]<<8));
+  } else onData({speed:0});
+  // the belt only accepts a target speed once it is actually running (after the 3-2-1 countdown)
+  if(st===3 && prev!==3 && session && session.state==='running') urSetBelt(setSpeed,setIncl,'speed '+setSpeed.toFixed(1));
+}
+setInterval(()=>{ if(UR.ch && live.connected && Date.now()-UR.lastRx>2500) urSend([0x51],null); },2500);
 
 async function connect(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
@@ -476,13 +531,13 @@ async function connect(){
     }catch(e){}
     const td = await svc.getCharacteristic(C_TREAD);
     await td.startNotifications();
-    td.addEventListener('characteristicvaluechanged', e=>onData(parseTreadmill(e.target.value)));
+    td.addEventListener('characteristicvaluechanged', e=>{ if(!UR.active) onData(parseTreadmill(e.target.value)); });
     await padRequestControl();
     live.connected=true; live.demo=false; updateConn();
     discoverExtra(server).catch(e=>log('extra channels: '+e.message));
   }catch(e){ log('Connect failed: '+e.message); }
 }
-function onDisconnect(){ live.connected=false; cpChar=null; updateConn(); log('Disconnected'); if(session&&session.state==='running') pauseSession(true); }
+function onDisconnect(){ live.connected=false; cpChar=null; UR.ch=null; UR.active=false; UR.state=null; UR.buf=[]; updateConn(); log('Disconnected'); if(session&&session.state==='running') pauseSession(true); }
 
 /* ---------- demo simulator ---------- */
 let demoTimer=null, demoBelt={speed:0,dist:0,running:false};
@@ -494,7 +549,7 @@ function startDemo(){
     demoBelt.speed += Math.sign(tgt-demoBelt.speed)*Math.min(0.3,Math.abs(tgt-demoBelt.speed));
     demoBelt.dist += demoBelt.speed/3.6;
     demoBelt.steps=(demoBelt.steps||0)+demoBelt.speed/3.6*100/71; const ds=Math.floor(demoBelt.steps);
-    onExtra('fff0/fff1', new DataView(new Uint8Array([0xa5,0x02,ds&255,(ds>>8)&255,0x00,0x5a]).buffer));
+    onExtra('demo/steps', new DataView(new Uint8Array([0xa5,0x02,ds&255,(ds>>8)&255,0x00,0x5a]).buffer));
     onData({speed:demoBelt.speed, dist:Math.floor(demoBelt.dist), incline:setIncl*S.inclUnit, hr: demoBelt.speed>0 ? Math.round(85+demoBelt.speed*8+setIncl*2+Math.random()*3) : null});
   },1000);
 }
@@ -587,7 +642,7 @@ async function startSession(){
   else { session.state='running'; session.lastT=Date.now(); }
   if(live.demo) demoBelt.running=true;
   await padRequestControl(); await padStart();
-  setTimeout(()=>{ padSpeed(setSpeed); padIncline(setIncl); }, 1500);
+  if(!UR.ch) setTimeout(()=>{ padSpeed(setSpeed); padIncline(setIncl); }, 1500);   // UREVO: sent when the countdown ends
   keepAwake(true); updateButtons();
 }
 function pauseSession(fromDisconnect){
@@ -1020,11 +1075,13 @@ async function discoverExtra(server){
     for(const c of cs){
       const pr=c.properties, props=['read','write','writeWithoutResponse','notify','indicate'].filter(k=>pr[k]).join(',');
       PS.layout.push(`${shortU(s.uuid)}/${shortU(c.uuid)} [${props}]`);
+      if(shortU(s.uuid)==='fff0' && shortU(c.uuid)==='fff2') UR.ch=c;
       if(!(c.properties.notify||c.properties.indicate)) continue;
       const key=shortU(s.uuid)+'/'+shortU(c.uuid);
       try{ await c.startNotifications(); c.addEventListener('characteristicvaluechanged',e=>onExtra(key,e.target.value)); n++; }catch(e){}
     }
   }
+  if(UR.ch){ PS.found={key:'urevo',dev:PS.devName}; UR.lastRx=Date.now(); await urSend([0x50,0x02],'read speed range'); await urSend([0x51],'read status'); }
   log(`listening on ${n} extra channel(s)${PS.found?' – using saved pad step counter':''}`);
   PS.layout.forEach(l=>log('  '+l));
   updateStepSrc();
@@ -1032,6 +1089,7 @@ async function discoverExtra(server){
 function readField(b,off,w,be){ let v=0; if(be){ for(let i=0;i<w;i++) v=v*256+b[off+i]; } else { for(let i=w-1;i>=0;i--) v=v*256+b[off+i]; } return v; }
 function onExtra(key,dv){
   const b=new Uint8Array(dv.buffer.slice(dv.byteOffset,dv.byteOffset+dv.byteLength));
+  if(key==='fff0/fff1' && UR.ch){ urFeed(b); return; }
   { const st=PS.stats[key]||(PS.stats[key]={n:0,samples:[]}); st.n++;
     if(st.n<=40 || st.n%10===0) st.samples.push(`@${((Date.now()-(PS.t0||Date.now()))/1000).toFixed(1)}s v${live.speed.toFixed(1)} d${live.rawDist??'-'}: `+Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(' '));
     if(st.samples.length>160) st.samples.splice(40,1); }
