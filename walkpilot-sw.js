@@ -1,5 +1,5 @@
 // WalkPilot service worker: network first (so updates show straight away), cached copy when offline.
-const CACHE = 'walkpilot-v9';
+const CACHE = 'walkpilot-v10';
 const FILES = ['walkpilot.html', 'walkpilot.webmanifest', 'walkpilot-192.png', 'walkpilot-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(k => Promise.all(k.filter(n => n !== CACHE).map(n => caches.delete(n))))); self.clients.claim(); });
