@@ -95,7 +95,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v11</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v13</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -306,7 +306,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v11</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v13</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -444,12 +444,18 @@ const padStart=()=>UR.ch ? urSend([0x53,0x01,0x00,0x00,0x08,0x07,0x00,0x00,0x00,
 const padStop=()=>UR.ch ? urSend([0x53,0x03],'stop') : cpSend([0x08,0x01],'stop');
 const padPause=()=>UR.ch ? urSend([0x53,0x0a],'pause') : cpSend([0x08,0x02],'pause');
 const padSpeed=k=>{ if(UR.ch) return urSetBelt(k,setIncl,'speed '+k.toFixed(1)); const v=Math.round(k*100); return cpSend([0x02,v&255,(v>>8)&255],'speed '+k.toFixed(1)); };
+// UREVO: incline goes in the same 53 02 command as speed, in tenths of a level (the pad reports max 90 = level 9.0).
+// If the pad's reported incline hasn't moved after 6 s, fall back to the standard FTMS command once.
 const padIncline=lvl=>{
-  if(UR.ch && !cpChar) return urSend([0x53,0x02,Math.round(setSpeed*10),Math.round(lvl)],'incline '+lvl+' (UREVO)');
-  const v=Math.round(lvl*S.inclUnit*10);
-  // incline stays on the standard FTMS control point – the pad ignores incline sent on the UREVO channel
-  if(UR.ch && !UR.ftmsCtl){ UR.ftmsCtl=true; cpSend([0x00],'request control (incline)'); }
-  return cpSend([0x03,v&255,(v>>8)&255],'incline '+lvl);
+  const ftms=()=>{ if(!cpChar) return Promise.resolve(); const v=Math.round(lvl*S.inclUnit*10);
+    if(UR.ch && !UR.ftmsCtl){ UR.ftmsCtl=true; cpSend([0x00],'request control (incline)'); }
+    return cpSend([0x03,v&255,(v>>8)&255],'incline '+lvl+' (FTMS)'); };
+  if(!UR.ch) return ftms();
+  const raw=Math.max(0,Math.min(255,Math.round(lvl*UR.inclScale))), before=UR.inclRaw;
+  UR.inclWant=raw;
+  clearTimeout(UR.inclTimer);
+  UR.inclTimer=setTimeout(()=>{ if(UR.inclWant===raw && UR.inclRaw===before && before!==raw){ log('pad did not move on UREVO incline – trying FTMS'); ftms(); } },6000);
+  return urSend([0x53,0x02,Math.round(setSpeed*10),raw],`incline ${lvl} (UREVO raw ${raw})`);
 };
 
 /* ---------- UREVO native protocol on FFF0 (FitShow-style, decoded from a btsnoop capture) ----------
@@ -457,7 +463,7 @@ const padIncline=lvl=>{
    Notify FFF1, write FFF2. Status (0x51) arrives about once a second:
    51 <state> <speed 0.1km/h> <incline> <time s u16> <dist 10m u16> <kcal 0.1 u16> <steps u16> …
    state: 0 idle, 1 stopped/summary, 2 countdown, 3 running, 4 slowing to pause, 10 paused. */
-const UR={ch:null, active:false, q:Promise.resolve(), state:null, lastRx:0, buf:[], inclRaw:null, ftmsCtl:false};
+const UR={ch:null, active:false, q:Promise.resolve(), state:null, lastRx:0, buf:[], inclRaw:null, ftmsCtl:false, inclScale:10, inclWant:null, inclTimer:0};
 function urFrame(bytes){ let s=0; for(const x of bytes) s=(s+x)&255; return new Uint8Array([0x02,...bytes,s^0x5a,0x03]); }
 function urSend(bytes,label){
   if(live.demo){ if(label) log('demo → '+label); return Promise.resolve(); }
@@ -468,7 +474,7 @@ function urSend(bytes,label){
   return UR.q;
 }
 function urSetBelt(kmh,lvl,label){
-  const sp=Math.max(0,Math.min(255,Math.round(kmh*10))), inc=UR.inclRaw ?? 0;  // keep whatever incline the pad is at
+  const sp=Math.max(0,Math.min(255,Math.round(kmh*10))), inc=UR.inclWant ?? UR.inclRaw ?? 0;  // keep the incline we asked for, else the pad's own
   return urSend([0x53,0x02,sp,inc],label);
 }
 const UR_STATES={0:'idle',1:'stopped',2:'countdown',3:'running',4:'slowing',10:'paused'};
@@ -488,6 +494,10 @@ function urFeed(chunk){
 }
 function urFrameIn(b){ // b = cmd + data, no framing
   UR.lastRx=Date.now();
+  if(b[0]===0x50 && b[1]===0x03 && b.length>=3){
+    if(b[2]>0){ UR.inclScale=Math.max(1,Math.round(b[2]/(S.inclMax||9))||10); log(`incline range raw 0–${b[2]} → ${UR.inclScale} per level (UREVO)`); }
+    return;
+  }
   if(b[0]===0x50 && b[1]===0x02 && b.length>=4){
     if(b[2]>0){ live.speedMax=b[2]/10; live.speedMin=Math.max(0.1,b[3]/10); log(`speed range ${live.speedMin}–${live.speedMax} (UREVO)`); }
     return;
@@ -497,8 +507,8 @@ function urFrameIn(b){ // b = cmd + data, no framing
   if(!UR.active){ UR.active=true; log('UREVO channel active – using the pad\'s own step count'); }
   if(prev!==st) log('pad state: '+(UR_STATES[st]??st));
   if(b.length>=12){
-    if(UR.inclRaw!==b[3]){ if(UR.inclRaw!=null) log('UREVO incline byte '+b[3]+(live.ftmsIncl?` (FTMS incline ${live.incline}%)`:'')); UR.inclRaw=b[3]; }
-    onData({ speed: (st===3||st===4) ? b[2]/10 : 0, incline: live.ftmsIncl ? undefined : b[3]*S.inclUnit,
+    if(UR.inclRaw!==b[3]){ if(UR.inclRaw!=null) log('pad incline raw '+b[3]); UR.inclRaw=b[3]; }
+    onData({ speed: (st===3||st===4) ? b[2]/10 : 0, incline: b[3]/UR.inclScale*S.inclUnit,
       elapsed: b[4]|(b[5]<<8), dist: (b[6]|(b[7]<<8))*10, kcal: (b[8]|(b[9]<<8))/10 });
     feedPadSteps(b[10]|(b[11]<<8));
   } else onData({speed:0});
@@ -540,13 +550,13 @@ async function connect(){
     await td.startNotifications();
     td.addEventListener('characteristicvaluechanged', e=>{ const d=parseTreadmill(e.target.value);
       if(d.incline!=null) live.ftmsIncl=true;
-      if(!UR.active) onData(d); else if(d.incline!=null){ live.incline=d.incline; if(!session||session.state!=='running') renderLive(); } });
+      if(!UR.active) onData(d); });
     await padRequestControl();
     live.connected=true; live.demo=false; updateConn();
     discoverExtra(server).catch(e=>log('extra channels: '+e.message));
   }catch(e){ log('Connect failed: '+e.message); }
 }
-function onDisconnect(){ live.connected=false; cpChar=null; UR.ch=null; UR.active=false; UR.state=null; UR.buf=[]; UR.inclRaw=null; UR.ftmsCtl=false; live.ftmsIncl=false; updateConn(); log('Disconnected'); if(session&&session.state==='running') pauseSession(true); }
+function onDisconnect(){ live.connected=false; cpChar=null; UR.ch=null; UR.active=false; UR.state=null; UR.buf=[]; UR.inclRaw=null; UR.inclWant=null; UR.ftmsCtl=false; live.ftmsIncl=false; updateConn(); log('Disconnected'); if(session&&session.state==='running') pauseSession(true); }
 
 /* ---------- demo simulator ---------- */
 let demoTimer=null, demoBelt={speed:0,dist:0,running:false};
@@ -1090,7 +1100,7 @@ async function discoverExtra(server){
       try{ await c.startNotifications(); c.addEventListener('characteristicvaluechanged',e=>onExtra(key,e.target.value)); n++; }catch(e){}
     }
   }
-  if(UR.ch){ PS.found={key:'urevo',dev:PS.devName}; UR.lastRx=Date.now(); await urSend([0x50,0x02],'read speed range'); await urSend([0x51],'read status'); }
+  if(UR.ch){ PS.found={key:'urevo',dev:PS.devName}; UR.lastRx=Date.now(); await urSend([0x50,0x02],'read speed range'); await urSend([0x50,0x03],'read incline range'); await urSend([0x51],'read status'); }
   log(`listening on ${n} extra channel(s)${PS.found?' – using saved pad step counter':''}`);
   PS.layout.forEach(l=>log('  '+l));
   updateStepSrc();
@@ -1174,7 +1184,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v12 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v13 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
