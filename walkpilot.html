@@ -95,7 +95,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v9</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v10</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -104,6 +104,11 @@ nav button.active{color:var(--accent)}
 <section id="tab-workout" class="tab active">
   <div id="btBanner" class="banner hidden"></div>
   <div id="doneBanner" class="banner done hidden"></div>
+  <div id="padAsk" class="card hidden">
+    <h2>Optional – one quick question</h2>
+    <div class="hint" style="margin-top:0">Your pad doesn't send its step count, so WalkPilot estimates steps. For an exact match, type the steps your pad showed for this walk. You only need to do this once.</div>
+    <div class="row" style="margin-top:8px"><input id="padAskN" type="number" inputmode="numeric" placeholder="Pad steps"><button class="primary" id="padAskGo">Save</button><button id="padAskNo">Skip</button></div>
+  </div>
 
   <div class="card" id="connectCard">
     <h2>Walking pad</h2>
@@ -241,8 +246,10 @@ nav button.active{color:var(--accent)}
     <input id="sHeight" type="number" inputmode="numeric" value="178">
     <label for="sWeight">Weight (kg) – used for calorie estimate</label>
     <input id="sWeight" type="number" inputmode="decimal" value="80">
+    <div class="banner" id="stepSrc" style="color:var(--ink);border-color:var(--line)">Step source: checking…</div>
     <label for="sStride">Stride length (cm) – steps = distance ÷ stride</label>
     <input id="sStride" type="number" inputmode="decimal" value="74">
+    <div class="row" style="margin-top:8px"><button id="btnResetDetect">Re-detect pad step counter</button></div>
     <div class="row" style="margin-top:8px"><button id="btnStrideFromHeight">Estimate from height</button><button id="btnCalibLast">Calibrate from last walk</button></div>
     <div class="hint">For best accuracy, do one session with your phone or watch counting steps, then use “Calibrate stride” on that session in History.</div>
   </div>
@@ -299,7 +306,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v9</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v10</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -441,7 +448,7 @@ async function connect(){
   try{
     device = await navigator.bluetooth.requestDevice({
       filters:[{services:[FTMS]},{namePrefix:'UREVO'},{namePrefix:'URTM'},{namePrefix:'Urevo'}],
-      optionalServices:[FTMS]
+      optionalServices:EXTRA_SERVICES
     });
     device.addEventListener('gattserverdisconnected', onDisconnect);
     log('Connecting to '+(device.name||'pad'));
@@ -470,6 +477,7 @@ async function connect(){
     td.addEventListener('characteristicvaluechanged', e=>onData(parseTreadmill(e.target.value)));
     await padRequestControl();
     live.connected=true; live.demo=false; updateConn();
+    discoverExtra(server).catch(e=>log('extra channels: '+e.message));
   }catch(e){ log('Connect failed: '+e.message); }
 }
 function onDisconnect(){ live.connected=false; cpChar=null; updateConn(); log('Disconnected'); if(session&&session.state==='running') pauseSession(true); }
@@ -477,12 +485,14 @@ function onDisconnect(){ live.connected=false; cpChar=null; updateConn(); log('D
 /* ---------- demo simulator ---------- */
 let demoTimer=null, demoBelt={speed:0,dist:0,running:false};
 function startDemo(){
-  live.demo=true; live.connected=true; updateConn(); log('Demo mode on');
+  live.demo=true; live.connected=true; updateConn(); log('Demo mode on'); PS.devName='Demo pad'; PS.found=(S.padStep&&S.padStep.dev==='Demo pad')?S.padStep:null; PS.chans={}; updateStepSrc();
   clearInterval(demoTimer);
   demoTimer=setInterval(()=>{
     const tgt = demoBelt.running ? setSpeed : 0;
     demoBelt.speed += Math.sign(tgt-demoBelt.speed)*Math.min(0.3,Math.abs(tgt-demoBelt.speed));
     demoBelt.dist += demoBelt.speed/3.6;
+    demoBelt.steps=(demoBelt.steps||0)+demoBelt.speed/3.6*100/71; const ds=Math.floor(demoBelt.steps);
+    onExtra('fff0/fff1', new DataView(new Uint8Array([0xa5,0x02,ds&255,(ds>>8)&255,0x00,0x5a]).buffer));
     onData({speed:demoBelt.speed, dist:Math.floor(demoBelt.dist), incline:setIncl*S.inclUnit, hr: demoBelt.speed>0 ? Math.round(85+demoBelt.speed*8+setIncl*2+Math.random()*3) : null});
   },1000);
 }
@@ -490,13 +500,22 @@ function startDemo(){
 /* ---------- session ---------- */
 function newSession(){
   return { state:'running', start:Date.now(), target:S.target, dist:0, kcalEst:0, kcalPad:0, padKcalSeen:false, elev:0, active:0,
-    samples:[], lastT:Date.now(), lastRawDist:null, padDist:0, debt:0, lastRawKcal:null, lastSampleT:0, hit:false, hrSum:0, hrN:0 };
+    samples:[], lastT:Date.now(), lastRawDist:null, padDist:0, debt:0, psAcc:0, psLast:null, psT:0, usePad:false, shown:0, psTotal:0, psDist0:0, psStrideT:0, lastRawKcal:null, lastSampleT:0, hit:false, hrSum:0, hrN:0 };
 }
-function steps(sess){ return sess ? sess.dist*100/S.stride : 0; }
+function steps(sess){
+  if(!sess) return 0;
+  if(!sess.usePad) return sess.dist*100/S.stride;
+  let v=sess.psAcc;
+  if(sess.state==='running' && live.speed>0.05) v+=Math.min(3,(Date.now()-sess.psT)/1000*live.speed/3.6*100/S.stride);  // smooth between pad updates
+  sess.shown=Math.max(sess.shown||0,v);
+  return sess.shown;
+}
 function kcalOf(sess){ return (S.kcal==='pad' && sess.padKcalSeen) ? sess.kcalPad : sess.kcalEst; }
 
 function onData(d){
   if(d.speed!=null) live.speed=d.speed;
+  if(d.dist!=null) live.rawDist=d.dist;
+  if(d.elapsed!=null) live.elapsed=d.elapsed;
   if(d.incline!=null) live.incline=d.incline;
   live.padHr = d.hr ?? null;
   if(session && session.state==='running'){
@@ -589,6 +608,7 @@ function finishSession(reached){
   }
   $('doneBanner').textContent = reached ? `🎉 Target reached: ${fmtInt(session.target)} steps in ${fmtTime(session.active)}. Belt stopped and session saved.` : 'Session saved to History.';
   $('doneBanner').classList.remove('hidden');
+  if(!session.usePad && PS.none && !S.askedPad && session.dist>150){ S.askedPad=true; saveSettings(); $('padAsk').classList.remove('hidden'); }
   updateButtons(); renderLive(); renderHistory();
 }
 
@@ -979,6 +999,104 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   if(b.dataset.tab==='history') renderHistory();
   window.scrollTo(0,0);
 });
+
+/* ---------- automatic pad step-counter detection ---------- */
+// Web Bluetooth only exposes services listed up front: standard ones plus ranges manufacturers use.
+const EXTRA_SERVICES=(()=>{ const block=new Set([0x1812,0x1530,0x1531,0x1532,0xfffd,0xfde2,0xfe59]), a=[];
+  for(let u=0x1800;u<=0x18ff;u++) if(!block.has(u)) a.push(u);
+  for(let u=0xfe00;u<=0xffff;u++) if(!block.has(u)) a.push(u);
+  return a.concat(['6e400001-b5a3-f393-e0a9-e50e24dcca9e','49535343-fe7d-4ae5-8fa9-9fafd205e455','00010203-0405-0607-0809-0a0b0c0d1910']); })();
+const PS={chans:{}, found:null, none:false, moving:0, lastMoveT:0, devName:''};
+const shortU=u=>{ const m=String(u).match(/^0000([0-9a-f]{4})-0000-1000-8000-00805f9b34fb$/i); return m?m[1].toLowerCase():String(u).toLowerCase(); };
+async function discoverExtra(server){
+  PS.devName=device&&device.name||'pad'; PS.chans={}; PS.none=false;
+  PS.found = (S.padStep && S.padStep.dev===PS.devName) ? S.padStep : null;
+  const svcs=await server.getPrimaryServices(); let n=0;
+  for(const s of svcs){
+    if(shortU(s.uuid)==='1826') continue;
+    let cs=[]; try{ cs=await s.getCharacteristics(); }catch(e){ continue; }
+    for(const c of cs){
+      if(!(c.properties.notify||c.properties.indicate)) continue;
+      const key=shortU(s.uuid)+'/'+shortU(c.uuid);
+      try{ await c.startNotifications(); c.addEventListener('characteristicvaluechanged',e=>onExtra(key,e.target.value)); n++; }catch(e){}
+    }
+  }
+  log(`listening on ${n} extra channel(s)${PS.found?' – using saved pad step counter':''}`);
+  updateStepSrc();
+}
+function readField(b,off,w,be){ let v=0; if(be){ for(let i=0;i<w;i++) v=v*256+b[off+i]; } else { for(let i=w-1;i>=0;i--) v=v*256+b[off+i]; } return v; }
+function onExtra(key,dv){
+  const b=new Uint8Array(dv.buffer.slice(dv.byteOffset,dv.byteOffset+dv.byteLength));
+  if(PS.found){ if(key===PS.found.key && b.length>=PS.found.off+PS.found.w) feedPadSteps(readField(b,PS.found.off,PS.found.w,PS.found.be)); return; }
+  const ch=PS.chans[key]||(PS.chans[key]=[]);
+  ch.push({t:Date.now()/1000, b, dist:live.rawDist, el:live.elapsed, mv:live.speed>0.3});
+  if(ch.length>1500) ch.shift();
+}
+function feedPadSteps(v){
+  const s=session;
+  if(!s || s.state!=='running'){ if(s) s.psLast=null; return; }
+  const now=Date.now();
+  if(s.psLast==null){ s.psLast=v; if(!s.usePad){ s.psAcc=steps(s); s.shown=s.psAcc; s.usePad=true; s.psDist0=s.padDist; s.psTotal=0; } s.psT=now; return; }
+  let d=v-s.psLast; if(d<0) d = v<60 ? v : 0; if(d>60) d=0;   // counter reset on the pad, or a glitch
+  s.psLast=v; s.psAcc+=d; s.psTotal+=d; s.psT=now;
+  // keep stride learned from the pad, so distance-based estimates stay right too
+  if(s.psTotal>=300 && now-s.psStrideT>30000){
+    const st=(s.padDist-s.psDist0)*100/s.psTotal;
+    if(st>=35 && st<=125){ s.psStrideT=now; S.stride=Math.round(st*10)/10; $('sStride').value=S.stride; saveSettings(); store.set('wpad.strideSet',true); updateStepSrc(); }
+  }
+}
+function evaluateDetector(){
+  if(PS.found || !live.connected) return;
+  if(live.speed>0.3){ const now=Date.now(); if(PS.lastMoveT) PS.moving+=Math.min(3,(now-PS.lastMoveT)/1000); PS.lastMoveT=now; } else PS.lastMoveT=0;
+  const best=[];
+  for(const [key,all] of Object.entries(PS.chans)){
+    const S_=all.filter(x=>x.mv && x.dist!=null); if(S_.length<8) continue;
+    const span=S_[S_.length-1].t-S_[0].t; if(span<45) continue;
+    const len=Math.min(...S_.map(x=>x.b.length));
+    for(let off=0;off<len;off++) for(const w of [2,3,4]) for(const be of [false,true]){
+      if(off+w>len) continue;
+      const v=S_.map(x=>readField(x.b,off,w,be));
+      let ok=true; for(let i=1;i<v.length;i++) if(v[i]<v[i-1]){ ok=false; break; }
+      if(!ok) continue;
+      const inc=v[v.length-1]-v[0], rate=inc/span, dd=S_[S_.length-1].dist-S_[0].dist;
+      if(inc<60 || rate<1.1 || rate>3.5 || dd<20) continue;
+      if(Math.abs(rate-1)<0.04) continue;                                  // a seconds counter
+      const last=S_[S_.length-1];
+      if(Math.abs(v[v.length-1]-last.dist)<=2) continue;                    // the distance in metres
+      if(last.el!=null && Math.abs(v[v.length-1]-last.el)<=2) continue;      // elapsed time
+      const stride=dd*100/inc; if(stride<35 || stride>125) continue;
+      best.push({key,off,w,be,stride,score:Math.abs(stride-(S.height||175)*0.415)+(be?2:0)+(w-2)});
+    }
+  }
+  if(best.length){
+    best.sort((a,b)=>a.score-b.score); const c=best[0];
+    PS.found={key:c.key,off:c.off,w:c.w,be:c.be,dev:PS.devName}; S.padStep=PS.found;
+    S.stride=Math.round(c.stride*10)/10; $('sStride').value=S.stride; store.set('wpad.strideSet',true); saveSettings();
+    log(`✅ pad step counter found on ${c.key} byte ${c.off} – stride ${S.stride} cm`);
+    const ban=$('doneBanner'); ban.textContent='✅ WalkPilot found your pad\'s own step counter – your steps now match the pad exactly.'; ban.classList.remove('hidden');
+    setTimeout(()=>{ if(ban.textContent.startsWith('✅ WalkPilot found')) ban.classList.add('hidden'); },10000);
+    PS.chans={}; updateStepSrc();
+  } else if(PS.moving>180 && !PS.none){
+    PS.none=true; log('no pad step counter found – estimating steps from distance'); updateStepSrc();
+  }
+}
+setInterval(evaluateDetector,5000);
+function updateStepSrc(){
+  const el=$('stepSrc'); if(!el) return;
+  if(PS.found) el.innerHTML=`✅ <b>Step source: your pad's own step counter.</b> Steps match the pad exactly. Stride is learned automatically (${S.stride} cm).`;
+  else if(PS.none) el.innerHTML=`<b>Step source: estimated from distance</b> (stride ${S.stride} cm). Your pad doesn't send its step count.`;
+  else el.innerHTML=`<b>Step source: checking…</b> Walk for a couple of minutes and WalkPilot will check whether your pad sends its own step count.`;
+}
+$('btnResetDetect').onclick=()=>{ S.padStep=null; saveSettings(); PS.found=null; PS.none=false; PS.moving=0; PS.chans={}; updateStepSrc(); alert('WalkPilot will look for your pad\'s step counter again on your next walk.'); };
+$('padAskGo').onclick=()=>{
+  const real=parseInt($('padAskN').value), h=store.get('wpad.history',[])[0];
+  if(!real || real<50 || !h){ $('padAsk').classList.add('hidden'); return; }
+  S.stride=+(h.dist*100/real).toFixed(1); $('sStride').value=S.stride; saveSettings(); store.set('wpad.strideSet',true);
+  $('padAsk').classList.add('hidden'); updateStepSrc();
+  const ban=$('doneBanner'); ban.textContent=`Thanks – stride set to ${S.stride} cm. Steps will now match your pad.`; ban.classList.remove('hidden');
+};
+$('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
+updateStepSrc();
 
 /* ---------- welcome / safety ---------- */
 function showWelcome(){
