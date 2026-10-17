@@ -444,14 +444,20 @@ const padStart=()=>UR.ch ? urSend([0x53,0x01,0x00,0x00,0x08,0x07,0x00,0x00,0x00,
 const padStop=()=>UR.ch ? urSend([0x53,0x03],'stop') : cpSend([0x08,0x01],'stop');
 const padPause=()=>UR.ch ? urSend([0x53,0x0a],'pause') : cpSend([0x08,0x02],'pause');
 const padSpeed=k=>{ if(UR.ch) return urSetBelt(k,setIncl,'speed '+k.toFixed(1)); const v=Math.round(k*100); return cpSend([0x02,v&255,(v>>8)&255],'speed '+k.toFixed(1)); };
-const padIncline=lvl=>{ if(UR.ch) return urSetBelt(setSpeed,lvl,'incline '+lvl); const v=Math.round(lvl*S.inclUnit*10); return cpSend([0x03,v&255,(v>>8)&255],'incline '+lvl); };
+const padIncline=lvl=>{
+  if(UR.ch && !cpChar) return urSend([0x53,0x02,Math.round(setSpeed*10),Math.round(lvl)],'incline '+lvl+' (UREVO)');
+  const v=Math.round(lvl*S.inclUnit*10);
+  // incline stays on the standard FTMS control point – the pad ignores incline sent on the UREVO channel
+  if(UR.ch && !UR.ftmsCtl){ UR.ftmsCtl=true; cpSend([0x00],'request control (incline)'); }
+  return cpSend([0x03,v&255,(v>>8)&255],'incline '+lvl);
+};
 
 /* ---------- UREVO native protocol on FFF0 (FitShow-style, decoded from a btsnoop capture) ----------
    Frame: 02 <cmd> <data…> <chk> 03, chk = (sum of cmd+data bytes & 0xFF) XOR 0x5A.
    Notify FFF1, write FFF2. Status (0x51) arrives about once a second:
    51 <state> <speed 0.1km/h> <incline> <time s u16> <dist 10m u16> <kcal 0.1 u16> <steps u16> …
    state: 0 idle, 1 stopped/summary, 2 countdown, 3 running, 4 slowing to pause, 10 paused. */
-const UR={ch:null, active:false, q:Promise.resolve(), state:null, lastRx:0, buf:[]};
+const UR={ch:null, active:false, q:Promise.resolve(), state:null, lastRx:0, buf:[], inclRaw:null, ftmsCtl:false};
 function urFrame(bytes){ let s=0; for(const x of bytes) s=(s+x)&255; return new Uint8Array([0x02,...bytes,s^0x5a,0x03]); }
 function urSend(bytes,label){
   if(live.demo){ if(label) log('demo → '+label); return Promise.resolve(); }
@@ -462,7 +468,7 @@ function urSend(bytes,label){
   return UR.q;
 }
 function urSetBelt(kmh,lvl,label){
-  const sp=Math.max(0,Math.min(255,Math.round(kmh*10))), inc=Math.max(0,Math.min(255,Math.round(lvl)));
+  const sp=Math.max(0,Math.min(255,Math.round(kmh*10))), inc=UR.inclRaw ?? 0;  // keep whatever incline the pad is at
   return urSend([0x53,0x02,sp,inc],label);
 }
 const UR_STATES={0:'idle',1:'stopped',2:'countdown',3:'running',4:'slowing',10:'paused'};
@@ -491,7 +497,8 @@ function urFrameIn(b){ // b = cmd + data, no framing
   if(!UR.active){ UR.active=true; log('UREVO channel active – using the pad\'s own step count'); }
   if(prev!==st) log('pad state: '+(UR_STATES[st]??st));
   if(b.length>=12){
-    onData({ speed: (st===3||st===4) ? b[2]/10 : 0, incline: b[3]*S.inclUnit,
+    if(UR.inclRaw!==b[3]){ if(UR.inclRaw!=null) log('UREVO incline byte '+b[3]+(live.ftmsIncl?` (FTMS incline ${live.incline}%)`:'')); UR.inclRaw=b[3]; }
+    onData({ speed: (st===3||st===4) ? b[2]/10 : 0, incline: live.ftmsIncl ? undefined : b[3]*S.inclUnit,
       elapsed: b[4]|(b[5]<<8), dist: (b[6]|(b[7]<<8))*10, kcal: (b[8]|(b[9]<<8))/10 });
     feedPadSteps(b[10]|(b[11]<<8));
   } else onData({speed:0});
@@ -523,7 +530,7 @@ async function connect(){
     cpChar.addEventListener('characteristicvaluechanged', e=>{
       const v=e.target.value; if(v.getUint8(0)===0x80){ const res=v.getUint8(2);
         if(res!==1) log(`pad replied op ${v.getUint8(1)} result ${res}${res===5?' (not permitted – re-requesting control)':''}`);
-        if(res===5) padRequestControl(); }
+        if(res===5) cpSend([0x00],'request control'); }
     });
     try{ const st=await svc.getCharacteristic(C_STATUS); await st.startNotifications();
       st.addEventListener('characteristicvaluechanged', e=>{ const op=e.target.value.getUint8(0);
@@ -531,13 +538,15 @@ async function connect(){
     }catch(e){}
     const td = await svc.getCharacteristic(C_TREAD);
     await td.startNotifications();
-    td.addEventListener('characteristicvaluechanged', e=>{ if(!UR.active) onData(parseTreadmill(e.target.value)); });
+    td.addEventListener('characteristicvaluechanged', e=>{ const d=parseTreadmill(e.target.value);
+      if(d.incline!=null) live.ftmsIncl=true;
+      if(!UR.active) onData(d); else if(d.incline!=null){ live.incline=d.incline; if(!session||session.state!=='running') renderLive(); } });
     await padRequestControl();
     live.connected=true; live.demo=false; updateConn();
     discoverExtra(server).catch(e=>log('extra channels: '+e.message));
   }catch(e){ log('Connect failed: '+e.message); }
 }
-function onDisconnect(){ live.connected=false; cpChar=null; UR.ch=null; UR.active=false; UR.state=null; UR.buf=[]; updateConn(); log('Disconnected'); if(session&&session.state==='running') pauseSession(true); }
+function onDisconnect(){ live.connected=false; cpChar=null; UR.ch=null; UR.active=false; UR.state=null; UR.buf=[]; UR.inclRaw=null; UR.ftmsCtl=false; live.ftmsIncl=false; updateConn(); log('Disconnected'); if(session&&session.state==='running') pauseSession(true); }
 
 /* ---------- demo simulator ---------- */
 let demoTimer=null, demoBelt={speed:0,dist:0,running:false};
@@ -1089,10 +1098,10 @@ async function discoverExtra(server){
 function readField(b,off,w,be){ let v=0; if(be){ for(let i=0;i<w;i++) v=v*256+b[off+i]; } else { for(let i=w-1;i>=0;i--) v=v*256+b[off+i]; } return v; }
 function onExtra(key,dv){
   const b=new Uint8Array(dv.buffer.slice(dv.byteOffset,dv.byteOffset+dv.byteLength));
-  if(key==='fff0/fff1' && UR.ch){ urFeed(b); return; }
   { const st=PS.stats[key]||(PS.stats[key]={n:0,samples:[]}); st.n++;
     if(st.n<=40 || st.n%10===0) st.samples.push(`@${((Date.now()-(PS.t0||Date.now()))/1000).toFixed(1)}s v${live.speed.toFixed(1)} d${live.rawDist??'-'}: `+Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(' '));
     if(st.samples.length>160) st.samples.splice(40,1); }
+  if(key==='fff0/fff1' && UR.ch){ urFeed(b); return; }
   if(PS.found){ if(key===PS.found.key && b.length>=PS.found.off+PS.found.w) feedPadSteps(readField(b,PS.found.off,PS.found.w,PS.found.be)); return; }
   const ch=PS.chans[key]||(PS.chans[key]=[]);
   ch.push({t:Date.now()/1000, b, dist:live.rawDist, el:live.elapsed, mv:live.speed>0.3});
@@ -1165,7 +1174,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v11 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v12 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
