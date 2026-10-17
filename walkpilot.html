@@ -95,7 +95,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v14</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v15</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -306,7 +306,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v14</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v15</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -517,6 +517,14 @@ function urFrameIn(b){ // b = cmd + data, no framing
   // the belt only accepts a target speed once it is actually running (after the 3-2-1 countdown)
   if(st===3 && prev!==3 && session && session.state==='running') urSetBelt(setSpeed,setIncl,'speed '+setSpeed.toFixed(1));
 }
+// Resume from pause. The pad's remote resumes without resetting its counters, but the UREVO app's resume
+// command hasn't been captured yet. Try the speed/incline command first (FitShow calls 0x02 "target or run");
+// if the pad is still paused after 3 s, fall back to start, which works but starts a fresh pad session.
+async function urResume(){
+  await urSetBelt(setSpeed,setIncl,'resume (speed '+setSpeed.toFixed(1)+')');
+  setTimeout(()=>{ if(UR.ch && UR.state===10 && session && session.state==='running'){ log('pad did not resume – starting a new pad session'); padStart(); }
+    else if(UR.state===3) log('✅ pad resumed – its counters carried on'); },3000);
+}
 setInterval(()=>{ if(UR.ch && live.connected && Date.now()-UR.lastRx>2500) urSend([0x51],null); },2500);
 
 async function connect(){
@@ -662,7 +670,8 @@ async function startSession(){
       announce(`Starting ${WK[S.wkId].name}. ${stepSpeech(WK[S.wkId].steps[0])}`); } }
   else { session.state='running'; session.lastT=Date.now(); }
   if(live.demo) demoBelt.running=true;
-  await padRequestControl(); await padStart();
+  if(UR.ch && UR.state===10){ await urResume(); }   // pad is paused: resume so its own counters carry on
+  else { await padRequestControl(); await padStart(); }
   if(!UR.ch) setTimeout(()=>{ padSpeed(setSpeed); padIncline(setIncl); }, 1500);   // UREVO: sent when the countdown ends
   keepAwake(true); updateButtons();
 }
@@ -1191,7 +1200,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v14 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v15 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
