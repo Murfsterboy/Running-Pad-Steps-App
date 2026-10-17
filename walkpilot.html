@@ -95,7 +95,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v13</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v14</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -306,7 +306,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v13</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v14</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -505,7 +505,9 @@ function urFrameIn(b){ // b = cmd + data, no framing
   if(b[0]!==0x51 || b.length<2) return;
   const st=b[1], prev=UR.state; UR.state=st;
   if(!UR.active){ UR.active=true; log('UREVO channel active – using the pad\'s own step count'); }
-  if(prev!==st) log('pad state: '+(UR_STATES[st]??st));
+  if(prev!==st){ log('pad state: '+(UR_STATES[st]??st));
+    if(session && session.state==='running' && (st===4||st===10) && prev===3) log('⚠️ pad paused itself – this usually means its foot sensor lost you (common at very slow speeds)');
+    if(session && session.state==='running' && st===2 && prev!=null && prev!==0) log('pad restarted itself – its own counters reset, WalkPilot keeps counting'); }
   if(b.length>=12){
     if(UR.inclRaw!==b[3]){ if(UR.inclRaw!=null) log('pad incline raw '+b[3]); UR.inclRaw=b[3]; }
     onData({ speed: (st===3||st===4) ? b[2]/10 : 0, incline: b[3]/UR.inclScale*S.inclUnit,
@@ -600,7 +602,7 @@ function onData(d){
       if(session.lastRawDist==null) session.lastRawDist=d.dist;
       else if(d.dist!==session.lastRawDist){
         let delta=d.dist-session.lastRawDist; if(delta<0) delta=d.dist; if(delta>60) delta=0;
-        session.lastRawDist=d.dist; session.padDist+=delta;
+        session.lastRawDist=d.dist; session.padDist+=delta; if(live.speed>=WALK_FLOOR) session.lrnDist=(session.lrnDist||0)+delta;
         const err=session.padDist-(session.dist+session.debt*-1);
         if(err>0){ session.dist+=err*0.7; }          // behind the pad: catch up now
         else { session.debt+=(-err)*0.7; }           // ahead: slow the count briefly, never go backwards
@@ -932,6 +934,9 @@ function zoneControl(now){
   el.textContent=zoneAdjust(now, Math.min(S.zMin,S.zMax), Math.max(S.zMin,S.zMax), S.zBy);
 }
 function speedCap(){ return Math.min(S.zCap||live.speedMax, live.speedMax); }
+// lowest speed heart-rate control will choose – below this walking gets awkward and the pad may think you've stepped off
+const WALK_FLOOR=2.5;
+function walkFloor(){ return Math.min(Math.max(live.speedMin, WALK_FLOOR), speedCap()); }
 /* nudge speed/incline toward the lo–hi bpm band; returns a status line */
 function zoneAdjust(now, lo, hi, by){
   const hr=curHr();
@@ -946,13 +951,14 @@ function zoneAdjust(now, lo, hi, by){
   if(by==='incline'){
     const n = state==='above' ? Math.max(0,setIncl-1) : Math.min(S.inclMax,setIncl+1);
     if(n!==setIncl){ setIncl=n; padIncline(setIncl); }
-    else if(state==='above' && setSpeed>live.speedMin){ setSpeed=+Math.max(live.speedMin,setSpeed-0.2).toFixed(1); padSpeed(setSpeed); }
+    else if(state==='above' && setSpeed>walkFloor()){ setSpeed=+Math.max(walkFloor(),setSpeed-0.2).toFixed(1); padSpeed(setSpeed); }
     else if(state==='below' && setSpeed<cap){ setSpeed=+Math.min(cap,setSpeed+0.2).toFixed(1); padSpeed(setSpeed); }
   } else {
-    const n = state==='above' ? Math.max(live.speedMin,setSpeed-0.2) : Math.min(cap,setSpeed+0.2);
+    const n = state==='above' ? Math.max(Math.min(walkFloor(),setSpeed),setSpeed-0.2) : Math.min(cap,setSpeed+0.2);
     if(Math.abs(n-setSpeed)>0.01){ setSpeed=+n.toFixed(1); padSpeed(setSpeed); }
     else if(state==='below' && setIncl<S.inclMax){ setIncl++; padIncline(setIncl); }   // at top speed: add incline
     else if(state==='above' && setIncl>0){ setIncl--; padIncline(setIncl); }
+    else if(state==='above'){ renderLive(); return `Easiest pace reached (${setSpeed.toFixed(1)} km/h): ${hr} bpm is above ${hi}. Shorten your stride, or pause for a breather.`; }
   }
   renderLive();
   return `${state==='above'?'Easing off':'Picking up'}: ${hr} bpm → ${setSpeed.toFixed(1)} km/h, incline ${setIncl}.`;
@@ -961,30 +967,31 @@ function zoneAdjust(now, lo, hi, by){
 /* ---------- zone workouts ---------- */
 // step: m = minutes, z = [fromZone,toZone] (HR-controlled) or fixed:true, sp = start speed, inc = start incline, by = 'speed'|'incline'
 const st=(m,label,z,sp,inc,extra)=>Object.assign({m,label,z,sp,inc},extra||{});
-const WARM=(m)=>st(m,'Warm up',[1,1],3.0,0), COOL=(m)=>st(m,'Cool down',[1,1],3.0,0);
+// Warm-up and cool-down run at a fixed easy pace – heart rate naturally lags here, so chasing zone 1 just slows the belt to a crawl.
+const WARM=(m)=>st(m,'Warm up',null,3.0,0,{fixed:true,easy:true}), COOL=(m)=>st(m,'Cool down',null,3.0,0,{fixed:true,easy:true});
 function rep_(n,fn){ const a=[]; for(let i=1;i<=n;i++) a.push(...fn(i)); return a; }
 const WK={
   recovery:{name:'Recovery Walk', lvl:'Easy', desc:'Gentle walk in zones 1–2. Good for rest days and loosening up.',
-    steps:[WARM(5), st(20,'Easy walk',[1,2],3.5,0), COOL(5)]},
+    steps:[WARM(3), st(20,'Easy walk',[1,2],3.5,0), COOL(5)]},
   z2:{name:'Zone 2 Builder', lvl:'Easy', desc:'Steady zone 2 – the best everyday session for endurance and fat burning. You should be able to hold a conversation.',
-    steps:[WARM(5), st(35,'Zone 2 steady',[2,2],4.0,1), COOL(5)]},
+    steps:[WARM(3), st(35,'Zone 2 steady',[2,2],4.0,1), COOL(5)]},
   japanese:{name:'Japanese Interval Walking', lvl:'Intervals', desc:'5 rounds of 3 min brisk (zones 3–4) and 3 min easy (zone 2). A well-researched walking method.',
     steps:[WARM(3), ...rep_(5,i=>[st(3,`Brisk ${i} of 5`,[3,4],5.5,2), st(3,`Easy ${i} of 5`,[2,2],4.0,0)]), COOL(3)]},
   hills:{name:'Hill Repeats', lvl:'Intervals', desc:'6 climbs of 2 min (incline drives you into zone 4) with 2 min flat recovery in zone 2.',
-    steps:[WARM(5), ...rep_(6,i=>[st(2,`Climb ${i} of 6`,[4,4],4.5,6,{by:'incline'}), st(2,`Flat ${i} of 6`,[2,2],4.0,0)]), COOL(5)]},
+    steps:[WARM(3), ...rep_(6,i=>[st(2,`Climb ${i} of 6`,[4,4],4.5,6,{by:'incline'}), st(2,`Flat ${i} of 6`,[2,2],4.0,0)]), COOL(5)]},
   pyramid:{name:'Pyramid', lvl:'Intervals', desc:'4 min each: zone 2 → 3 → 4 → 3 → 2. Builds up, then eases back down.',
     steps:[WARM(3), st(4,'Zone 2',[2,2],4.0,1), st(4,'Zone 3',[3,3],4.8,2), st(4,'Zone 4 – peak',[4,4],5.5,3), st(4,'Zone 3',[3,3],4.8,2), st(4,'Zone 2',[2,2],4.0,1), COOL(3)]},
   tempo:{name:'Threshold Tempo', lvl:'Hard', desc:'20 min held steadily in zone 4 – "comfortably hard". Warm-up and cool-down included.',
-    steps:[WARM(5), st(5,'Build to zone 2',[2,2],4.0,1), st(20,'Zone 4 tempo',[4,4],5.5,3), COOL(5)]},
+    steps:[WARM(3), st(5,'Build to zone 2',[2,2],4.0,1), st(20,'Zone 4 tempo',[4,4],5.5,3), COOL(5)]},
   mountain:{name:'Mountain Climb', lvl:'Hard', desc:'Incline steps up every 2 min to 9, holds at the summit, then steps back down. Speed eases off automatically if your heart rate reaches zone 5.',
     steps:[st(5,'Warm up',[1,2],3.5,0), ...[1,3,5,7,9,9,7,5,3,1].map((n,i)=>st(2, i===5?'Summit – hold incline 9':`Incline ${n}`, null, 4.5, n, {fixed:true})), COOL(5)]},
   bursts:{name:'Zone 5 Bursts', lvl:'Hard', desc:'8 × 1 min all-out (top speed, incline 9) with 2 min easy recovery. Only once the other workouts feel comfortable.',
-    steps:[WARM(5), st(3,'Build to zone 2',[2,2],4.0,1), ...rep_(8,i=>[st(1,`Burst ${i} of 8 – all out`,null,99,99,{fixed:true}), st(2,`Recover ${i} of 8`,[1,2],3.0,0)]), COOL(5)]},
+    steps:[WARM(3), st(3,'Build to zone 2',[2,2],4.0,1), ...rep_(8,i=>[st(1,`Burst ${i} of 8 – all out`,null,99,99,{fixed:true}), st(2,`Recover ${i} of 8`,[1,2],3.0,0)]), COOL(5)]},
 };
 Object.values(WK).forEach(w=>{ let c=0; w.ends=w.steps.map(s=>c+=s.m*60); w.total=c; });
 
 function zoneRange(z){ return [zoneBounds(z[0])[0], zoneBounds(z[1])[1]]; }
-function zoneText(s){ if(!s.z) return s.inc>=99?'max effort':`incline ${Math.min(s.inc,S.inclMax)}`; return s.z[0]===s.z[1]?`zone ${s.z[0]}`:`zones ${s.z[0]} to ${s.z[1]}`; }
+function zoneText(s){ if(!s.z) return s.easy?'easy pace':s.inc>=99?'max effort':`incline ${Math.min(s.inc,S.inclMax)}`; return s.z[0]===s.z[1]?`zone ${s.z[0]}`:`zones ${s.z[0]} to ${s.z[1]}`; }
 function stepSpeech(s){ return `${s.label}. ${s.m} minute${s.m>1?'s':''}, ${zoneText(s)}.`; }
 function applyStep(i, send){
   const s=WK[session.wk.id].steps[i];
@@ -1009,10 +1016,10 @@ function workoutTick(now){
   if(s.z){ const [lo,hi]=zoneRange(s.z); hrEl.textContent=zoneAdjust(now, lo, hi, s.by||'speed'); }
   else {
     const hr=curHr(), z5=zoneBounds(5)[0];
-    if(hr && hr>=z5 && s.inc<99 && now-zoneLastAdj>15000 && setSpeed>live.speedMin){   // safety on fixed climbs
-      zoneLastAdj=now; setSpeed=+Math.max(live.speedMin,setSpeed-0.3).toFixed(1); padSpeed(setSpeed); announce('Heart rate in zone 5. Easing the speed.');
+    if(hr && hr>=z5 && s.inc<99 && now-zoneLastAdj>15000 && setSpeed>walkFloor()){   // safety on fixed climbs
+      zoneLastAdj=now; setSpeed=+Math.max(walkFloor(),setSpeed-0.3).toFixed(1); padSpeed(setSpeed); announce('Heart rate in zone 5. Easing the speed.');
     }
-    hrEl.textContent = hr ? `Heart rate ${hr} bpm (zone ${zoneOf(hr)||'–'}).` : 'Fixed effort step.';
+    hrEl.textContent = hr ? `Heart rate ${hr} bpm (zone ${zoneOf(hr)||'–'})${s.easy?' – easy pace, no zone to hit':''}.` : (s.easy?'Easy pace.':'Fixed effort step.');
   }
   const stepStart=i?W.ends[i-1]:0, stepLeft=W.ends[i]-t, next=W.steps[i+1];
   $('wkNow').textContent=`${s.label} · ${zoneText(s)}`;
@@ -1123,10 +1130,10 @@ function feedPadSteps(v){
   const now=Date.now();
   if(s.psLast==null){ s.psLast=v; if(!s.usePad){ s.psAcc=steps(s); s.shown=s.psAcc; s.usePad=true; s.psDist0=s.padDist; s.psTotal=0; } s.psT=now; return; }
   let d=v-s.psLast; if(d<0) d = v<60 ? v : 0; if(d>60) d=0;   // counter reset on the pad, or a glitch
-  s.psLast=v; s.psAcc+=d; s.psTotal+=d; s.psT=now;
+  s.psLast=v; s.psAcc+=d; s.psTotal+=d; s.psT=now; if(live.speed>=WALK_FLOOR) s.lrnSteps=(s.lrnSteps||0)+d;
   // keep stride learned from the pad, so distance-based estimates stay right too
-  if(s.psTotal>=300 && now-s.psStrideT>30000){
-    const st=(s.padDist-s.psDist0)*100/s.psTotal;
+  if((s.lrnSteps||0)>=300 && now-s.psStrideT>30000){
+    const st=(s.lrnDist||0)*100/s.lrnSteps;
     if(st>=35 && st<=125){ s.psStrideT=now; S.stride=Math.round(st*10)/10; $('sStride').value=S.stride; saveSettings(); store.set('wpad.strideSet',true); updateStepSrc(); }
   }
 }
@@ -1184,7 +1191,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v13 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v14 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
