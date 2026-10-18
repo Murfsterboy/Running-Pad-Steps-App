@@ -91,11 +91,52 @@ nav button.active{color:var(--accent)}
 .sess small{color:var(--muted)}
 #log{font:12px ui-monospace,monospace;color:var(--muted);white-space:pre-wrap;max-height:140px;overflow:auto}
 .hidden{display:none!important}
+
+/* ---------- workout screen + summary ---------- */
+:root{ --z1:#94a3b8; --z2:#3b82f6; --z3:#22c55e; --z4:#f59e0b; --z5:#ef4444; }
+.overlay{position:fixed;inset:0;z-index:15;background:var(--bg);overflow-y:auto;padding:max(14px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom))}
+.overlay .inner{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;min-height:100%}
+.rv-top{display:flex;align-items:center;gap:8px}
+.rv-top b{flex:1;font-size:17px}
+.rv-link{background:none;border:0;color:var(--muted);padding:6px 4px;font-size:14px;text-decoration:underline}
+.rv-steps{text-align:center;padding:4px 0}
+.rv-big{font-size:clamp(64px,22vw,104px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.rv-sub{color:var(--muted);font-size:16px;margin-top:4px}
+.rv-prog{display:flex;gap:3px;height:16px}
+.rv-seg{position:relative;border-radius:5px;overflow:hidden;min-width:3px}
+.rv-seg>i{position:absolute;inset:0;opacity:.22}
+.rv-seg>b{position:absolute;left:0;top:0;bottom:0;width:0;transition:width .5s}
+.rv-progtxt{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:-6px}
+.rv-label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.rv-now{font-size:20px;font-weight:700;margin-top:2px}
+.rv-next{font-size:16px;font-weight:600;margin-top:2px}
+.rv-hrrow{display:flex;align-items:baseline;justify-content:space-between}
+.rv-hrv{font-size:44px;font-weight:800;font-variant-numeric:tabular-nums}
+.rv-zone{font-size:15px;font-weight:700;padding:4px 10px;border-radius:99px;color:#fff;background:var(--muted)}
+.rv-zbar{position:relative;display:flex;height:14px;border-radius:99px;overflow:visible;margin:12px 0 6px}
+.rv-zbar>span{flex:1;opacity:.35}
+.rv-zbar>span:first-child{border-radius:99px 0 0 99px}.rv-zbar>span:nth-child(5){border-radius:0 99px 99px 0}
+.rv-band{position:absolute;top:-4px;bottom:-4px;border:2px solid var(--ink);border-radius:6px;display:none}
+.rv-mark{position:absolute;top:-7px;width:6px;height:28px;margin-left:-3px;border-radius:3px;background:var(--ink);display:none;transition:left .6s}
+.rv-ctl{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rv-ctl .c{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px;display:grid;grid-template-columns:44px 1fr 44px;align-items:center;text-align:center}
+.rv-ctl .c button{padding:8px 0;font-size:20px}
+.rv-ctl .c b{font-size:22px;font-variant-numeric:tabular-nums}
+.rv-ctl .c small{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.rv-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rv-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:auto;padding-top:4px}
+.rv-btns button{padding:18px 0;font-size:18px;font-weight:700;border-radius:14px}
+#rvBack{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(70px + env(safe-area-inset-bottom));z-index:14;border-radius:99px;padding:12px 20px;box-shadow:0 4px 16px rgba(0,0,0,.25)}
+.sm-hero{text-align:center;padding:10px 0 2px}
+.sm-hero .rv-big{font-size:clamp(56px,18vw,88px)}
+.zrow{display:grid;grid-template-columns:28px 1fr 56px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
+.zrow .zb{height:12px;border-radius:99px;background:var(--line);overflow:hidden}
+.zrow .zb>div{height:100%}
 </style>
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v16</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v17</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -306,7 +347,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v16</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v17</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -323,6 +364,48 @@ nav button.active{color:var(--accent)}
 </section>
 </main>
 
+
+<!-- WORKOUT SCREEN (shown while a walk is running or paused) -->
+<div id="runView" class="overlay hidden" aria-live="polite">
+ <div class="inner">
+  <div class="rv-top"><b id="rvTitle">Free walk</b><span id="rvState" class="pill on">Running</span><button class="rv-link" id="rvMore">Details</button></div>
+  <div class="rv-steps"><div class="rv-big" id="rvSteps">0</div><div class="rv-sub" id="rvStepsSub">of 5,000 steps</div></div>
+  <div class="rv-prog" id="rvProg"></div>
+  <div class="rv-progtxt"><span id="rvPct">0%</span><span id="rvEta"></span></div>
+  <div class="card" style="margin:0">
+   <div class="rv-label">Now</div><div class="rv-now" id="rvNow">–</div><div class="hint" id="rvNowInfo" style="margin-top:2px"></div>
+   <div class="rv-label" style="margin-top:12px">Coming up next</div><div class="rv-next" id="rvNext">–</div>
+  </div>
+  <div class="card" style="margin:0">
+   <div class="rv-hrrow"><div><span class="rv-hrv" id="rvHr">–</span> <small style="color:var(--muted)">bpm</small></div><span class="rv-zone" id="rvZone">No heart rate</span></div>
+   <div class="rv-zbar"><span style="background:var(--z1)"></span><span style="background:var(--z2)"></span><span style="background:var(--z3)"></span><span style="background:var(--z4)"></span><span style="background:var(--z5)"></span><div class="rv-band" id="rvBand"></div><div class="rv-mark" id="rvMark"></div></div>
+   <div class="hint" id="rvHrMsg" style="margin-top:4px"></div>
+  </div>
+  <div class="rv-ctl">
+   <div class="c"><button data-speed="-1" aria-label="Slower">−</button><div><b id="rvSpeed">0.0</b><small>km/h</small></div><button data-speed="1" aria-label="Faster">+</button></div>
+   <div class="c"><button data-incl="-1" aria-label="Less incline">−</button><div><b id="rvIncl">0</b><small>incline</small></div><button data-incl="1" aria-label="More incline">+</button></div>
+  </div>
+  <div class="rv-stats">
+   <div class="stat"><b id="rvTime">0:00</b><span>Time</span></div>
+   <div class="stat"><b id="rvDist">0.00</b><span>km</span></div>
+   <div class="stat"><b id="rvKcal">0</b><span>kcal</span></div>
+  </div>
+  <div class="rv-btns"><button id="rvPause">Pause</button><button class="danger" id="rvFinish">Finish</button></div>
+ </div>
+</div>
+<button id="rvBack" class="primary hidden">◀ Back to workout</button>
+
+<!-- SUMMARY SCREEN (shown after Finish) -->
+<div id="sumView" class="overlay hidden">
+ <div class="inner">
+  <div class="rv-top"><b id="smTitle">Walk complete</b></div>
+  <div id="smBanner" class="banner done hidden" style="margin:0"></div>
+  <div class="sm-hero"><div class="rv-big" id="smSteps">0</div><div class="rv-sub">steps</div></div>
+  <div class="card" style="margin:0"><div class="grid" id="smStats" style="margin-top:0"></div></div>
+  <div class="card" style="margin:0"><h2>Time in heart-rate zones</h2><div id="smZones"></div></div>
+  <div class="rv-btns"><button id="smHist">View in History</button><button class="primary" id="smDone">Done</button></div>
+ </div>
+</div>
 <div id="welcome" class="hidden" style="position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center">
   <div class="card" style="max-width:520px;width:100%;margin:0;border-radius:18px 18px 0 0;max-height:92vh;overflow:auto">
     <div style="display:flex;align-items:center;gap:10px"><img src="walkpilot-192.png" alt="" width="40" height="40" style="border-radius:10px" onerror="this.remove()"><div><b style="font-size:20px">Welcome to WalkPilot</b><div class="hint" style="margin:0">Your walking pad coach</div></div></div>
@@ -1199,7 +1282,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v16 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v17 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -1235,6 +1318,118 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('walkpilot-sw
 /* ---------- init ---------- */
 if(!navigator.bluetooth || !window.isSecureContext) showBtBanner();
 if(!S.agreed) showWelcome();
+
+/* ---------- workout screen + summary ---------- */
+const ZCOL=z=>`var(--z${Math.max(1,Math.min(5,z||1))})`;
+const RV={min:false, built:null};
+function stepColor(st){ if(!st) return 'var(--accent)'; if(st.z) return ZCOL(st.z[1]); if(st.easy) return ZCOL(1); if(st.inc>=99) return ZCOL(5); return 'var(--c-incl)'; }
+function buildProg(){
+  const s=session, key=s ? (s.wk ? 'wk:'+s.wk.id : 'free') : '';
+  if(RV.built===key) return; RV.built=key;
+  const el=$('rvProg'); el.innerHTML='';
+  const segs = s && s.wk ? WK[s.wk.id].steps.map(st=>({w:st.m, c:stepColor(st)})) : [{w:1, c:'var(--c-steps)'}];
+  segs.forEach(g=>{ const d=document.createElement('div'); d.className='rv-seg'; d.style.flex=g.w;
+    d.innerHTML=`<i style="background:${g.c}"></i><b style="background:${g.c}"></b>`; el.appendChild(d); });
+}
+function hrPos(bpm){ const lo=zoneBounds(1)[0], hi=S.hMax; return Math.max(0,Math.min(100,(bpm-lo)/(hi-lo)*100)); }
+function renderRun(){
+  const s=session; if(!s || $('runView').classList.contains('hidden')) return;
+  buildProg();
+  const st=steps(s), segs=$('rvProg').children;
+  $('rvSteps').textContent=fmtInt(st);
+  $('rvState').textContent = s.state==='paused' ? 'Paused' : 'Running';
+  $('rvState').classList.toggle('on', s.state!=='paused');
+  $('rvPause').textContent = s.state==='paused' ? 'Resume' : 'Pause';
+  $('rvPause').classList.toggle('primary', s.state==='paused');
+  let target=null;  // [lo,hi] heart-rate band for this moment
+  if(s.wk){
+    const W=WK[s.wk.id], t=s.active; let i=W.ends.findIndex(e=>t<e); if(i<0) i=W.steps.length-1;
+    const cur=W.steps[i], nxt=W.steps[i+1], stepStart=i?W.ends[i-1]:0;
+    $('rvTitle').textContent=W.name;
+    $('rvStepsSub').textContent='steps';
+    for(let k=0;k<segs.length;k++){ const a=k?W.ends[k-1]:0, b=W.ends[k]; segs[k].lastChild.style.width=Math.max(0,Math.min(100,(t-a)/(b-a)*100))+'%'; }
+    $('rvPct').textContent=Math.min(100,Math.round(t/W.total*100))+'% done';
+    $('rvEta').textContent=fmtTime(Math.max(0,W.total-t))+' left';
+    $('rvNow').textContent=`${cur.label} · ${zoneText(cur)}`;
+    $('rvNowInfo').textContent=`Stage ${i+1} of ${W.steps.length} · ${fmtTime(Math.max(0,W.ends[i]-t))} left in this stage`;
+    $('rvNext').textContent = nxt ? `${nxt.label} · ${zoneText(nxt)} · ${nxt.m} min` : 'Finish – this is the last stage';
+    if(cur.z) target=zoneRange(cur.z);
+    $('rvHrMsg').textContent=$('wkHr').textContent||'';
+  } else {
+    const tgt=s.target, left=Math.max(0,tgt-st), mps=live.speed/3.6, secPerStep = mps>0.05 ? S.stride/100/mps : 0;
+    $('rvTitle').textContent='Free walk';
+    $('rvStepsSub').textContent=`of ${fmtInt(tgt)} steps`;
+    if(segs[0]) segs[0].lastChild.style.width=Math.min(100,st/tgt*100)+'%';
+    $('rvPct').textContent=Math.min(100,Math.floor(st/tgt*100))+'%';
+    $('rvEta').textContent = left<=0 ? 'Target reached' : secPerStep ? '~'+fmtTime(left*secPerStep)+' left' : `${fmtInt(left)} to go`;
+    $('rvNow').textContent = left<=0 ? 'Target reached 🎉' : `${fmtInt(left)} steps to go`;
+    $('rvNowInfo').textContent = S.zOn ? 'Heart-rate zone control is on' : 'Step target walk';
+    if(left<=0) $('rvNext').textContent='Keep going, or tap Finish';
+    else { const ms=[1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,12500,15000,20000,25000,30000].concat([Math.round(tgt/2), tgt]).filter(m=>m>st && m<=tgt).sort((a,b)=>a-b)[0]||tgt;
+      const lbl = ms===tgt ? 'Target' : ms===Math.round(tgt/2) ? 'Halfway' : fmtInt(ms)+' steps';
+      $('rvNext').textContent = `${lbl}${ms===tgt||ms===Math.round(tgt/2)?' ('+fmtInt(ms)+')':''}` + (secPerStep ? ` · in ~${fmtTime((ms-st)*secPerStep)}` : ''); }
+    if(S.zOn) target=[Math.min(S.zMin,S.zMax), Math.max(S.zMin,S.zMax)];
+    $('rvHrMsg').textContent = S.zOn ? ($('zStatus').textContent||'') : '';
+  }
+  // heart rate + zone band
+  const hr=curHr(), z=hr?zoneOf(hr):0, mark=$('rvMark'), band=$('rvBand');
+  $('rvHr').textContent=hr||'–';
+  const zl=$('rvZone');
+  if(hr){ let tag=`Zone ${z||1}`; if(target){ tag += hr<target[0]?' · below target':hr>target[1]?' · above target':' · in target ✓'; }
+    zl.textContent=tag; zl.style.background=ZCOL(z); mark.style.display='block'; mark.style.left=hrPos(hr)+'%'; }
+  else { zl.textContent='No heart rate'; zl.style.background='var(--muted)'; mark.style.display='none';
+    if(!$('rvHrMsg').textContent) $('rvHrMsg').textContent='Connect your watch to see your heart-rate zone.'; }
+  if(target){ const a=hrPos(target[0]), b=hrPos(target[1]); band.style.display='block'; band.style.left=a+'%'; band.style.width=Math.max(2,b-a)+'%'; }
+  else band.style.display='none';
+  $('rvSpeed').textContent=setSpeed.toFixed(1);
+  $('rvIncl').textContent=setIncl;
+  $('rvTime').textContent=fmtTime(s.active);
+  $('rvDist').textContent=(s.dist/1000).toFixed(2);
+  $('rvKcal').textContent=Math.round(kcalOf(s));
+}
+function updateRunView(){
+  const on = !!(session && (session.state==='running'||session.state==='paused'));
+  if(!on){ RV.min=false; RV.built=null; }
+  $('runView').classList.toggle('hidden', !on || RV.min);
+  $('rvBack').classList.toggle('hidden', !on || !RV.min);
+  document.body.style.overflow = (on && !RV.min) || !$('sumView').classList.contains('hidden') ? 'hidden' : '';
+  if(on && !RV.min) renderRun();
+}
+$('rvMore').onclick=()=>{ RV.min=true; updateRunView(); window.scrollTo(0,0); };
+$('rvBack').onclick=()=>{ RV.min=false; updateRunView(); };
+$('rvPause').onclick=()=>{ if(!session) return; if(session.state==='paused') startSession(); else pauseSession(false); };
+$('rvFinish').onclick=()=>$('btnStop').onclick();
+
+function showSummary(s, reached){
+  if(!s || s.active<5){ return; }
+  const W=s.wk?WK[s.wk.id]:null, st=Math.round(steps(s));
+  $('smTitle').textContent = W ? W.name+' – complete' : 'Walk complete';
+  const hit = W ? !!s.wkDone : st>=s.target;
+  $('smBanner').textContent = hit ? (W ? '🎉 Workout complete. Well done!' : `🎉 Target reached: ${fmtInt(s.target)} steps.`) : (W ? 'Workout finished early – saved to History.' : `${fmtInt(Math.max(0,s.target-st))} steps short of your ${fmtInt(s.target)} target – saved to History.`);
+  $('smBanner').classList.remove('hidden'); $('smBanner').classList.toggle('done', hit); $('smBanner').style.color=hit?'':'var(--muted)'; $('smBanner').style.borderColor=hit?'':'var(--line)';
+  $('smSteps').textContent=fmtInt(st);
+  const hrs=s.samples.map(x=>x.hr).filter(Boolean), avg=hrs.length?Math.round(hrs.reduce((a,b)=>a+b,0)/hrs.length):null, mx=hrs.length?Math.max(...hrs):null;
+  const avgSpd = s.active>0 ? (s.dist/1000)/(s.active/3600) : 0;
+  const cells=[[fmtTime(s.active),'Time'],[(s.dist/1000).toFixed(2),'km'],[Math.round(kcalOf(s)),'kcal'],[avg??'–','Avg HR'],[mx??'–','Max HR'],[avgSpd.toFixed(1),'Avg km/h']];
+  $('smStats').innerHTML=cells.map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join('');
+  if(hrs.length){
+    const cnt=[0,0,0,0,0]; hrs.forEach(h=>{ const z=zoneOf(h); cnt[Math.max(1,z)-1]++; });  // ~1 sample per second
+    const tot=hrs.length, names=['Warm up','Easy','Aerobic','Threshold','Maximum'];
+    $('smZones').innerHTML=cnt.map((c,i)=>`<div class="zrow"><b>Z${i+1}</b><div class="zb" title="${names[i]}"><div style="width:${c/tot*100}%;background:${ZCOL(i+1)}"></div></div><span style="text-align:right">${fmtTime(c)}</span></div>`).join('');
+  } else $('smZones').innerHTML='<div class="hint" style="margin:0">No heart rate recorded. Connect your watch before your next walk to see time in each zone.</div>';
+  $('sumView').classList.remove('hidden'); document.body.style.overflow='hidden';
+}
+function closeSummary(){ $('sumView').classList.add('hidden'); document.body.style.overflow=''; $('doneBanner').classList.add('hidden'); window.scrollTo(0,0); }
+$('smDone').onclick=closeSummary;
+$('smHist').onclick=()=>{ closeSummary(); const b=document.querySelector('nav button[data-tab="history"]'); if(b) b.click(); };
+
+// hook the new screens into the existing flow
+{ const _ub=updateButtons; updateButtons=function(){ _ub(); updateRunView(); }; }
+{ const _rl=renderLive; renderLive=function(){ _rl(); renderRun(); }; }
+{ const _fs=finishSession; finishSession=function(reached){ const s=session; _fs(reached); showSummary(s, reached); }; }
+
+// every launch starts fresh: free walk with a 5,000-step target
+S.wkId='free'; S.target=5000; saveSettings(); $('target').value=S.target;
 renderWkSel(); updateConn(); updateButtons(); updateTargetHint(); renderLive(); renderHistory();
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && session && session.state==='running') keepAwake(true); });
 if(typeof module!=='undefined') module.exports={parseTreadmill};
