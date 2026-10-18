@@ -132,11 +132,29 @@ nav button.active{color:var(--accent)}
 .zrow{display:grid;grid-template-columns:28px 1fr 56px;gap:8px;align-items:center;margin:6px 0;font-size:13px}
 .zrow .zb{height:12px;border-radius:99px;background:var(--line);overflow:hidden}
 .zrow .zb>div{height:100%}
+
+/* ---------- setup + fitness check ---------- */
+.seg2{display:flex;gap:6px}.seg2 button{flex:1}
+.seg2 button.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.q{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.q:last-child{border:0}.q span{flex:1;font-size:14px}.q .seg2{flex:0 0 120px}
+.route{display:block;width:100%;text-align:left;padding:14px;margin-top:8px;border-radius:14px}
+.route b{display:block;font-size:16px}.route small{color:var(--muted)}
+.route.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset}
+.steps-dots{display:flex;gap:6px;justify-content:center;margin:4px 0 2px}.steps-dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.steps-dots i.on{background:var(--accent)}
+.fc-phase{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:center}
+.fc-title{font-size:24px;font-weight:800;text-align:center;margin:2px 0}
+.fc-clock{font-size:clamp(56px,18vw,88px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
+.fc-guide{text-align:center;color:var(--muted);font-size:15px}
+.fc-big2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fc-big2 .stat{background:var(--card);border:1px solid var(--line);text-align:center;padding:12px}.fc-big2 .stat b{font-size:30px}
+.fc-res{text-align:center;padding:6px 0}.fc-res .rv-big{font-size:clamp(52px,16vw,80px)}
+.pctbar{position:relative;height:12px;border-radius:99px;background:linear-gradient(90deg,var(--z5),var(--z4),var(--z3),var(--z2));opacity:.85;margin:16px 0 4px}
+.pctbar i{position:absolute;top:-6px;width:6px;height:24px;margin-left:-3px;border-radius:3px;background:var(--ink)}
 </style>
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v17</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v19</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -174,6 +192,12 @@ nav button.active{color:var(--accent)}
       <div class="hint" id="wkInfo" style="margin-top:0"></div>
       <div class="hint" id="wkHr"></div>
     </div>
+  </div>
+
+  <div class="card" id="fitCard">
+    <h2>Fitness</h2>
+    <div id="fitSnap" class="hint" style="margin-top:0">No Fitness Check yet.</div>
+    <div class="row" style="margin-top:8px"><button class="primary" id="btnFit">🫀 Fitness Check (10 min)</button><button id="btnFitMile">Full check (1 mile)</button></div>
   </div>
 
   <div class="card" id="targetCard">
@@ -347,13 +371,13 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v17</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v19</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
       Not affiliated with or endorsed by UREVO, Garmin or any equipment maker. Use at your own risk.
     </div>
-    <div class="row" style="margin-top:10px"><button id="btnShowWelcome">Show welcome &amp; safety again</button></div>
+    <div class="row" style="margin-top:10px"><button id="btnShowWelcome">Redo setup &amp; safety</button></div>
   </div>
   <div class="card">
     <h2>Bluetooth log</h2>
@@ -369,6 +393,7 @@ nav button.active{color:var(--accent)}
 <div id="runView" class="overlay hidden" aria-live="polite">
  <div class="inner">
   <div class="rv-top"><b id="rvTitle">Free walk</b><span id="rvState" class="pill on">Running</span><button class="rv-link" id="rvMore">Details</button></div>
+  <div id="rvConn" class="banner hidden" style="margin:0"></div>
   <div class="rv-steps"><div class="rv-big" id="rvSteps">0</div><div class="rv-sub" id="rvStepsSub">of 5,000 steps</div></div>
   <div class="rv-prog" id="rvProg"></div>
   <div class="rv-progtxt"><span id="rvPct">0%</span><span id="rvEta"></span></div>
@@ -404,6 +429,62 @@ nav button.active{color:var(--accent)}
   <div class="card" style="margin:0"><div class="grid" id="smStats" style="margin-top:0"></div></div>
   <div class="card" style="margin:0"><h2>Time in heart-rate zones</h2><div id="smZones"></div></div>
   <div class="rv-btns"><button id="smHist">View in History</button><button class="primary" id="smDone">Done</button></div>
+ </div>
+</div>
+
+<!-- SETUP (first run, or Settings → Redo setup) -->
+<div id="setupView" class="overlay hidden" style="z-index:21">
+ <div class="inner">
+  <div class="rv-top"><img src="walkpilot-192.png" alt="" width="32" height="32" style="border-radius:8px" onerror="this.remove()"><b>Set up WalkPilot</b></div>
+  <div class="steps-dots" id="suDots"><i></i><i></i><i></i><i></i></div>
+
+  <div id="su1" class="card" style="margin:0">
+   <h2>About you</h2>
+   <div class="hint" style="margin-top:0">So steps, calories, heart-rate zones and your fitness estimate fit you. Stored only on this phone.</div>
+   <div class="row"><div><label for="suAge">Age</label><input id="suAge" type="number" inputmode="numeric" placeholder="e.g. 50"></div>
+    <div><label for="suHeight">Height (cm)</label><input id="suHeight" type="number" inputmode="numeric" placeholder="e.g. 175"></div></div>
+   <div class="row"><div><label for="suWeight">Weight (kg)</label><input id="suWeight" type="number" inputmode="decimal" placeholder="e.g. 80"></div><div></div></div>
+   <label>Sex (used for fitness comparisons)</label>
+   <div class="seg2" id="suSex"><button data-v="m">Male</button><button data-v="f">Female</button><button data-v="x">Prefer not to say</button></div>
+  </div>
+
+  <div id="su2" class="card hidden" style="margin:0">
+   <h2>Quick health check</h2>
+   <div class="hint" style="margin-top:0">Based on the standard questions gyms ask before exercise. A “yes” won't stop you using WalkPilot – it switches on gentle mode and suggests a chat with your GP.</div>
+   <div id="suQs"></div>
+   <div id="suQmsg" class="banner hidden" style="margin:10px 0 0;color:var(--ink)"></div>
+  </div>
+
+  <div id="su3" class="card hidden" style="margin:0">
+   <h2>Your heart rate and fitness</h2>
+   <button class="route" data-r="help"><b>Help me work it out</b><small>New to exercise or not sure of your numbers? WalkPilot will estimate them, then a 10-minute Fitness Check on the pad fine-tunes everything.</small></button>
+   <button class="route" data-r="know"><b>I know my numbers</b><small>Enter your max and resting heart rate, VO2 max (e.g. from Garmin) and walking speeds. Leave anything blank and WalkPilot estimates it.</small></button>
+   <div id="suKnow" class="hidden" style="margin-top:6px">
+    <div class="row"><div><label for="suMax">Max heart rate</label><input id="suMax" type="number" inputmode="numeric" placeholder="bpm"></div>
+     <div><label for="suRest">Resting heart rate</label><input id="suRest" type="number" inputmode="numeric" placeholder="bpm"></div></div>
+    <div class="row"><div><label for="suVo2">VO2 max</label><input id="suVo2" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 38"></div><div></div></div>
+    <div class="row"><div><label for="suComf">Comfortable walking speed</label><input id="suComf" type="number" inputmode="decimal" step="0.1" placeholder="km/h"></div>
+     <div><label for="suTop">Top speed allowed</label><input id="suTop" type="number" inputmode="decimal" step="0.1" placeholder="km/h"></div></div>
+   </div>
+  </div>
+
+  <div id="su4" class="card hidden" style="margin:0">
+   <h2>Safety</h2>
+   <div class="banner" style="margin:0 0 10px;color:var(--ink)"><b>Safety first.</b> WalkPilot controls your pad's speed and incline. It is not a medical device and its heart-rate and fitness figures are estimates only. Keep the safety key clipped on, and stop if you feel dizzy, breathless, in pain or unwell.</div>
+   <div id="suSummary" class="hint" style="margin:0"></div>
+   <label><input type="checkbox" id="suAgree" style="width:auto"> I understand and use WalkPilot at my own risk</label>
+  </div>
+
+  <div class="rv-btns"><button id="suBack">Back</button><button class="primary" id="suNext">Next</button></div>
+ </div>
+</div>
+
+<!-- FITNESS CHECK -->
+<div id="fitView" class="overlay hidden" style="z-index:16">
+ <div class="inner" id="fitInner">
+  <div class="rv-top"><b id="fcHead">Fitness Check</b><button class="rv-link" id="fcCancel">Cancel</button></div>
+  <div id="fcBody" style="display:flex;flex-direction:column;gap:12px"></div>
+  <div class="rv-btns" id="fcBtns"></div>
  </div>
 </div>
 <div id="welcome" class="hidden" style="position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center">
@@ -587,6 +668,7 @@ function urFrameIn(b){ // b = cmd + data, no framing
   }
   if(b[0]!==0x51 || b.length<2) return;
   const st=b[1], prev=UR.state; UR.state=st;
+  if(session && session.reconn) afterReconnect(st);
   if(!UR.active){ UR.active=true; log('UREVO channel active – using the pad\'s own step count'); }
   if(prev!==st){ log('pad state: '+(UR_STATES[st]??st));
     if(session && session.state==='running' && (st===4||st===10) && prev===3) log('⚠️ pad paused itself – this usually means its foot sensor lost you (common at very slow speeds)');
@@ -618,6 +700,12 @@ async function connect(){
     });
     device.addEventListener('gattserverdisconnected', onDisconnect);
     log('Connecting to '+(device.name||'pad'));
+    await attachPad();
+  }catch(e){ log('Connect failed: '+e.message); }
+}
+// Connects to the already-chosen pad and sets everything up. Used for the first connection and for automatic reconnects.
+async function attachPad(){
+  {
     const server = await device.gatt.connect();
     const svc = await server.getPrimaryService(FTMS);
     try{ const r=await (await svc.getCharacteristic(C_SPEED_RANGE)).readValue();
@@ -645,10 +733,12 @@ async function connect(){
       if(!UR.active) onData(d); });
     await padRequestControl();
     live.connected=true; live.demo=false; updateConn();
-    discoverExtra(server).catch(e=>log('extra channels: '+e.message));
-  }catch(e){ log('Connect failed: '+e.message); }
+    await discoverExtra(server).catch(e=>log('extra channels: '+e.message));
+  }
 }
-function onDisconnect(){ live.connected=false; cpChar=null; UR.ch=null; UR.active=false; UR.state=null; UR.buf=[]; UR.inclRaw=null; UR.inclWant=null; UR.ftmsCtl=false; live.ftmsIncl=false; updateConn(); log('Disconnected'); if(session&&session.state==='running') pauseSession(true); }
+function onDisconnect(){ live.connected=false; cpChar=null; UR.ch=null; UR.active=false; UR.state=null; UR.buf=[]; UR.inclRaw=null; UR.inclWant=null; UR.ftmsCtl=false; live.ftmsIncl=false; updateConn(); log('Disconnected');
+  if(session&&session.state==='running'){ session.reconn=true; pauseSession(true); keepAwake(true); }
+  padReconnect(); }
 
 /* ---------- demo simulator ---------- */
 let demoTimer=null, demoBelt={speed:0,dist:0,running:false};
@@ -686,13 +776,21 @@ function onData(d){
   if(d.elapsed!=null) live.elapsed=d.elapsed;
   if(d.incline!=null) live.incline=d.incline;
   live.padHr = d.hr ?? null;
+  if(session && session.state==='running' && d.elapsed!=null){
+    const r=session.elRef;
+    if(!r || d.elapsed<r.pad) session.elRef={pad:d.elapsed, act:session.active};
+    else { const lag=(d.elapsed-r.pad)-(session.active-r.act);
+      if(lag>3){ session.active+=lag-1; log(`caught up ${Math.round(lag-1)} s of walking time from the pad`); }
+      if(d.elapsed-r.pad>30) session.elRef={pad:d.elapsed, act:session.active}; }
+  }
   if(session && session.state==='running'){
     // Pad distance arrives in coarse chunks; use each change only to correct the live estimate.
     if(d.dist!=null){
-      if(session.lastRawDist==null) session.lastRawDist=d.dist;
+      if(session.lastRawDist==null){ session.lastRawDist=d.dist; session.lastDistT=Date.now(); }
       else if(d.dist!==session.lastRawDist){
-        let delta=d.dist-session.lastRawDist; if(delta<0) delta=d.dist; if(delta>60) delta=0;
-        session.lastRawDist=d.dist; session.padDist+=delta; if(live.speed>=WALK_FLOOR) session.lrnDist=(session.lrnDist||0)+delta;
+        const maxDelta=60+3*Math.max(0,(Date.now()-(session.lastDistT||Date.now()))/1000);   // up to 3 m/s since the last change
+        let delta=d.dist-session.lastRawDist; if(delta<0) delta=d.dist; if(delta>maxDelta) delta=0;
+        session.lastRawDist=d.dist; session.lastDistT=Date.now(); session.padDist+=delta; if(live.speed>=WALK_FLOOR) session.lrnDist=(session.lrnDist||0)+delta;
         const err=session.padDist-(session.dist+session.debt*-1);
         if(err>0){ session.dist+=err*0.7; }          // behind the pad: catch up now
         else { session.debt+=(-err)*0.7; }           // ahead: slow the count briefly, never go backwards
@@ -824,7 +922,7 @@ async function connectWatch(){
     watchDev=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});
     watchDev.addEventListener('gattserverdisconnected', async ()=>{
       updateWatch(false); log('Watch disconnected');
-      if(watchTries<5){ watchTries++; setTimeout(()=>watchAttach().catch(e=>log('Watch reconnect failed: '+e.message)), 2000); }
+      watchReconnect();
     });
     await watchAttach();
   }catch(e){ log('Watch connect failed: '+e.message); }
@@ -1217,10 +1315,11 @@ function onExtra(key,dv){
 }
 function feedPadSteps(v){
   const s=session;
-  if(!s || s.state!=='running'){ if(s) s.psLast=null; return; }
+  if(!s || s.state!=='running'){ if(s && !s.reconn) s.psLast=null; return; }
   const now=Date.now();
   if(s.psLast==null){ s.psLast=v; if(!s.usePad){ s.psAcc=steps(s); s.shown=s.psAcc; s.usePad=true; s.psDist0=s.padDist; s.psTotal=0; } s.psT=now; return; }
-  let d=v-s.psLast; if(d<0) d = v<60 ? v : 0; if(d>60) d=0;   // counter reset on the pad, or a glitch
+  const maxD=60+4*Math.max(0,(now-s.psT)/1000);   // up to 4 steps a second since the last update
+  let d=v-s.psLast; if(d<0) d = v<60 ? v : 0; if(d>maxD) d=0;   // counter reset on the pad, or a glitch
   s.psLast=v; s.psAcc+=d; s.psTotal+=d; s.psT=now; if(live.speed>=WALK_FLOOR) s.lrnSteps=(s.lrnSteps||0)+d;
   // keep stride learned from the pad, so distance-based estimates stay right too
   if((s.lrnSteps||0)>=300 && now-s.psStrideT>30000){
@@ -1282,7 +1381,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v17 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v19 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -1317,7 +1416,54 @@ if('serviceWorker' in navigator){ navigator.serviceWorker.register('walkpilot-sw
 
 /* ---------- init ---------- */
 if(!navigator.bluetooth || !window.isSecureContext) showBtBanner();
-if(!S.agreed) showWelcome();
+if(!S.agreed) setTimeout(()=>showWelcome(),0);
+
+/* ---------- automatic reconnection ---------- */
+const RC={pad:false, padTry:0, padStart:0, watch:false, watchTry:0, msg:''};
+function setConnMsg(t){ RC.msg=t||''; const el=$('rvConn'); if(el){ el.textContent=RC.msg; el.classList.toggle('hidden',!RC.msg); } }
+async function padReconnect(){
+  if(!device || RC.pad || live.demo) return;
+  RC.pad=true; RC.padTry=0; RC.padStart=Date.now();
+  while(device && !device.gatt.connected){
+    if(Date.now()-RC.padStart>120000){ setConnMsg('⚠️ Lost the pad. Check it is on, then tap Connect pad (Details).'); log('pad reconnect gave up after 2 minutes'); break; }
+    RC.padTry++; setConnMsg(`🔄 Reconnecting to the pad… (try ${RC.padTry})`); $('connPill').textContent='Reconnecting…';
+    try{ await attachPad(); log('✅ pad reconnected'); break; }
+    catch(e){ log('pad reconnect failed: '+e.message); await new Promise(r=>setTimeout(r, Math.min(15000, 1000*2**Math.min(RC.padTry,4)))); }
+  }
+  RC.pad=false;
+  if(device && device.gatt.connected){
+    setConnMsg('');
+    // FTMS-only pads: decide from the belt speed after a few seconds (UREVO pads decide in urFrameIn)
+    if(!UR.ch) setTimeout(()=>afterReconnect(live.speed>0.3?3:10), 3000);
+  }
+}
+// st = pad state after reconnecting: 3 running, 4/10 paused, anything else stopped
+function afterReconnect(st){
+  const s=session; if(!s || !s.reconn) return;
+  s.reconn=false;
+  if(st===3){ s.state='running'; s.lastT=Date.now(); keepAwake(true); updateButtons(); log('walk continues after reconnecting'); setConnMsg(''); }
+  else if(st===4||st===10){ setConnMsg('⏸ The pad paused while disconnected – tap Resume to carry on.'); updateButtons(); }
+  else { setConnMsg('⏹ The pad stopped while disconnected – tap Resume to restart the belt.'); updateButtons(); }
+  renderLive();
+}
+async function watchReconnect(){
+  if(!watchDev || RC.watch) return;
+  RC.watch=true; RC.watchTry=0;
+  while(watchDev && !watchDev.gatt.connected){
+    const walking = session && (session.state==='running'||session.state==='paused');
+    if(!walking && RC.watchTry>=5) break;           // outside a walk: give up after 5 tries as before
+    RC.watchTry++;
+    try{ await watchAttach(); break; }
+    catch(e){ if(RC.watchTry===1||RC.watchTry%5===0) log('Watch reconnect failed: '+e.message); await new Promise(r=>setTimeout(r, Math.min(10000, 2000*RC.watchTry))); }
+  }
+  RC.watch=false;
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible') return;
+  if(device && !device.gatt.connected && !live.demo) padReconnect();
+  if(watchDev && !watchDev.gatt.connected) watchReconnect();
+  if(session){ session.lastT=Date.now(); renderLive(); updateRunView(); }
+});
 
 /* ---------- workout screen + summary ---------- */
 const ZCOL=z=>`var(--z${Math.max(1,Math.min(5,z||1))})`;
@@ -1337,7 +1483,7 @@ function renderRun(){
   buildProg();
   const st=steps(s), segs=$('rvProg').children;
   $('rvSteps').textContent=fmtInt(st);
-  $('rvState').textContent = s.state==='paused' ? 'Paused' : 'Running';
+  $('rvState').textContent = s.reconn ? 'Reconnecting' : s.state==='paused' ? 'Paused' : 'Running';
   $('rvState').classList.toggle('on', s.state!=='paused');
   $('rvPause').textContent = s.state==='paused' ? 'Resume' : 'Pause';
   $('rvPause').classList.toggle('primary', s.state==='paused');
@@ -1397,7 +1543,7 @@ function updateRunView(){
 }
 $('rvMore').onclick=()=>{ RV.min=true; updateRunView(); window.scrollTo(0,0); };
 $('rvBack').onclick=()=>{ RV.min=false; updateRunView(); };
-$('rvPause').onclick=()=>{ if(!session) return; if(session.state==='paused') startSession(); else pauseSession(false); };
+$('rvPause').onclick=()=>{ if(!session) return; setConnMsg(''); if(session.state==='paused'){ session.reconn=false; startSession(); } else pauseSession(false); };
 $('rvFinish').onclick=()=>$('btnStop').onclick();
 
 function showSummary(s, reached){
@@ -1427,6 +1573,284 @@ $('smHist').onclick=()=>{ closeSummary(); const b=document.querySelector('nav bu
 { const _ub=updateButtons; updateButtons=function(){ _ub(); updateRunView(); }; }
 { const _rl=renderLive; renderLive=function(){ _rl(); renderRun(); }; }
 { const _fs=finishSession; finishSession=function(reached){ const s=session; _fs(reached); showSummary(s, reached); }; }
+
+
+/* ================= SETUP (stage 1) ================= */
+const HQ=[
+  ['heart','Has a doctor ever said you have a heart condition or high blood pressure?'],
+  ['chest','Do you get chest pain when you are active, or at rest?'],
+  ['dizzy','Do you lose your balance through dizziness, or have you fainted in the last year?'],
+  ['joint','Do you have a bone, joint or muscle problem that walking could make worse?'],
+  ['meds','Do you take medicine that affects your heart rate (for example beta-blockers)?'],
+  ['preg','Are you pregnant or have you given birth in the last 6 months?'],
+];
+const SU={step:1, sex:null, ans:{}, route:null};
+const maxFromAge=a=>Math.round(208-0.7*a);
+function suShow(n){
+  SU.step=n; [1,2,3,4].forEach(i=>$('su'+i).classList.toggle('hidden',i!==n));
+  [...$('suDots').children].forEach((d,i)=>d.classList.toggle('on',i<n));
+  $('suBack').style.visibility = n>1 ? 'visible':'hidden';
+  $('suNext').textContent = n<4 ? 'Next' : 'Finish';
+  if(n===4) suSummary();
+  suValidate();
+  $('setupView').scrollTo(0,0);
+}
+function suValidate(){
+  let ok=true;
+  if(SU.step===1){ const a=+$('suAge').value, h=+$('suHeight').value, w=+$('suWeight').value; ok = a>=12&&a<=100 && h>=120&&h<=230 && w>=30&&w<=250 && !!SU.sex; }
+  if(SU.step===2) ok = HQ.every(([k])=>SU.ans[k]!=null);
+  if(SU.step===3) ok = !!SU.route;
+  if(SU.step===4) ok = $('suAgree').checked;
+  $('suNext').disabled=!ok;
+}
+function suQmsg(){
+  const yes=HQ.filter(([k])=>SU.ans[k]==='y').map(([k])=>k), el=$('suQmsg');
+  if(!yes.length){ el.classList.add('hidden'); return; }
+  let t='<b>Gentle mode will be on.</b> Please check with your GP or practice nurse before starting a new exercise routine, and stop if anything feels wrong.';
+  if(yes.includes('meds')) t+='<br><br><b>Heart-rate medicine:</b> it holds your heart rate down, so WalkPilot will not show a fitness score from heart rate, and will guide you by pace instead.';
+  el.innerHTML=t; el.classList.remove('hidden');
+}
+function suSummary(){
+  const a=+$('suAge').value, gentle=HQ.some(([k])=>SU.ans[k]==='y');
+  const mx = (SU.route==='know' && +$('suMax').value) || maxFromAge(a);
+  $('suSummary').innerHTML = `Max heart rate: <b>${mx} bpm</b>${SU.route==='know'&&+$('suMax').value?'':' (estimated – a Fitness Check and your walks refine it)'}<br>`+
+    (gentle?'Gentle mode: <b>on</b> – top speed limited to 4.0 km/h until you change it in Settings.<br>':'')+
+    (SU.route==='help'?'Next: a <b>10-minute Fitness Check</b> on the pad to find your pace and fitness.':'You can run a Fitness Check any time from the Workout tab.');
+}
+function openSetup(){
+  SU.sex=S.sex||null; SU.ans=Object.assign({},S.health||{}); SU.route=S.route||null;
+  $('suAge').value=S.hAge||''; $('suHeight').value=S.height||''; $('suWeight').value=S.weight||'';
+  $('suMax').value=S.maxEntered?S.hMax:''; $('suRest').value=S.restEntered?S.hRest:''; $('suVo2').value='';
+  $('suComf').value=S.comfort||''; $('suTop').value=S.topSpeed||'';
+  [...$('suSex').children].forEach(b=>b.classList.toggle('sel',b.dataset.v===SU.sex));
+  $('suQs').innerHTML=HQ.map(([k,q])=>`<div class="q"><span>${q}</span><div class="seg2" data-k="${k}"><button data-v="n">No</button><button data-v="y">Yes</button></div></div>`).join('');
+  $('suQs').querySelectorAll('.seg2').forEach(g=>{ const k=g.dataset.k;
+    [...g.children].forEach(b=>{ b.classList.toggle('sel',SU.ans[k]===b.dataset.v); b.onclick=()=>{ SU.ans[k]=b.dataset.v; [...g.children].forEach(x=>x.classList.toggle('sel',x===b)); suQmsg(); suValidate(); }; }); });
+  document.querySelectorAll('#su3 .route').forEach(b=>b.classList.toggle('sel',b.dataset.r===SU.route));
+  $('suKnow').classList.toggle('hidden',SU.route!=='know');
+  $('suAgree').checked=false; suQmsg(); suShow(1);
+  $('setupView').classList.remove('hidden'); document.body.style.overflow='hidden';
+}
+[...$('suSex').children].forEach(b=>b.onclick=()=>{ SU.sex=b.dataset.v; [...$('suSex').children].forEach(x=>x.classList.toggle('sel',x===b)); suValidate(); });
+document.querySelectorAll('#su3 .route').forEach(b=>b.onclick=()=>{ SU.route=b.dataset.r; document.querySelectorAll('#su3 .route').forEach(x=>x.classList.toggle('sel',x===b)); $('suKnow').classList.toggle('hidden',SU.route!=='know'); suValidate(); });
+['suAge','suHeight','suWeight','suAgree'].forEach(id=>$(id).addEventListener('input',suValidate));
+$('suAgree').addEventListener('change',suValidate);
+$('suBack').onclick=()=>suShow(Math.max(1,SU.step-1));
+$('suNext').onclick=()=>{ if(SU.step<4){ suShow(SU.step+1); return; } suFinish(); };
+function suFinish(){
+  const a=+$('suAge').value, ht=+$('suHeight').value, wt=+$('suWeight').value;
+  S.hAge=a; S.height=ht; S.weight=wt; S.sex=SU.sex; S.health=SU.ans; S.route=SU.route;
+  if(!store.get('wpad.strideSet',false)) S.stride=Math.round(ht*0.415);
+  S.gentle=HQ.some(([k])=>SU.ans[k]==='y'); S.hrMeds=SU.ans.meds==='y';
+  const mx=+$('suMax').value, rs=+$('suRest').value, vo=+$('suVo2').value, cf=+$('suComf').value, tp=+$('suTop').value;
+  if(SU.route==='know' && mx>=100 && mx<=230){ S.hMax=mx; S.maxEntered=true; } else { S.hMax=maxFromAge(a); S.maxEntered=false; }
+  if(SU.route==='know' && rs>=30 && rs<=110){ S.hRest=rs; S.restEntered=true; } else S.restEntered=false;
+  if(SU.route==='know' && cf>=1 && cf<=8) S.comfort=+cf.toFixed(1);
+  if(SU.route==='know' && tp>=1 && tp<=8) S.topSpeed=+tp.toFixed(1);
+  if(S.gentle && (!S.topSpeed || S.topSpeed>4)) S.topSpeed=4.0;
+  if(SU.route==='know' && vo>=10 && vo<=90) addFitResult({type:'entered', src:'watch', vo2:+vo.toFixed(1)});
+  S.agreed=true; S.setupV=2; saveSettings();
+  $('setupView').classList.add('hidden'); document.body.style.overflow='';
+  ['hMax','hRest','sHeight','sWeight','sStride','hAge'].forEach(id=>{ const el=$(id); if(el) el.value = {hMax:S.hMax,hRest:S.hRest,sHeight:S.height,sWeight:S.weight,sStride:S.stride,hAge:S.hAge}[id]; });
+  applyZoneSel(); renderZoneTable(); renderFitSnap(); refreshAll();
+  if(SU.route==='help') setTimeout(()=>{ if(confirm('Do your 10-minute Fitness Check now? (Connect the pad first – a heart-rate watch is recommended.)')) openFitness('quick'); },300);
+}
+showWelcome=openSetup;           // the old welcome card is replaced by the setup
+$('btnShowWelcome').onclick=openSetup;
+
+/* ================= FITNESS NORMS ================= */
+// Approximate VO2 max medians and spread by age and sex, from published population norms (Cooper Institute / ACSM style tables).
+const VO2_NORM={ m:{ages:[25,35,45,55,65,75], med:[42.4,41.0,38.4,35.2,31.8,28.0], sd:6.5},
+                 f:{ages:[25,35,45,55,65,75], med:[37.0,35.2,32.8,29.4,26.8,24.6], sd:5.5} };
+function normFor(sex){ if(sex==='m'||sex==='f') return VO2_NORM[sex]; const m=VO2_NORM.m,f=VO2_NORM.f; return {ages:m.ages, med:m.med.map((v,i)=>(v+f.med[i])/2), sd:6}; }
+function medianAt(n,age){ const A=n.ages,M=n.med; if(age<=A[0]) return M[0]+(A[0]-age)*(M[0]-M[1])/(A[1]-A[0]);
+  for(let i=1;i<A.length;i++) if(age<=A[i]) return M[i-1]+(age-A[i-1])/(A[i]-A[i-1])*(M[i]-M[i-1]);
+  const k=A.length-1; return M[k]+(age-A[k])*(M[k]-M[k-1])/(A[k]-A[k-1]); }
+function fitnessAge(vo2,sex){ const n=normFor(sex); // age at which the median equals vo2
+  let lo=15, hi=95; for(let i=0;i<40;i++){ const mid=(lo+hi)/2; if(medianAt(n,mid)>vo2) lo=mid; else hi=mid; } return Math.round((lo+hi)/2); }
+function percentile(vo2,sex,age){ const n=normFor(sex), z=(vo2-medianAt(n,age))/n.sd; // normal CDF
+  const t=1/(1+0.2316419*Math.abs(z)), d=0.3989423*Math.exp(-z*z/2), p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));
+  return Math.round(100*(z>0?1-p:p)); }
+function rating(pct){ return pct>=80?'Excellent':pct>=60?'Good':pct>=40?'Average':pct>=20?'Below average':'Needs work'; }
+function addFitResult(r){
+  r.date=Date.now(); r.age=S.hAge; r.sex=S.sex;
+  if(r.vo2){ r.fitAge=fitnessAge(r.vo2,S.sex); r.pct=percentile(r.vo2,S.sex,S.hAge); }
+  const h=store.get('wpad.fit',[]); h.push(r); store.set('wpad.fit',h); return r;
+}
+function renderFitSnap(){
+  const h=store.get('wpad.fit',[]), el=$('fitSnap'); if(!el) return;
+  const last=[...h].reverse().find(x=>x.vo2), lastPace=[...h].reverse().find(x=>x.speed);
+  let t='';
+  if(last) t+=`<b>VO2 max ${last.vo2}</b> · WalkPilot fitness age <b>${last.fitAge}</b> · ${rating(last.pct)} (top ${Math.max(1,100-last.pct)}% for your age) <small>– ${last.src==='watch'?'from your watch':'WalkPilot estimate'}, ${new Date(last.date).toLocaleDateString()}</small><br>`;
+  if(S.comfort) t+=`Comfortable pace <b>${S.comfort.toFixed(1)} km/h</b>${S.topSpeed?` · top speed <b>${S.topSpeed.toFixed(1)} km/h</b>`:''}${S.gentle?' · gentle mode on':''}`;
+  if(!t) t='No Fitness Check yet. It takes 10 minutes and sets your personal pace' + (S.hrMeds?'.':' and fitness age.');
+  el.innerHTML=t;
+}
+
+/* ================= FITNESS CHECK (stage 2) ================= */
+// quick (≈10 min, Ebbeling single-stage treadmill walking test):
+//   rest 1 min → find your pace → 3 min flat at that pace → 4 min at 5% incline → recover 1 min.
+// mile (Rockport 1-mile walk test): rest 1 min → find your pace → walk 1 mile → recover 1 min.
+const FC={on:false};
+const fitInclLevel=()=>Math.max(1,Math.min(S.inclMax||9, Math.round(5/(S.inclUnit||1))));   // incline level that gives ≈5%
+function fcBtns(list){ $('fcBtns').innerHTML=''; $('fcBtns').style.gridTemplateColumns=`repeat(${list.length},1fr)`;
+  list.forEach(([label,fn,cls])=>{ const b=document.createElement('button'); b.textContent=label; if(cls) b.className=cls; b.onclick=fn; $('fcBtns').appendChild(b); }); }
+function fcScreen(phase,title,guide,extra){ $('fcBody').innerHTML=`<div class="fc-phase">${phase}</div><div class="fc-title">${title}</div><div class="fc-clock" id="fcClock"></div><div class="fc-guide" id="fcGuide">${guide||''}</div>${extra||''}`; }
+function fcLive(){ return `<div class="fc-big2"><div class="stat"><b id="fcHr">–</b><span>Heart rate</span></div><div class="stat"><b id="fcSpd">–</b><span>km/h</span></div></div><div class="hint" id="fcNote" style="text-align:center;margin:0"></div>`; }
+function lastTest(type){ return [...store.get('wpad.fit',[])].reverse().find(x=>x.src==='test' && x.type===type && x.speed); }
+function openFitness(type){
+  if(session && (session.state==='running'||session.state==='paused')){ alert('Finish your current walk first.'); return; }
+  const hasHr=!!curHr(), prev=lastTest(type), withScore=hasHr && !S.hrMeds;
+  Object.assign(FC,{on:true,type,phase:'intro',hrs:[],timer:null,hasHr,abort:null,fixed:null});
+  $('fcHead').textContent = type==='mile' ? 'Full Fitness Check (1 mile)' : 'Fitness Check';
+  const steps = type==='mile'
+    ? `3. Walk <b>1 mile</b> at that pace (about 15–25 minutes). You can adjust the speed.<br>`
+    : `3. Walk <b>3 minutes</b> at that pace on the flat.<br>4. The pad rises to <b>incline ${fitInclLevel()}</b> (about 5%) for <b>4 minutes</b> at the same pace.<br>`;
+  fcScreen('Before you start', type==='mile'?'1-mile brisk walk':'10-minute check',
+    `<div style="text-align:left">
+      1. <b>Stand still</b> on the pad for 1 minute (resting heart rate).<br>
+      2. The belt starts slowly and speeds up – tap <b>Comfortable</b> when it feels like a brisk walk you could keep up while chatting.<br>
+      ${steps}${type==='mile'?'4':'5'}. <b>Stand still</b> for 1 minute while your heart rate recovers.<br><br>
+      ${prev?`<label style="color:var(--ink)"><input type="checkbox" id="fcSame" checked style="width:auto"> Use the same pace as last time (<b>${prev.speed.toFixed(1)} km/h</b>) – recommended so results compare fairly</label><br>`:''}
+      ${withScore?'✅ Heart rate connected – you will get your VO2 max and fitness age.':S.hrMeds?'ℹ️ Because of heart-rate medicine, this check sets your personal pace only (no fitness score).':'⚠️ <b>No heart rate yet.</b> Connect your watch for a fitness score – without it, this check only sets your personal pace.'}
+      <br><br><small>Stop any time with Cancel or the pad's safety key. The check eases off automatically if your heart rate goes too high.</small></div>`);
+  fcBtns([['Not now',fcClose],['Start',fcStart,'primary']]);
+  $('fcCancel').classList.remove('hidden'); $('fitView').classList.remove('hidden'); document.body.style.overflow='hidden';
+}
+function fcClose(){ FC.on=false; clearInterval(FC.timer); $('fitView').classList.add('hidden'); document.body.style.overflow=''; updateRunView(); }
+$('fcCancel').onclick=()=>{ if(FC.phase==='result'||FC.phase==='intro'||confirm('Stop the Fitness Check?')){ if(session&&session.fit&&session.state!=='done') finishSession(false); setIncl=0; fcClose(); } };
+$('btnFit').onclick=()=>{ if(!live.connected){ alert('Connect the pad first (or use Demo mode).'); return; } openFitness('quick'); };
+$('btnFitMile').onclick=()=>{ if(!live.connected){ alert('Connect the pad first (or use Demo mode).'); return; } openFitness('mile'); };
+function fcStart(){
+  const prev=lastTest(FC.type); FC.fixed = (prev && $('fcSame') && $('fcSame').checked) ? prev.speed : null;
+  FC.hasHr=!!curHr(); FC.score = FC.hasHr && !S.hrMeds;
+  fcPhase(FC.hasHr ? 'rest' : 'pace');
+}
+function fcSetSpeed(v){ const cap=Math.min(live.speedMax||6, S.topSpeed||99, S.gentle?4:99); setSpeed=+Math.max(live.speedMin||1, Math.min(cap,v)).toFixed(1); padSpeed(setSpeed); FC.chg=Date.now(); }
+const fcAvg=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+function fcPhase(ph){
+  FC.phase=ph; FC.pt=Date.now(); clearInterval(FC.timer);
+  if(ph==='rest'){ FC.rest=[];
+    fcScreen('Step 1','Stand still','Stand on the pad without moving. Breathe normally.',fcLive());
+    fcBtns([['Skip',()=>fcPhase('pace')]]); }
+  if(ph==='pace'){
+    const prevWk=S.wkId; S.wkId='free'; setIncl=0;
+    setSpeed = FC.fixed ? FC.fixed : Math.max(live.speedMin||1, 2.0);
+    startSession(); S.wkId=prevWk; session.fit={type:FC.type}; session.target=1e9; FC.paceT=Date.now();
+    if(FC.fixed){
+      fcScreen('Step 2','Getting up to speed',`The belt is going to your test pace of <b>${FC.fixed.toFixed(1)} km/h</b>. Start walking when it moves.`,fcLive());
+      fcBtns([['Too fast – slower',()=>{ FC.fixed=null; fcSetSpeed(setSpeed-0.5); }]]);
+    } else {
+      fcScreen('Step 2','Find your pace','The belt speeds up a little every 20 seconds. Tap <b>Comfortable</b> when it feels brisk but easy enough to chat.',fcLive());
+      fcBtns([['Slower',()=>{ fcSetSpeed(setSpeed-0.5); FC.paceT=Date.now()+20000; }],['Comfortable ✓',()=>fcPhase(FC.type==='mile'?'mile':'flat'),'primary']]);
+    } }
+  if(ph==='flat'){
+    FC.speed=setSpeed; FC.chg=Date.now(); FC.a0=session.active; FC.hi=0; S.comfort=+setSpeed.toFixed(1); saveSettings();
+    fcScreen('Step 3','Flat walk','Keep walking at this pace. Relax your shoulders and breathe steadily.',fcLive());
+    fcBtns([['− Too fast',()=>{ fcSetSpeed(setSpeed-0.5); FC.speed=setSpeed; }]]); }
+  if(ph==='climb'){
+    FC.a0=session.active; FC.hi=0; FC.climbHr=[]; setIncl=fitInclLevel(); padIncline(setIncl);
+    fcScreen('Step 4','Incline walk',`The pad is rising to incline ${setIncl}. Keep the same pace – hold the rails lightly only if you need balance.`,fcLive());
+    fcBtns([['Stop early',()=>{ FC.abort='You stopped the incline stage early, so there is no fitness score this time. Your pace is saved.'; fcPhase('recover'); }]]); }
+  if(ph==='mile'){
+    FC.speed=setSpeed; FC.chg=Date.now(); FC.d0=session.dist; FC.a0=session.active; FC.hi=0; S.comfort=+setSpeed.toFixed(1); saveSettings();
+    fcScreen('Step 3','Walk 1 mile','Keep a brisk pace you can hold. Use − / + if you need to.',fcLive());
+    fcBtns([['− Slower',()=>fcSetSpeed(setSpeed-0.5)],['+ Faster',()=>fcSetSpeed(setSpeed+0.2)]]); }
+  if(ph==='recover'){
+    FC.hrEnd = fcAvg(FC.hrs.filter(x=>x.t>Date.now()-30000).map(x=>x.hr));
+    if(FC.type==='mile' && FC.d0!=null) FC.mileEnd={dist:session.dist-FC.d0, time:session.active-FC.a0};
+    if(setIncl){ setIncl=0; padIncline(0); }
+    pauseSession(false); FC.rec=[];
+    fcScreen('Last step','Stand still','The belt is stopping. Stand still while your heart rate recovers.',fcLive());
+    fcBtns([['Skip',()=>fcFinish()]]); }
+  FC.timer=setInterval(fcTick,1000); fcTick();
+}
+function fcSafety(hr,set){
+  if(!hr) return false;
+  if(hr>0.92*S.hMax){ FC.abort='Your heart rate went very high, so the check stopped early for safety. Try again another day at a gentler pace.'; fcPhase('recover'); return true; }
+  if(hr>0.85*S.hMax){ FC.hi++; if(FC.hi>=10){ FC.hi=0;
+      if(FC.phase==='climb' && setIncl>0){ setIncl=Math.max(0,setIncl-2); padIncline(setIncl); FC.inclDropped=true; set('fcNote','Heart rate high – lowering the incline.'); }
+      else { fcSetSpeed(setSpeed-0.5); set('fcNote','Heart rate high – easing the speed.'); } } }
+  else FC.hi=0;
+  return false;
+}
+function fcTick(){
+  if(!FC.on) return;
+  const now=Date.now(), el=(now-FC.pt)/1000, hr=curHr();
+  const set=(id,v)=>{ const e=$(id); if(e) e.textContent=v; };
+  if(hr) FC.hrs.push({t:now,hr,spd:live.speed});
+  set('fcHr',hr||'–'); set('fcSpd',(FC.phase==='rest'||FC.phase==='recover')?live.speed.toFixed(1):setSpeed.toFixed(1));
+  const walking = session && session.state==='running';
+  if(FC.phase==='rest'){ if(hr) FC.rest.push(hr); set('fcClock',fmtTime(Math.max(0,60-el))); if(el>=60) fcPhase('pace'); return; }
+  if(FC.phase==='pace'){
+    set('fcClock',setSpeed.toFixed(1)+' km/h');
+    if(FC.fixed){ if(walking && live.speed>=setSpeed-0.15){ FC.atSpeed=FC.atSpeed||now; if(now-FC.atSpeed>20000) fcPhase(FC.type==='mile'?'mile':'flat'); } return; }
+    const cap=Math.min(live.speedMax||6, S.topSpeed||99, S.gentle?4:99);
+    if(walking && live.speed>0.3 && now-FC.paceT>=20000){ FC.paceT=now; if(setSpeed<cap) fcSetSpeed(setSpeed+0.3); }
+    set('fcNote', setSpeed>=cap?'This is your top speed – tap Comfortable or Slower.':'');
+    if(hr && hr>0.80*S.hMax) fcPhase(FC.type==='mile'?'mile':'flat');   // heart rate already high: this pace is plenty
+    return; }
+  if(!walking && FC.phase!=='recover'){ set('fcNote','Paused – Cancel to stop, or resume the pad to carry on.'); return; }
+  if(FC.phase==='flat'){ if(fcSafety(hr,set)) return; const left=180-(session.active-FC.a0); set('fcClock',fmtTime(Math.max(0,left))); if(left<=0) fcPhase('climb'); return; }
+  if(FC.phase==='climb'){ if(fcSafety(hr,set)) return; const left=240-(session.active-FC.a0); set('fcClock',fmtTime(Math.max(0,left))); if(left<=0) fcPhase('recover'); return; }
+  if(FC.phase==='mile'){ if(fcSafety(hr,set)) return; const d=session.dist-FC.d0; set('fcClock',(Math.max(0,1609-d)/1000).toFixed(2)+' km'); set('fcGuide',`${fmtTime(session.active-FC.a0)} so far · keep it brisk`); if(d>=1609) fcPhase('recover'); return; }
+  if(FC.phase==='recover'){ if(hr) FC.rec.push({t:el,hr}); set('fcClock',fmtTime(Math.max(0,60-el))); if(el>=60) fcFinish(); return; }
+}
+function fcFinish(){
+  clearInterval(FC.timer); FC.phase='result';
+  if(session && session.fit && session.state!=='done') finishSession(false);
+  const r={type:FC.type==='mile'?'mile':'quick', src:'test', speed:FC.speed||S.comfort};
+  const restHr = FC.rest && FC.rest.length>=20 ? Math.round(fcAvg([...FC.rest].sort((a,b)=>a-b).slice(0,20))) : null;
+  if(restHr) r.rest=restHr;
+  if(FC.hrEnd) r.hrPace=Math.round(FC.hrEnd);
+  if(FC.hrEnd && FC.rec && FC.rec.length){ const at60=FC.rec.filter(x=>x.t>=50).map(x=>x.hr); if(at60.length) r.recovery=Math.round(FC.hrEnd-fcAvg(at60)); }
+  const sx=S.sex==='m'?1:S.sex==='f'?0:0.5;
+  let note='';
+  if(FC.abort) note=FC.abort;
+  else if(!FC.score) note = S.hrMeds ? '' : 'No heart rate was recorded, so this check set your pace only. Connect your watch next time for a fitness score.';
+  else if(!FC.hrEnd) note='Heart rate dropped out near the end, so there is no fitness score this time.';
+  else if(FC.type==='mile'){
+    if(FC.mileEnd && FC.mileEnd.dist>=1500){
+      const lb=S.weight*2.20462, mins=FC.mileEnd.time/60*(1609/FC.mileEnd.dist);
+      r.vo2=+(132.853-0.0769*lb-0.3877*S.hAge+6.315*sx-3.2649*mins-0.1565*FC.hrEnd).toFixed(1); r.method='Rockport 1-mile walk test';
+    } else note='The mile was not completed, so there is no fitness score this time.';
+  } else {
+    if(FC.inclDropped) note='The incline was lowered for safety, so there is no fitness score this time. Your pace is saved.';
+    else if(r.speed<2.8) note='Your pace is below the range this test is designed for (about 3 km/h and up), so there is no score yet. Your pace is saved – as walking gets easier, retest a little faster.';
+    else { const mph=r.speed/1.609, hr=FC.hrEnd, age=S.hAge;
+      r.vo2=+(15.1+21.8*mph-0.327*hr-0.263*mph*age+0.00504*hr*age+5.98*sx).toFixed(1); r.method='Ebbeling treadmill walking test';
+      if(r.speed<3.2 || age>=60) note='Good to know: this test was designed for paces of about 3.2 km/h and up and adults up to about 60, so treat the result as a rough guide and focus on how it changes over time.'; }
+  }
+  if(r.vo2 && (r.vo2<12||r.vo2>75)){ note='The result was outside the normal range, so it was not saved – check your watch strap is snug and try again.'; delete r.vo2; }
+  if(r.speed){ S.comfort=+r.speed.toFixed(1); const top=+Math.min(live.speedMax||6, r.speed+1.0).toFixed(1); S.topSpeed = S.gentle ? Math.min(4.0,top) : top; }
+  if(r.rest && !S.restEntered) S.hRest=r.rest;
+  setIncl=0; saveSettings(); const saved=addFitResult(r); renderFitSnap(); applyZoneSel(); renderZoneTable();
+  fcResult(saved, note);
+}
+function fcResult(r, note){
+  const hist=store.get('wpad.fit',[]).filter(x=>x.vo2 && x.src==='test' && x.type===r.type), prev=hist.length>1?hist[hist.length-2]:null;
+  let html='';
+  if(r.vo2){
+    const pos=Math.max(2,Math.min(98,r.pct)), dec=Math.floor(S.hAge/10)*10;
+    html+=`<div class="fc-res"><div class="fc-phase">WalkPilot fitness age</div><div class="rv-big">${r.fitAge}</div><div class="rv-sub">${r.fitAge<S.hAge?`${S.hAge-r.fitAge} years younger than your age`:r.fitAge>S.hAge?`${r.fitAge-S.hAge} years older than your age`:'the same as your age'}</div></div>
+      <div class="card" style="margin:0"><div class="rv-hrrow"><div><span class="rv-hrv">${r.vo2}</span> <small style="color:var(--muted)">VO2 max (est.)</small></div><span class="rv-zone" style="background:${r.pct>=60?'var(--z3)':r.pct>=40?'var(--z2)':'var(--z4)'}">${rating(r.pct)}</span></div>
+      <div class="pctbar"><i style="left:${pos}%"></i></div><div class="hint" style="margin:0">Top ${Math.max(1,100-r.pct)}% for ${S.sex==='m'?'men':S.sex==='f'?'women':'people'} aged ${dec}–${dec+9}${prev?` · ${r.vo2>=prev.vo2?'▲':'▼'} ${Math.abs(r.vo2-prev.vo2).toFixed(1)} since ${new Date(prev.date).toLocaleDateString()}`:''}</div></div>`;
+  } else html+=`<div class="fc-res"><div class="fc-phase">Your comfortable pace</div><div class="rv-big">${(r.speed||0).toFixed(1)}</div><div class="rv-sub">km/h</div></div>`;
+  if(note) html+=`<div class="banner" style="margin:0;color:var(--ink)">${note}</div>`;
+  const cells=[[r.speed?r.speed.toFixed(1):'–','Pace km/h'],[S.topSpeed?S.topSpeed.toFixed(1):'–','Top speed'],[r.rest??'–','Rest HR'],[r.hrPace??'–','HR at end'],[r.recovery!=null?'−'+r.recovery:'–','1-min recovery'],[S.hMax,'Max HR']];
+  html+=`<div class="card" style="margin:0"><div class="grid" style="margin-top:0">${cells.map(([v,l])=>`<div class="stat"><b>${v}</b><span>${l}</span></div>`).join('')}</div>
+    <div class="hint">Your comfortable pace and top speed are saved.${r.vo2?` Method: ${r.method}. Fitness figures are estimates (usually within 10–15%) and won't exactly match your watch – compare your own WalkPilot results over time, retesting in about 4 weeks at the same pace.`:''}</div></div>`;
+  $('fcHead').textContent='Fitness Check – results'; $('fcCancel').classList.add('hidden');
+  $('fcBody').innerHTML=html; fcBtns([['Done',fcClose,'primary']]);
+}
+// fitness walks show the fitness screen instead of the normal walk summary; zone control and auto-stop stay out of the way
+{ const _ss=showSummary; showSummary=function(s,reached){ if(s&&s.fit) return; _ss(s,reached); }; }
+{ const _zc=zoneControl; zoneControl=function(now){ if(session&&session.fit) return; _zc(now); }; }
+{ const _ru=updateRunView; updateRunView=function(){ _ru(); if(FC.on){ $('runView').classList.add('hidden'); $('rvBack').classList.add('hidden'); } }; }
+// gentle mode / personal top speed caps heart-rate control
+{ const _sc=speedCap; speedCap=function(){ return Math.min(_sc(), S.topSpeed||99, S.gentle?4.0:99); }; }
+if(S.agreed && !S.setupV) setTimeout(()=>{ /* existing users: offer the new setup once */ if(confirm('WalkPilot has a new setup with a Fitness Check. Set it up now? (Takes a minute.)')) openSetup(); else { S.setupV=1; saveSettings(); } },800);
+renderFitSnap();
 
 // every launch starts fresh: free walk with a 5,000-step target
 S.wkId='free'; S.target=5000; saveSettings(); $('target').value=S.target;
