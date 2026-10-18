@@ -154,7 +154,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v24</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v25</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -371,7 +371,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v24</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v25</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1396,7 +1396,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v24 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v25 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -1440,7 +1440,7 @@ function setConnMsg(t){ RC.msg=t||''; const el=$('rvConn'); if(el){ el.innerHTML
 function updateLinkButtons(){
   const walking = session && (session.state==='running'||session.state==='paused');
   const padDown = !live.demo && ((!!device && !device.gatt.connected) || (walking && session.restored && !live.connected));
-  const watchDown = (!!watchDev && !watchDev.gatt.connected) || (walking && session.restored && !(watchDev && watchDev.gatt.connected));
+  const watchDown = (!!watchDev && !watchDev.gatt.connected) || (walking && (session.restored || session.hadWatch) && !(watchDev && watchDev.gatt.connected));
   const rr=$('rvRestart'); if(rr) rr.classList.toggle('hidden', !(walking && padDown && !session.restored));
   const b1=$('rvReconnect'), b2=$('rvWatchBtn'), box=$('rvLinks'); if(!b1) return;
   b1.classList.toggle('hidden',!padDown); b2.classList.toggle('hidden',!watchDown);
@@ -1468,7 +1468,7 @@ async function padReconnect(){
 // st = pad state after reconnecting: 3 running, 4/10 paused, anything else stopped
 function afterReconnect(st){
   const s=session; if(!s || !s.reconn) return;
-  s.reconn=false;
+  s.reconn=false; s.restored=false; RC.padTry=0; RC.manualFail=false;
   if(st===3){ s.state='running'; s.lastT=Date.now(); keepAwake(true); updateButtons(); log('walk continues after reconnecting'); setConnMsg(''); }
   else if(st===4||st===10){ setConnMsg('⏸ The pad paused while disconnected – tap Resume to carry on.'); updateButtons(); }
   else { setConnMsg('⏹ The pad stopped while disconnected – tap Resume to restart the belt.'); updateButtons(); }
