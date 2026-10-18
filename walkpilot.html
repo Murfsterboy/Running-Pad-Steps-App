@@ -154,7 +154,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v25</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v26</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -371,7 +371,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v25</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v26</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -394,8 +394,9 @@ nav button.active{color:var(--accent)}
  <div class="inner">
   <div class="rv-top"><b id="rvTitle">Free walk</b><span id="rvState" class="pill on">Running</span><button class="rv-link" id="rvMore">Details</button></div>
   <div id="rvConn" class="banner hidden" style="margin:0"></div>
-  <div id="rvLinks" class="rv-ctl hidden"><button id="rvReconnect" class="hidden" onclick="manualReconnect()">🔗 Reconnect pad</button><button id="rvWatchBtn" class="hidden" onclick="manualWatch()">❤️ Reconnect watch</button></div>
-  <button id="rvRestart" class="primary hidden" onclick="restartConnection()" style="padding:14px">↻ Restart connection<br><small style="font-weight:500">saves your walk and reloads the app</small></button>
+  <div id="rvLinks" class="rv-ctl hidden"><button id="rvReconnect" class="primary hidden" onclick="manualReconnect()">🔗 Connect pad</button><button id="rvWatchBtn" class="hidden" onclick="manualWatch()">❤️ Connect watch</button></div>
+  <div id="rvRestartBox" class="hidden" style="text-align:center"><button id="rvRestart" class="primary" onclick="restartConnection()" style="width:100%;padding:16px;font-size:18px;font-weight:700">↻ Restart connection</button>
+   <div class="hint" style="margin-top:6px">then reopen WalkPilot to resume your connection and workout/step count</div></div>
   <div class="rv-steps"><div class="rv-big" id="rvSteps">0</div><div class="rv-sub" id="rvStepsSub">of 5,000 steps</div></div>
   <div class="rv-prog" id="rvProg"></div>
   <div class="rv-progtxt"><span id="rvPct">0%</span><span id="rvEta"></span></div>
@@ -922,7 +923,7 @@ function curHr(){ if(live.watchHr && Date.now()-live.watchT<5000) return live.wa
 function onWatchHr(e){
   const v=e.target.value, f=v.getUint8(0);
   const hr = (f&1) ? v.getUint16(1,true) : v.getUint8(1);
-  if(hr>0){ live.watchHr=hr; live.watchT=Date.now(); if(session) session.hadWatch=true; }
+  if(hr>0){ live.watchHr=hr; live.watchT=Date.now(); if(session){ session.hadWatch=true; if(/watch/i.test(RC.msg)) setConnMsg(''); } }
   if(!session || session.state!=='running') renderLive();
 }
 async function watchAttach(){
@@ -937,7 +938,7 @@ async function connectWatch(){
     watchDev=await navigator.bluetooth.requestDevice({filters:[{services:['heart_rate']}]});
     watchDev.addEventListener('gattserverdisconnected', async ()=>{
       updateWatch(false); log('Watch disconnected');
-      watchReconnect();
+      watchReconnect(); if(session && (session.state==='running'||session.state==='paused')) setConnMsg('⚠️ <b>Watch disconnected</b> – your walk carries on. Tap <b>Restart connection</b> to reconnect it.');
     });
     await watchAttach();
   }catch(e){ log('Watch connect failed: '+e.message); }
@@ -1396,7 +1397,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v25 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v26 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -1441,10 +1442,13 @@ function updateLinkButtons(){
   const walking = session && (session.state==='running'||session.state==='paused');
   const padDown = !live.demo && ((!!device && !device.gatt.connected) || (walking && session.restored && !live.connected));
   const watchDown = (!!watchDev && !watchDev.gatt.connected) || (walking && (session.restored || session.hadWatch) && !(watchDev && watchDev.gatt.connected));
-  const rr=$('rvRestart'); if(rr) rr.classList.toggle('hidden', !(walking && padDown && !session.restored));
+  const restored = walking && session.restored;
+  // during a walk: a single Restart button. After reopening (restored walk): the normal Connect pad / Connect watch buttons.
+  const rb=$('rvRestartBox'); if(rb) rb.classList.toggle('hidden', !(walking && !restored && (padDown||watchDown)));
   const b1=$('rvReconnect'), b2=$('rvWatchBtn'), box=$('rvLinks'); if(!b1) return;
-  b1.classList.toggle('hidden',!padDown); b2.classList.toggle('hidden',!watchDown);
-  box.classList.toggle('hidden',!(padDown||watchDown)); box.style.gridTemplateColumns = padDown&&watchDown ? '1fr 1fr' : '1fr';
+  const showPad = restored && padDown, showWatch = (restored || (walking && !padDown && live.connected && session.restoredOnce)) && watchDown;
+  b1.classList.toggle('hidden',!showPad); b2.classList.toggle('hidden',!showWatch);
+  box.classList.toggle('hidden',!(showPad||showWatch)); box.style.gridTemplateColumns = showPad&&showWatch ? '1fr 1fr' : '1fr';
 }
 setInterval(updateLinkButtons,1000);
 async function padReconnect(){
@@ -1453,7 +1457,7 @@ async function padReconnect(){
   while(device && !device.gatt.connected){
     const limit = session && (session.state==='running'||session.state==='paused') ? 300000 : 120000;
     if(Date.now()-RC.padStart>limit){ setConnMsg(REBOOT_MSG); log(`pad reconnect gave up after ${limit/60000} minutes`); break; }
-    RC.padTry++; if(!RC.manualFail) setConnMsg(`🔄 Lost the pad – trying to reconnect (try ${RC.padTry}).<br>If you switched Bluetooth off, or this doesn't work within a few seconds, tap <b>Restart connection</b> – your walk is saved.`); $('connPill').textContent='Reconnecting…';
+    RC.padTry++; setConnMsg('⚠️ <b>Connection lost</b> – your walk is saved. Tap <b>Restart connection</b> below.'); $('connPill').textContent='Reconnecting…';
     if(RC.padTry===4) showReconnectBtn(true);   // offer the manual route early, automatic retries carry on
     try{ await attachPad(); log('✅ pad reconnected'); break; }
     catch(e){ log('pad reconnect failed: '+e.message); await new Promise(r=>setTimeout(r, Math.min(15000, 1000*2**Math.min(RC.padTry,4)))); }
@@ -1482,7 +1486,8 @@ async function manualReconnect(){
     const d = await navigator.bluetooth.requestDevice({ filters:[{services:[FTMS]},{namePrefix:'UREVO'},{namePrefix:'URTM'},{namePrefix:'Urevo'}], optionalServices:EXTRA_SERVICES });
     if(d!==device){ device=d; device.addEventListener('gattserverdisconnected', onDisconnect); }
     setConnMsg('🔄 Connecting…'); await attachPad(); RC.manualFail=false; updateLinkButtons(); log('✅ pad reconnected (manual)');
-    setConnMsg(session && session.restored && !(watchDev && watchDev.gatt.connected) ? '✅ Pad connected. Tap <b>Reconnect watch</b> for heart rate (start broadcast on the watch first).' : '');
+    if(session && session.restored) session.restoredOnce=true;
+    setConnMsg(session && session.restored && session.hadWatch && !(watchDev && watchDev.gatt.connected) ? '✅ Pad connected. Tap <b>Connect watch</b> for heart rate (start broadcast on the watch first).' : '');
     if(!UR.ch) setTimeout(()=>afterReconnect(live.speed>0.3?3:10), 3000);
   }catch(e){ log('manual reconnect: '+e.message); RC.manualFail=true; setConnMsg(REBOOT_MSG); updateLinkButtons(); }
 }
@@ -1912,10 +1917,28 @@ if(S.agreed && !S.setupV) setTimeout(()=>{ /* existing users: offer the new setu
 renderFitSnap();
 
 
+/* ================= REMEMBER DEVICES / AUTO-RECONNECT ================= */
+function rememberDev(kind,d){ try{ const m=store.get('wpad.devs',{}); m[kind]={id:d.id,name:d.name}; store.set('wpad.devs',m); }catch(e){} }
+{ const _ap=attachPad; attachPad=async function(){ await _ap(); if(device) rememberDev('pad',device); }; }
+{ const _wa=watchAttach; watchAttach=async function(){ await _wa(); if(watchDev) rememberDev('watch',watchDev); }; }
+async function knownDevice(kind){
+  if(!navigator.bluetooth || !navigator.bluetooth.getDevices) return null;       // Chrome feature – not on every phone yet
+  try{ const want=store.get('wpad.devs',{})[kind]; if(!want) return null;
+    const list=await navigator.bluetooth.getDevices(); return list.find(d=>d.id===want.id) || list.find(d=>d.name && d.name===want.name) || null; }catch(e){ return null; }
+}
+async function autoPad(){
+  const d=await knownDevice('pad'); if(!d) return false;
+  try{ if(d!==device){ device=d; device.addEventListener('gattserverdisconnected', onDisconnect); } await attachPad(); log('✅ pad reconnected automatically'); return true; }catch(e){ log('auto pad: '+e.message); return false; }
+}
+async function autoWatch(){
+  const d=await knownDevice('watch'); if(!d) return false;
+  try{ watchDev=d; watchDev.addEventListener('gattserverdisconnected', ()=>{ updateWatch(false); log('Watch disconnected'); watchReconnect(); }); await watchAttach(); log('✅ watch reconnected automatically'); return true; }catch(e){ log('auto watch: '+e.message); return false; }
+}
+
 /* ================= SAVE & RESUME A WALK ================= */
 // After the phone's Bluetooth is switched off and on, Chrome only reconnects once the page is reloaded.
 // So the walk in progress is saved every few seconds and can be resumed after a reload.
-const REBOOT_MSG="⚠️ <b>Can't reconnect?</b> Tap <b>Restart connection</b> below – your walk is saved and resumes after the app reloads. If your pad then isn't in the list, stop the belt, switch the pad <b>off at its power switch</b>, wait 10 seconds and switch it back on.";
+const REBOOT_MSG="⚠️ <b>Can't find your pad?</b> Stop the belt, switch the pad <b>off at its power switch</b>, wait 10 seconds, switch it back on, then tap <b>Connect pad</b>.";
 function saveLive(){
   if(!session || session.fit || !(session.state==='running'||session.state==='paused')) return;
   try{ const hadWatch = !!(watchDev && watchDev.gatt.connected) || !!session.hadWatch;
@@ -1933,7 +1956,7 @@ function restoreLive(v){
   setSpeed=v.setSpeed||setSpeed; setIncl=v.setIncl||0; delete session.savedAt;
   $('resumeView').classList.add('hidden'); document.body.style.overflow='';
   RV.min=false; RV.built=null; keepAwake(true); updateButtons(); renderLive();
-  setConnMsg('🔗 Tap <b>Reconnect pad</b> and choose your pad to carry on.'); updateLinkButtons();
+  session.restoredOnce=true; setConnMsg('🔗 Tap <b>Connect pad</b> and choose your pad to carry on.'); updateLinkButtons();
 }
 function offerResume(){
   const v=loadLive(); if(!v) return;
@@ -1942,7 +1965,9 @@ function offerResume(){
   $('rsSub').textContent = v.wk && WK[v.wk.id] ? `steps · ${WK[v.wk.id].name}` : `of ${fmtInt(v.target)} steps`;
   $('rsStats').innerHTML=[[fmtTime(v.active),'Time'],[(v.dist/1000).toFixed(2),'km'],[new Date(v.savedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),'Saved at']].map(([a,b])=>`<div class="stat"><b>${a}</b><span>${b}</span></div>`).join('');
   $('resumeView').classList.remove('hidden'); document.body.style.overflow='hidden';
-  $('rsGo').onclick=()=>{ restoreLive(v); manualReconnect(); };          // the tap opens the pad picker straight away
+  $('rsGo').onclick=async()=>{ restoreLive(v);
+    if(navigator.bluetooth && navigator.bluetooth.getDevices && await autoPad()){ setConnMsg(''); updateLinkButtons(); if(v.hadWatch) autoWatch().then(ok=>{ updateLinkButtons(); if(!ok) setConnMsg('✅ Pad connected. Tap <b>Connect watch</b> for heart rate (start broadcast on the watch first).'); }); return; }
+    manualReconnect(); };          // no automatic route on this phone: the tap opens the pad picker
   $('rsSave').onclick=()=>{ restoreLive(v); setConnMsg(''); finishSession(false); };
   $('rsDrop').onclick=()=>{ if(confirm('Discard this walk? It will not be saved.')){ clearLive(); $('resumeView').classList.add('hidden'); document.body.style.overflow=''; } };
 }
