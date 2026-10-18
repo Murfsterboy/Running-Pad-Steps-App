@@ -154,7 +154,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v21</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v22</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -371,7 +371,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v21</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v22</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -394,7 +394,7 @@ nav button.active{color:var(--accent)}
  <div class="inner">
   <div class="rv-top"><b id="rvTitle">Free walk</b><span id="rvState" class="pill on">Running</span><button class="rv-link" id="rvMore">Details</button></div>
   <div id="rvConn" class="banner hidden" style="margin:0"></div>
-  <button id="rvReconnect" class="primary hidden" onclick="manualReconnect()">🔗 Reconnect pad</button>
+  <div id="rvLinks" class="rv-ctl hidden"><button id="rvReconnect" class="primary hidden" onclick="manualReconnect()">🔗 Reconnect pad</button><button id="rvWatchBtn" class="hidden" onclick="manualWatch()">❤️ Reconnect watch</button></div>
   <div class="rv-steps"><div class="rv-big" id="rvSteps">0</div><div class="rv-sub" id="rvStepsSub">of 5,000 steps</div></div>
   <div class="rv-prog" id="rvProg"></div>
   <div class="rv-progtxt"><span id="rvPct">0%</span><span id="rvEta"></span></div>
@@ -1382,7 +1382,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v21 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v22 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -1421,21 +1421,29 @@ if(!S.agreed) setTimeout(()=>showWelcome(),0);
 
 /* ---------- automatic reconnection ---------- */
 const RC={pad:false, padTry:0, padStart:0, watch:false, watchTry:0, msg:''};
-function setConnMsg(t){ RC.msg=t||''; const el=$('rvConn'); if(el){ el.textContent=RC.msg; el.classList.toggle('hidden',!RC.msg); } }
+function setConnMsg(t){ RC.msg=t||''; const el=$('rvConn'); if(el){ el.innerHTML=RC.msg; el.classList.toggle('hidden',!RC.msg); } }
+// show the reconnect buttons as soon as a link drops (automatic retries keep going in the background)
+function updateLinkButtons(){
+  const padDown = !!device && !live.demo && !device.gatt.connected, watchDown = !!watchDev && !watchDev.gatt.connected;
+  const b1=$('rvReconnect'), b2=$('rvWatchBtn'), box=$('rvLinks'); if(!b1) return;
+  b1.classList.toggle('hidden',!padDown); b2.classList.toggle('hidden',!watchDown);
+  box.classList.toggle('hidden',!(padDown||watchDown)); box.style.gridTemplateColumns = padDown&&watchDown ? '1fr 1fr' : '1fr';
+}
+setInterval(updateLinkButtons,1000);
 async function padReconnect(){
   if(!device || RC.pad || live.demo) return;
   RC.pad=true; RC.padTry=0; RC.padStart=Date.now();
   while(device && !device.gatt.connected){
     const limit = session && (session.state==='running'||session.state==='paused') ? 300000 : 120000;
-    if(Date.now()-RC.padStart>limit){ setConnMsg('⚠️ The pad isn\'t answering. If its display shows it is still connected, wait for the belt to stop or switch the pad off and on – then tap Reconnect pad.'); showReconnectBtn(true); log(`pad reconnect gave up after ${limit/60000} minutes`); break; }
-    RC.padTry++; setConnMsg(`🔄 Reconnecting to the pad… (try ${RC.padTry})`); $('connPill').textContent='Reconnecting…';
+    if(Date.now()-RC.padStart>limit){ setConnMsg(REBOOT_MSG); log(`pad reconnect gave up after ${limit/60000} minutes`); break; }
+    RC.padTry++; if(!RC.manualFail) setConnMsg(`🔄 Reconnecting to the pad… (try ${RC.padTry}) – or tap Reconnect pad below.`); $('connPill').textContent='Reconnecting…';
     if(RC.padTry===4) showReconnectBtn(true);   // offer the manual route early, automatic retries carry on
     try{ await attachPad(); log('✅ pad reconnected'); break; }
     catch(e){ log('pad reconnect failed: '+e.message); await new Promise(r=>setTimeout(r, Math.min(15000, 1000*2**Math.min(RC.padTry,4)))); }
   }
   RC.pad=false;
   if(device && device.gatt.connected){
-    setConnMsg(''); showReconnectBtn(false);
+    RC.manualFail=false; setConnMsg(''); updateLinkButtons();
     // FTMS-only pads: decide from the belt speed after a few seconds (UREVO pads decide in urFrameIn)
     if(!UR.ch) setTimeout(()=>afterReconnect(live.speed>0.3?3:10), 3000);
   }
@@ -1449,16 +1457,22 @@ function afterReconnect(st){
   else { setConnMsg('⏹ The pad stopped while disconnected – tap Resume to restart the belt.'); updateButtons(); }
   renderLive();
 }
-function showReconnectBtn(on){ const b=$('rvReconnect'); if(b) b.classList.toggle('hidden',!on); }
+function showReconnectBtn(on){ updateLinkButtons(); }
 // manual reconnect: the normal pad picker (needs a tap), keeps the current walk
 async function manualReconnect(){
   if(!navigator.bluetooth) return;
   try{
     const d = await navigator.bluetooth.requestDevice({ filters:[{services:[FTMS]},{namePrefix:'UREVO'},{namePrefix:'URTM'},{namePrefix:'Urevo'}], optionalServices:EXTRA_SERVICES });
     if(d!==device){ device=d; device.addEventListener('gattserverdisconnected', onDisconnect); }
-    setConnMsg('🔄 Connecting…'); await attachPad(); setConnMsg(''); showReconnectBtn(false); log('✅ pad reconnected (manual)');
+    setConnMsg('🔄 Connecting…'); await attachPad(); RC.manualFail=false; setConnMsg(''); updateLinkButtons(); log('✅ pad reconnected (manual)');
     if(!UR.ch) setTimeout(()=>afterReconnect(live.speed>0.3?3:10), 3000);
-  }catch(e){ log('manual reconnect: '+e.message); if(!/cancel/i.test(e.message)) setConnMsg('⚠️ Could not connect: '+e.message); }
+  }catch(e){ log('manual reconnect: '+e.message); RC.manualFail=true; setConnMsg(REBOOT_MSG); updateLinkButtons(); }
+}
+const REBOOT_MSG="⚠️ <b>Can't find your pad?</b> Stop the belt, switch the pad <b>off at its power switch</b>, wait 10 seconds, switch it back on, then tap <b>Reconnect pad</b>. Your walk is kept on hold.";
+async function manualWatch(){
+  try{ await connectWatch(); }catch(e){ log('manual watch: '+e.message); }
+  updateLinkButtons();
+  if(!watchDev || !watchDev.gatt.connected) setConnMsg('❤️ Watch not found – start heart-rate broadcast on the watch (Garmin: hold LIGHT → Broadcast Heart Rate), then tap Reconnect watch.');
 }
 // when the phone's Bluetooth comes back on, retry straight away
 if(navigator.bluetooth && navigator.bluetooth.addEventListener){
