@@ -154,7 +154,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v19</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v21</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -371,7 +371,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v19</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v21</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -394,6 +394,7 @@ nav button.active{color:var(--accent)}
  <div class="inner">
   <div class="rv-top"><b id="rvTitle">Free walk</b><span id="rvState" class="pill on">Running</span><button class="rv-link" id="rvMore">Details</button></div>
   <div id="rvConn" class="banner hidden" style="margin:0"></div>
+  <button id="rvReconnect" class="primary hidden" onclick="manualReconnect()">🔗 Reconnect pad</button>
   <div class="rv-steps"><div class="rv-big" id="rvSteps">0</div><div class="rv-sub" id="rvStepsSub">of 5,000 steps</div></div>
   <div class="rv-prog" id="rvProg"></div>
   <div class="rv-progtxt"><span id="rvPct">0%</span><span id="rvEta"></span></div>
@@ -1381,7 +1382,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v19 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v21 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -1425,14 +1426,16 @@ async function padReconnect(){
   if(!device || RC.pad || live.demo) return;
   RC.pad=true; RC.padTry=0; RC.padStart=Date.now();
   while(device && !device.gatt.connected){
-    if(Date.now()-RC.padStart>120000){ setConnMsg('⚠️ Lost the pad. Check it is on, then tap Connect pad (Details).'); log('pad reconnect gave up after 2 minutes'); break; }
+    const limit = session && (session.state==='running'||session.state==='paused') ? 300000 : 120000;
+    if(Date.now()-RC.padStart>limit){ setConnMsg('⚠️ The pad isn\'t answering. If its display shows it is still connected, wait for the belt to stop or switch the pad off and on – then tap Reconnect pad.'); showReconnectBtn(true); log(`pad reconnect gave up after ${limit/60000} minutes`); break; }
     RC.padTry++; setConnMsg(`🔄 Reconnecting to the pad… (try ${RC.padTry})`); $('connPill').textContent='Reconnecting…';
+    if(RC.padTry===4) showReconnectBtn(true);   // offer the manual route early, automatic retries carry on
     try{ await attachPad(); log('✅ pad reconnected'); break; }
     catch(e){ log('pad reconnect failed: '+e.message); await new Promise(r=>setTimeout(r, Math.min(15000, 1000*2**Math.min(RC.padTry,4)))); }
   }
   RC.pad=false;
   if(device && device.gatt.connected){
-    setConnMsg('');
+    setConnMsg(''); showReconnectBtn(false);
     // FTMS-only pads: decide from the belt speed after a few seconds (UREVO pads decide in urFrameIn)
     if(!UR.ch) setTimeout(()=>afterReconnect(live.speed>0.3?3:10), 3000);
   }
@@ -1445,6 +1448,22 @@ function afterReconnect(st){
   else if(st===4||st===10){ setConnMsg('⏸ The pad paused while disconnected – tap Resume to carry on.'); updateButtons(); }
   else { setConnMsg('⏹ The pad stopped while disconnected – tap Resume to restart the belt.'); updateButtons(); }
   renderLive();
+}
+function showReconnectBtn(on){ const b=$('rvReconnect'); if(b) b.classList.toggle('hidden',!on); }
+// manual reconnect: the normal pad picker (needs a tap), keeps the current walk
+async function manualReconnect(){
+  if(!navigator.bluetooth) return;
+  try{
+    const d = await navigator.bluetooth.requestDevice({ filters:[{services:[FTMS]},{namePrefix:'UREVO'},{namePrefix:'URTM'},{namePrefix:'Urevo'}], optionalServices:EXTRA_SERVICES });
+    if(d!==device){ device=d; device.addEventListener('gattserverdisconnected', onDisconnect); }
+    setConnMsg('🔄 Connecting…'); await attachPad(); setConnMsg(''); showReconnectBtn(false); log('✅ pad reconnected (manual)');
+    if(!UR.ch) setTimeout(()=>afterReconnect(live.speed>0.3?3:10), 3000);
+  }catch(e){ log('manual reconnect: '+e.message); if(!/cancel/i.test(e.message)) setConnMsg('⚠️ Could not connect: '+e.message); }
+}
+// when the phone's Bluetooth comes back on, retry straight away
+if(navigator.bluetooth && navigator.bluetooth.addEventListener){
+  navigator.bluetooth.addEventListener('availabilitychanged', e=>{ log('phone Bluetooth '+(e.value?'on':'off'));
+    if(e.value){ if(device && !device.gatt.connected && !live.demo){ RC.padStart=Date.now(); padReconnect(); } if(watchDev && !watchDev.gatt.connected) watchReconnect(); } });
 }
 async function watchReconnect(){
   if(!watchDev || RC.watch) return;
@@ -1659,19 +1678,21 @@ showWelcome=openSetup;           // the old welcome card is replaced by the setu
 $('btnShowWelcome').onclick=openSetup;
 
 /* ================= FITNESS NORMS ================= */
-// Approximate VO2 max medians and spread by age and sex, from published population norms (Cooper Institute / ACSM style tables).
-const VO2_NORM={ m:{ages:[25,35,45,55,65,75], med:[42.4,41.0,38.4,35.2,31.8,28.0], sd:6.5},
-                 f:{ages:[25,35,45,55,65,75], med:[37.0,35.2,32.8,29.4,26.8,24.6], sd:5.5} };
-function normFor(sex){ if(sex==='m'||sex==='f') return VO2_NORM[sex]; const m=VO2_NORM.m,f=VO2_NORM.f; return {ages:m.ages, med:m.med.map((v,i)=>(v+f.med[i])/2), sd:6}; }
-function medianAt(n,age){ const A=n.ages,M=n.med; if(age<=A[0]) return M[0]+(A[0]-age)*(M[0]-M[1])/(A[1]-A[0]);
-  for(let i=1;i<A.length;i++) if(age<=A[i]) return M[i-1]+(age-A[i-1])/(A[i]-A[i-1])*(M[i]-M[i-1]);
-  const k=A.length-1; return M[k]+(age-A[k])*(M[k]-M[k-1])/(A[k]-A[k-1]); }
-function fitnessAge(vo2,sex){ const n=normFor(sex); // age at which the median equals vo2
-  let lo=15, hi=95; for(let i=0;i<40;i++){ const mid=(lo+hi)/2; if(medianAt(n,mid)>vo2) lo=mid; else hi=mid; } return Math.round((lo+hi)/2); }
-function percentile(vo2,sex,age){ const n=normFor(sex), z=(vo2-medianAt(n,age))/n.sd; // normal CDF
-  const t=1/(1+0.2316419*Math.abs(z)), d=0.3989423*Math.exp(-z*z/2), p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274))));
-  return Math.round(100*(z>0?1-p:p)); }
-function rating(pct){ return pct>=80?'Excellent':pct>=60?'Good':pct>=40?'Average':pct>=20?'Below average':'Needs work'; }
+// VO2 max ratings from The Cooper Institute, as used by Garmin watches (percentile thresholds by age group).
+const COOPER={ ages:[25,35,45,55,65,75],
+  m:{p40:[41.7,40.5,38.5,35.6,32.3,29.4], p60:[45.4,44.0,42.4,39.2,35.5,32.3], p80:[51.1,48.3,46.4,43.4,39.5,36.7], p95:[55.4,54.0,52.5,48.9,45.7,42.1]},
+  f:{p40:[36.1,34.4,33.0,30.1,27.5,25.9], p60:[39.5,37.8,36.3,33.0,30.0,28.1], p80:[43.9,42.4,39.7,36.7,33.0,30.9], p95:[49.6,47.4,45.3,41.1,37.8,36.7]} };
+function cooperAt(sex,key,age){ const t = sex==='m'||sex==='f' ? COOPER[sex][key] : COOPER.m[key].map((v,i)=>(v+COOPER.f[key][i])/2), A=COOPER.ages;
+  if(age<=A[0]) return t[0]+(A[0]-age)*(t[0]-t[1])/(A[1]-A[0]);
+  for(let i=1;i<A.length;i++) if(age<=A[i]) return t[i-1]+(age-A[i-1])/(A[i]-A[i-1])*(t[i]-t[i-1]);
+  const k=A.length-1; return t[k]+(age-A[k])*(t[k]-t[k-1])/(A[k]-A[k-1]); }
+const medianAtAge=(sex,age)=>(cooperAt(sex,'p40',age)+cooperAt(sex,'p60',age))/2;
+function fitnessAge(vo2,sex){ let lo=20, hi=95; for(let i=0;i<40;i++){ const mid=(lo+hi)/2; if(medianAtAge(sex,mid)>vo2) lo=mid; else hi=mid; } return Math.round((lo+hi)/2); }
+function percentile(vo2,sex,age){ // piecewise between the published percentile points
+  const pts=[[0,cooperAt(sex,'p40',age)-2.5*(cooperAt(sex,'p60',age)-cooperAt(sex,'p40',age))],[40,cooperAt(sex,'p40',age)],[60,cooperAt(sex,'p60',age)],[80,cooperAt(sex,'p80',age)],[95,cooperAt(sex,'p95',age)],[99,cooperAt(sex,'p95',age)+(cooperAt(sex,'p95',age)-cooperAt(sex,'p80',age))*0.6]];
+  if(vo2<=pts[0][1]) return 1; if(vo2>=pts[5][1]) return 99;
+  for(let i=1;i<pts.length;i++) if(vo2<=pts[i][1]) return Math.round(pts[i-1][0]+(vo2-pts[i-1][1])/(pts[i][1]-pts[i-1][1])*(pts[i][0]-pts[i-1][0])); return 99; }
+function rating(pct){ return pct>=95?'Superior':pct>=80?'Excellent':pct>=60?'Good':pct>=40?'Fair':'Poor'; }
 function addFitResult(r){
   r.date=Date.now(); r.age=S.hAge; r.sex=S.sex;
   if(r.vo2){ r.fitAge=fitnessAge(r.vo2,S.sex); r.pct=percentile(r.vo2,S.sex,S.hAge); }
@@ -1681,6 +1702,7 @@ function renderFitSnap(){
   const h=store.get('wpad.fit',[]), el=$('fitSnap'); if(!el) return;
   const last=[...h].reverse().find(x=>x.vo2), lastPace=[...h].reverse().find(x=>x.speed);
   let t='';
+  if(last){ last.fitAge=fitnessAge(last.vo2,S.sex); last.pct=percentile(last.vo2,S.sex,S.hAge); }   // always rate with the current tables
   if(last) t+=`<b>VO2 max ${last.vo2}</b> · WalkPilot fitness age <b>${last.fitAge}</b> · ${rating(last.pct)} (top ${Math.max(1,100-last.pct)}% for your age) <small>– ${last.src==='watch'?'from your watch':'WalkPilot estimate'}, ${new Date(last.date).toLocaleDateString()}</small><br>`;
   if(S.comfort) t+=`Comfortable pace <b>${S.comfort.toFixed(1)} km/h</b>${S.topSpeed?` · top speed <b>${S.topSpeed.toFixed(1)} km/h</b>`:''}${S.gentle?' · gentle mode on':''}`;
   if(!t) t='No Fitness Check yet. It takes 10 minutes and sets your personal pace' + (S.hrMeds?'.':' and fitness age.');
@@ -1715,9 +1737,9 @@ function openFitness(type){
       ${withScore?'✅ Heart rate connected – you will get your VO2 max and fitness age.':S.hrMeds?'ℹ️ Because of heart-rate medicine, this check sets your personal pace only (no fitness score).':'⚠️ <b>No heart rate yet.</b> Connect your watch for a fitness score – without it, this check only sets your personal pace.'}
       <br><br><small>Stop any time with Cancel or the pad's safety key. The check eases off automatically if your heart rate goes too high.</small></div>`);
   fcBtns([['Not now',fcClose],['Start',fcStart,'primary']]);
-  $('fcCancel').classList.remove('hidden'); $('fitView').classList.remove('hidden'); document.body.style.overflow='hidden';
+  $('fcCancel').classList.remove('hidden'); $('fitView').classList.remove('hidden'); document.body.style.overflow='hidden'; keepAwake(true);
 }
-function fcClose(){ FC.on=false; clearInterval(FC.timer); $('fitView').classList.add('hidden'); document.body.style.overflow=''; updateRunView(); }
+function fcClose(){ FC.on=false; clearInterval(FC.timer); if(!session||session.state==='done') keepAwake(false); $('fitView').classList.add('hidden'); document.body.style.overflow=''; updateRunView(); }
 $('fcCancel').onclick=()=>{ if(FC.phase==='result'||FC.phase==='intro'||confirm('Stop the Fitness Check?')){ if(session&&session.fit&&session.state!=='done') finishSession(false); setIncl=0; fcClose(); } };
 $('btnFit').onclick=()=>{ if(!live.connected){ alert('Connect the pad first (or use Demo mode).'); return; } openFitness('quick'); };
 $('btnFitMile').onclick=()=>{ if(!live.connected){ alert('Connect the pad first (or use Demo mode).'); return; } openFitness('mile'); };
@@ -1736,7 +1758,7 @@ function fcPhase(ph){
   if(ph==='pace'){
     const prevWk=S.wkId; S.wkId='free'; setIncl=0;
     setSpeed = FC.fixed ? FC.fixed : Math.max(live.speedMin||1, 2.0);
-    startSession(); S.wkId=prevWk; session.fit={type:FC.type}; session.target=1e9; FC.paceT=Date.now();
+    startSession(); S.wkId=prevWk; session.fit={type:FC.type}; session.hit=true; FC.paceT=Date.now();
     if(FC.fixed){
       fcScreen('Step 2','Getting up to speed',`The belt is going to your test pace of <b>${FC.fixed.toFixed(1)} km/h</b>. Start walking when it moves.`,fcLive());
       fcBtns([['Too fast – slower',()=>{ FC.fixed=null; fcSetSpeed(setSpeed-0.5); }]]);
@@ -1798,7 +1820,9 @@ function fcTick(){
 }
 function fcFinish(){
   clearInterval(FC.timer); FC.phase='result';
-  if(session && session.fit && session.state!=='done') finishSession(false);
+  const fs=session;
+  if(fs && fs.fit && fs.state!=='done') finishSession(false);
+  if(fs && fs.fit){ const h=store.get('wpad.history',[]); if(h[0] && h[0].id===fs.start){ h[0].wk = FC.type==='mile'?'Fitness Check (1 mile)':'Fitness Check'; store.set('wpad.history',h); renderHistory(); } }
   const r={type:FC.type==='mile'?'mile':'quick', src:'test', speed:FC.speed||S.comfort};
   const restHr = FC.rest && FC.rest.length>=20 ? Math.round(fcAvg([...FC.rest].sort((a,b)=>a-b).slice(0,20))) : null;
   if(restHr) r.rest=restHr;
@@ -1833,7 +1857,7 @@ function fcResult(r, note){
   if(r.vo2){
     const pos=Math.max(2,Math.min(98,r.pct)), dec=Math.floor(S.hAge/10)*10;
     html+=`<div class="fc-res"><div class="fc-phase">WalkPilot fitness age</div><div class="rv-big">${r.fitAge}</div><div class="rv-sub">${r.fitAge<S.hAge?`${S.hAge-r.fitAge} years younger than your age`:r.fitAge>S.hAge?`${r.fitAge-S.hAge} years older than your age`:'the same as your age'}</div></div>
-      <div class="card" style="margin:0"><div class="rv-hrrow"><div><span class="rv-hrv">${r.vo2}</span> <small style="color:var(--muted)">VO2 max (est.)</small></div><span class="rv-zone" style="background:${r.pct>=60?'var(--z3)':r.pct>=40?'var(--z2)':'var(--z4)'}">${rating(r.pct)}</span></div>
+      <div class="card" style="margin:0"><div class="rv-hrrow"><div><span class="rv-hrv">${r.vo2}</span> <small style="color:var(--muted)">VO2 max (est.)</small></div><span class="rv-zone" style="background:${r.pct>=80?'var(--z3)':r.pct>=60?'var(--z2)':r.pct>=40?'var(--z4)':'var(--z5)'}">${rating(r.pct)}</span></div>
       <div class="pctbar"><i style="left:${pos}%"></i></div><div class="hint" style="margin:0">Top ${Math.max(1,100-r.pct)}% for ${S.sex==='m'?'men':S.sex==='f'?'women':'people'} aged ${dec}–${dec+9}${prev?` · ${r.vo2>=prev.vo2?'▲':'▼'} ${Math.abs(r.vo2-prev.vo2).toFixed(1)} since ${new Date(prev.date).toLocaleDateString()}`:''}</div></div>`;
   } else html+=`<div class="fc-res"><div class="fc-phase">Your comfortable pace</div><div class="rv-big">${(r.speed||0).toFixed(1)}</div><div class="rv-sub">km/h</div></div>`;
   if(note) html+=`<div class="banner" style="margin:0;color:var(--ink)">${note}</div>`;
@@ -1844,6 +1868,9 @@ function fcResult(r, note){
   $('fcBody').innerHTML=html; fcBtns([['Done',fcClose,'primary']]);
 }
 // fitness walks show the fitness screen instead of the normal walk summary; zone control and auto-stop stay out of the way
+// screen stays on while a walk is running or paused, and during the Fitness Check
+{ const _ka=keepAwake; keepAwake=async function(on){ if(!on && (FC.on || (session && session.state==='paused'))) on=true; if(on && wakeLock && !wakeLock.released) return; return _ka(on); }; }
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && (FC.on || (session && session.state==='paused'))) keepAwake(true); });
 { const _ss=showSummary; showSummary=function(s,reached){ if(s&&s.fit) return; _ss(s,reached); }; }
 { const _zc=zoneControl; zoneControl=function(now){ if(session&&session.fit) return; _zc(now); }; }
 { const _ru=updateRunView; updateRunView=function(){ _ru(); if(FC.on){ $('runView').classList.add('hidden'); $('rvBack').classList.add('hidden'); } }; }
