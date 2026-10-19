@@ -64,6 +64,9 @@ label{display:block;font-size:13px;color:var(--muted);margin:8px 0 4px}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .chips button{flex:1;padding:8px 6px;font-size:13px}
 .hint{font-size:13px;color:var(--muted);margin-top:8px}
+.today-box{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.rv-fast{width:100%;padding:12px;font-weight:700}
+.wk-lock{margin-top:8px;font-size:13px;color:var(--muted)}.wk-lock a{color:var(--accent,inherit);text-decoration:underline;cursor:pointer}
 .big{font-size:44px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
 .big small{font-size:18px;color:var(--muted);font-weight:500}
 .bar{height:10px;background:var(--line);border-radius:99px;overflow:hidden;margin:10px 0 4px}
@@ -154,7 +157,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v26</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v27</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -186,6 +189,7 @@ nav button.active{color:var(--accent)}
     <h2>Workout</h2>
     <select id="wkSel"></select>
     <div class="hint" id="wkDesc"></div>
+    <div class="wk-lock" id="wkLock"></div>
     <div id="wkLive" class="hidden" style="margin-top:10px">
       <div style="font-size:20px;font-weight:700" id="wkNow"></div>
       <div class="bar"><div id="wkBar" style="background:var(--c-incl)"></div></div>
@@ -197,6 +201,10 @@ nav button.active{color:var(--accent)}
   <div class="card" id="fitCard">
     <h2>Fitness</h2>
     <div id="fitSnap" class="hint" style="margin-top:0">No Fitness Check yet.</div>
+    <details style="margin-top:8px"><summary class="hint" style="margin:0;cursor:pointer">Change my pace or top speed</summary>
+      <div class="row" style="margin-top:6px"><div><label for="fPace" style="margin-top:0">Comfortable pace</label><input id="fPace" type="number" inputmode="decimal" step="0.1" min="1" max="8" placeholder="km/h"></div>
+      <div><label for="fTop" style="margin-top:0">Top speed</label><input id="fTop" type="number" inputmode="decimal" step="0.1" min="1" max="8" placeholder="km/h"></div></div>
+      <div class="hint">Workouts are built around your comfortable pace and never go above your top speed.</div></details>
     <div class="row" style="margin-top:8px"><button class="primary" id="btnFit">🫀 Fitness Check (10 min)</button><button id="btnFitMile">Full check (1 mile)</button></div>
   </div>
 
@@ -208,6 +216,12 @@ nav button.active{color:var(--accent)}
       <button data-steps="5000">5k</button><button data-steps="7500">7.5k</button><button data-steps="10000">10k</button>
     </div>
     <div class="hint" id="targetHint"></div>
+    <div class="today-box">
+      <label for="todaySteps" style="margin-top:0">Steps so far today <small style="color:var(--muted)">(from your watch – optional)</small></label>
+      <input id="todaySteps" type="number" inputmode="numeric" min="0" step="1" placeholder="e.g. 4000">
+      <label style="margin-top:6px"><input type="checkbox" id="todayUse" style="width:auto"> Count towards my target</label>
+      <div class="hint" id="todayHint" style="margin-top:4px"></div>
+    </div>
   </div>
 
   <div class="card">
@@ -371,7 +385,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v26</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v27</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -413,6 +427,8 @@ nav button.active{color:var(--accent)}
    <div class="c"><button data-speed="-1" aria-label="Slower">−</button><div><b id="rvSpeed">0.0</b><small>km/h</small></div><button data-speed="1" aria-label="Faster">+</button></div>
    <div class="c"><button data-incl="-1" aria-label="Less incline">−</button><div><b id="rvIncl">0</b><small>incline</small></div><button data-incl="1" aria-label="More incline">+</button></div>
   </div>
+  <button id="rvTooFast" class="rv-fast" onclick="tooFast()">🐢 Too fast</button>
+  <div class="hint hidden" id="rvFastMsg" style="margin-top:-4px;text-align:center"></div>
   <div class="rv-stats">
    <div class="stat"><b id="rvTime">0:00</b><span>Time</span></div>
    <div class="stat"><b id="rvDist">0.00</b><span>km</span></div>
@@ -623,7 +639,7 @@ const padRequestControl=()=>UR.ch ? Promise.resolve() : cpSend([0x00],'request c
 const padStart=()=>UR.ch ? urSend([0x53,0x01,0x00,0x00,0x08,0x07,0x00,0x00,0x00,0x00],'start') : cpSend([0x07],'start');
 const padStop=()=>UR.ch ? urSend([0x53,0x03],'stop') : cpSend([0x08,0x01],'stop');
 const padPause=()=>UR.ch ? urSend([0x53,0x0a],'pause') : cpSend([0x08,0x02],'pause');
-const padSpeed=k=>{ if(UR.ch) return urSetBelt(k,setIncl,'speed '+k.toFixed(1)); const v=Math.round(k*100); return cpSend([0x02,v&255,(v>>8)&255],'speed '+k.toFixed(1)); };
+const padSpeed=k=>{ k=capSpeed(k); if(UR.ch) return urSetBelt(k,setIncl,'speed '+k.toFixed(1)); const v=Math.round(k*100); return cpSend([0x02,v&255,(v>>8)&255],'speed '+k.toFixed(1)); };
 // UREVO: incline goes in the same 53 02 command as speed, in tenths of a level (the pad reports max 90 = level 9.0).
 // If the pad's reported incline hasn't moved after 6 s, fall back to the standard FTMS command once.
 const padIncline=lvl=>{
@@ -773,7 +789,7 @@ function startDemo(){
 
 /* ---------- session ---------- */
 function newSession(){
-  return { state:'running', start:Date.now(), target:S.target, dist:0, kcalEst:0, kcalPad:0, padKcalSeen:false, elev:0, active:0,
+  return { state:'running', start:Date.now(), target:walkTarget(), dayBase:todayBase(), dayGoal:S.target, dist:0, kcalEst:0, kcalPad:0, padKcalSeen:false, elev:0, active:0,
     samples:[], lastT:Date.now(), lastRawDist:null, padDist:0, debt:0, psAcc:0, psLast:null, psT:0, usePad:false, shown:0, psTotal:0, psDist0:0, psStrideT:0, lastRawKcal:null, lastSampleT:0, hit:false, hrSum:0, hrN:0 };
 }
 function steps(sess){
@@ -862,7 +878,7 @@ async function startSession(){
   if(!live.connected){ alert('Connect the pad (or use Demo mode) first.'); return; }
   $('doneBanner').classList.add('hidden');
   if(!session || session.state==='done'){ session=newSession(); resetLiveCharts();
-    if(S.wkId && S.wkId!=='free' && WK[S.wkId]){ session.wk={id:S.wkId, idx:0}; applyStep(0,false);
+    if(S.wkId && S.wkId!=='free' && WK[S.wkId] && !wkLocked(S.wkId)){ session.wk={id:S.wkId, idx:0}; applyStep(0,false);
       announce(`Starting ${WK[S.wkId].name}. ${stepSpeech(WK[S.wkId].steps[0])}`); } }
   else { session.state='running'; session.lastT=Date.now(); }
   if(live.demo) demoBelt.running=true;
@@ -886,7 +902,7 @@ function finishSession(reached){
     const s=session, hist=store.get('wpad.history',[]);
     let smp=s.samples; if(smp.length>720){ const k=Math.ceil(smp.length/720); smp=smp.filter((_,i)=>i%k===0); }
     hist.unshift({id:s.start, start:s.start, end:Date.now(), target:s.target, steps:Math.round(steps(s)), dist:s.dist, kcal:kcalOf(s),
-      elev:s.elev, active:s.active, stride:S.stride, hr:s.hrN?Math.round(s.hrSum/s.hrN):null, reached:s.wk ? !!s.wkDone : steps(s)>=s.target, wk:s.wk?WK[s.wk.id].name:null, samples:smp});
+      elev:s.elev, active:s.active, stride:S.stride, hr:s.hrN?Math.round(s.hrSum/s.hrN):null, reached:s.wk ? !!s.wkDone : steps(s)>=s.target, wk:s.wk?WK[s.wk.id].name:null, dayBase:s.dayBase||0, tooFast:s.tooFast||0, samples:smp});
     store.set('wpad.history', hist);
   }
   $('doneBanner').textContent = reached ? `🎉 Target reached: ${fmtInt(session.target)} steps in ${fmtTime(session.active)}. Belt stopped and session saved.` : 'Session saved to History.';
@@ -897,7 +913,10 @@ function finishSession(reached){
 
 /* ---------- controls ---------- */
 document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>{
-  setSpeed=Math.min(live.speedMax,Math.max(live.speedMin, +(setSpeed+(+b.dataset.speed)*Math.max(live.speedStep,0.1)).toFixed(1)));
+  if(+b.dataset.speed>0 && session) session.fastCap=null;      // walker asked for more: lift this walk's "too fast" limit
+  const want=+(setSpeed+(+b.dataset.speed)*Math.max(live.speedStep,0.1)).toFixed(1);
+  setSpeed=Math.min(live.speedMax, userCap(), Math.max(live.speedMin, want));
+  if(want>setSpeed+0.01) fastMsg(`Top speed is ${setSpeed.toFixed(1)} km/h – change it on the home page under Fitness › Change my pace or top speed.`);
   S.speed=setSpeed; saveSettings(); zoneLastAdj=Date.now();
   if(session&&session.state==='running') padSpeed(setSpeed);
   renderLive(); updateTargetHint();
@@ -908,7 +927,8 @@ document.querySelectorAll('[data-incl]').forEach(b=>b.onclick=()=>{
   renderLive();
 });
 document.querySelectorAll('[data-steps]').forEach(b=>b.onclick=()=>{ $('target').value=b.dataset.steps; $('target').onchange(); });
-$('target').onchange=$('target').oninput=()=>{ S.target=Math.max(1,parseInt($('target').value)||0); saveSettings(); if(session&&session.state!=='done') session.target=S.target; updateTargetHint(); renderLive(); };
+$('target').onchange=$('target').oninput=()=>{ S.target=Math.max(1,parseInt($('target').value)||0); saveSettings(); if(session&&session.state!=='done'){ session.target=Math.max(100,S.target-(session.dayBase||0)); session.dayGoal=S.target; } updateTargetHint(); renderToday(); renderLive(); };
+$('todaySteps').oninput=$('todayUse').onchange=()=>{ if(parseInt($('todaySteps').value)>0 && document.activeElement===$('todaySteps') && !today().steps) $('todayUse').checked=true; saveToday(); };
 $('target').value=S.target;
 $('btnConnect').onclick=connect;
 $('btnDemo').onclick=startDemo;
@@ -966,7 +986,7 @@ function updateButtons(){
   $('target').disabled = false;
 }
 function updateTargetHint(){
-  const km=S.target*S.stride/100000, min=km/Math.max(setSpeed,0.1)*60;
+  const km=walkTarget()*S.stride/100000, min=km/Math.max(setSpeed,0.1)*60;
   $('targetHint').textContent=`≈ ${km.toFixed(2)} km · about ${Math.round(min)} min at ${setSpeed.toFixed(1)} km/h (stride ${S.stride} cm)`;
 }
 function showBtBanner(){
@@ -979,8 +999,8 @@ function showBtBanner(){
 function renderLive(){
   const s=session, st=steps(s);
   $('vSteps').textContent=fmtInt(st);
-  $('vTarget').textContent=fmtInt(s?s.target:S.target);
-  const tgt=s?s.target:S.target;
+  $('vTarget').textContent=fmtInt(s?s.target:walkTarget());
+  const tgt=s?s.target:walkTarget();
   $('progBar').style.width=Math.min(100,st/tgt*100)+'%';
   $('vTime').textContent=fmtTime(s?s.active:0);
   $('vDist').textContent=((s?s.dist:0)/1000).toFixed(2);
@@ -1169,6 +1189,49 @@ function zoneAdjust(now, lo, hi, by){
   return `${state==='above'?'Easing off':'Picking up'}: ${hr} bpm → ${setSpeed.toFixed(1)} km/h, incline ${setIncl}.`;
 }
 
+/* ---------- stage 3: personal pace, top speed, too fast, unlocks, steps today ---------- */
+const BASE_PACE=4.0, UNLOCK_WALKS=10;
+// comfortable pace: from the Fitness Check or setup, otherwise learned from recent free walks, otherwise 4.0 km/h
+function learnedPace(){
+  const h=store.get('wpad.history',[]).filter(x=>!x.wk && x.active>=600 && x.dist>0).slice(0,5).map(x=>(x.dist/1000)/(x.active/3600)).filter(v=>v>=2 && v<=7).sort((a,b)=>a-b);
+  return h.length>=2 ? h[Math.floor(h.length/2)] : null;
+}
+function pace(){ return S.comfort || learnedPace() || BASE_PACE; }
+// workout speeds are written for a 4.0 km/h walker – scale them to this walker's pace
+function paceSp(sp){ if(sp>=99) return 99; const f=Math.max(0.65, Math.min(1.35, pace()/BASE_PACE)); let v=sp*f; if(sp>=2.5) v=Math.max(2.5,v); return +v.toFixed(1); }
+// the highest speed the app will ever ask for: top speed from setup / Fitness Check, gentle mode, and this walk's "too fast" limit
+function userCap(){ return Math.max(live.speedMin||1, Math.min(S.topSpeed||99, S.gentle?4.0:99, (session && session.fastCap)||99)); }
+function capSpeed(k){ const c=userCap(); if(k>c+0.001){ k=c; setSpeed=c; } return k; }
+let fastT=null;
+function fastMsg(t){ const el=$('rvFastMsg'); if(!el) return; el.textContent=t; el.classList.remove('hidden'); clearTimeout(fastT); fastT=setTimeout(()=>el.classList.add('hidden'),8000); }
+function tooFast(){
+  if(!session || session.state!=='running') return;
+  const v=setSpeed, n=+Math.max(live.speedMin||1, v-0.3).toFixed(1), p=pace();
+  session.fastCap=n; session.tooFast=(session.tooFast||0)+1;
+  setSpeed=n; padSpeed(n); zoneLastAdj=Date.now();
+  let note;
+  if(v>=p+0.4){ S.topSpeed=+Math.max(p+0.3, Math.min(S.topSpeed||live.speedMax||6, v-0.2)).toFixed(1); note=`Top speed lowered to ${S.topSpeed.toFixed(1)} km/h for future walks.`; }
+  else { S.comfort=+Math.max(2.5, p-0.1).toFixed(1); note=`Comfortable pace lowered to ${S.comfort.toFixed(1)} km/h for future workouts.`; }
+  saveSettings(); renderFitSnap(); renderLive();
+  fastMsg(`Eased to ${n.toFixed(1)} km/h – it won't go faster this walk unless you tap +. ${note}`);
+  announce(`Easing off to ${n.toFixed(1)}.`);
+}
+function walksDone(){ return store.get('wpad.history',[]).filter(x=>x.active>=600).length; }
+function wkLocked(id){ const w=WK[id]; return !!w && (w.lvl==='Intervals'||w.lvl==='Hard') && !S.unlockAll && walksDone()<UNLOCK_WALKS; }
+function id0(list){ return list[0][0]; }
+function unlockAll(){ if(!confirm('Unlock interval and hard workouts now?\n\nOnly do this if you already exercise regularly and walking briskly feels comfortable.')) return; S.unlockAll=true; saveSettings(); renderWkSel(); }
+// steps so far today, typed in from the watch – kept until midnight
+function today(){ const t=store.get('wpad.today',null); return t && t.day===dayKey(Date.now()) ? t : {day:dayKey(Date.now()), steps:0, use:false}; }
+function todayBase(){ const t=today(); return t.use && t.steps>0 ? t.steps : 0; }
+function walkTarget(){ return Math.max(100, S.target - todayBase()); }
+function renderToday(){
+  const t=today(); if(document.activeElement!==$('todaySteps')) $('todaySteps').value = t.steps||''; $('todayUse').checked=!!t.use;
+  const b=todayBase();
+  $('todayHint').innerHTML = b ? (S.target-b<=0 ? `🎉 You've already passed ${fmtInt(S.target)} today. This walk is set to ${fmtInt(walkTarget())} steps – raise your target for more.` : `Walk <b>${fmtInt(walkTarget())}</b> steps on the pad to reach <b>${fmtInt(S.target)}</b> today.`)
+    : (t.steps ? 'Tick the box to take these off your target.' : 'Add what your watch shows so the app can work out what\'s left. Clears at midnight.');
+}
+function saveToday(){ const v=Math.max(0, Math.min(100000, parseInt($('todaySteps').value)||0)); store.set('wpad.today',{day:dayKey(Date.now()), steps:v, use:$('todayUse').checked, at:Date.now()}); renderToday(); if(session&&session.state!=='done'&&!session.wk){} renderLive(); }
+
 /* ---------- zone workouts ---------- */
 // step: m = minutes, z = [fromZone,toZone] (HR-controlled) or fixed:true, sp = start speed, inc = start incline, by = 'speed'|'incline'
 const st=(m,label,z,sp,inc,extra)=>Object.assign({m,label,z,sp,inc},extra||{});
@@ -1200,7 +1263,7 @@ function zoneText(s){ if(!s.z) return s.easy?'easy pace':s.inc>=99?'max effort':
 function stepSpeech(s){ return `${s.label}. ${s.m} minute${s.m>1?'s':''}, ${zoneText(s)}.`; }
 function applyStep(i, send){
   const s=WK[session.wk.id].steps[i];
-  setSpeed=+Math.max(live.speedMin, Math.min(speedCap(), s.sp)).toFixed(1);
+  setSpeed=+Math.max(live.speedMin, Math.min(speedCap(), paceSp(s.sp))).toFixed(1);
   setIncl=Math.max(0, Math.min(S.inclMax, s.inc));
   if(send){ padSpeed(setSpeed); padIncline(setIncl); }
   zoneLastAdj=Date.now();
@@ -1236,14 +1299,17 @@ function renderWkSel(){
   const sel=$('wkSel'), groups={};
   Object.entries(WK).forEach(([id,w])=>{ (groups[w.lvl]=groups[w.lvl]||[]).push([id,w]); });
   sel.innerHTML='<option value="free">Free walk – use my step target</option>'+Object.entries(groups).map(([g,list])=>
-    `<optgroup label="${g}">`+list.map(([id,w])=>`<option value="${id}">${w.name} (${Math.round(w.total/60)} min)</option>`).join('')+'</optgroup>').join('');
-  sel.value = S.wkId && (S.wkId==='free'||WK[S.wkId]) ? S.wkId : 'free';
+    `<optgroup label="${g}${wkLocked(id0(list))?' – 🔒 after '+UNLOCK_WALKS+' walks':''}">`+list.map(([id,w])=>`<option value="${id}"${wkLocked(id)?' disabled':''}>${wkLocked(id)?'🔒 ':''}${w.name} (${Math.round(w.total/60)} min)</option>`).join('')+'</optgroup>').join('');
+  sel.value = S.wkId && (S.wkId==='free'||WK[S.wkId]) && !wkLocked(S.wkId) ? S.wkId : 'free';
   showWkDesc();
 }
 function showWkDesc(){
   const w=WK[$('wkSel').value];
   $('wkDesc').innerHTML = w ? `${w.desc}<br><b>${Math.round(w.total/60)} min.</b> Speed and incline change automatically. Step target is ignored – the workout ends on time.` :
     'Walk until you reach your step target.';
+  if(w) $('wkDesc').innerHTML += `<br>Speeds are set from your comfortable pace (<b>${pace().toFixed(1)} km/h</b>)${userCap()<50?` and never go above your top speed (<b>${userCap().toFixed(1)} km/h</b>)`:''}.`;
+  const n=walksDone(), lockEl=$('wkLock');
+  if(lockEl) lockEl.innerHTML = (!S.unlockAll && n<UNLOCK_WALKS) ? `🔒 Interval and hard workouts unlock after ${UNLOCK_WALKS} walks of 10 minutes or more – <b>${UNLOCK_WALKS-n} to go</b>. Already train regularly? <a onclick="unlockAll()">Unlock now</a>` : '';
   $('targetCard').style.opacity = w ? .5 : 1;
 }
 $('wkSel').onchange=()=>{ S.wkId=$('wkSel').value; saveSettings(); showWkDesc(); };
@@ -1397,7 +1463,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v26 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v27 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -1560,7 +1626,7 @@ function renderRun(){
   } else {
     const tgt=s.target, left=Math.max(0,tgt-st), mps=live.speed/3.6, secPerStep = mps>0.05 ? S.stride/100/mps : 0;
     $('rvTitle').textContent='Free walk';
-    $('rvStepsSub').textContent=`of ${fmtInt(tgt)} steps`;
+    $('rvStepsSub').textContent=`of ${fmtInt(tgt)} steps`+(s && s.dayBase ? ` · ${fmtInt(s.dayGoal||S.target)} today` : '');
     if(segs[0]) segs[0].lastChild.style.width=Math.min(100,st/tgt*100)+'%';
     $('rvPct').textContent=Math.min(100,Math.floor(st/tgt*100))+'%';
     $('rvEta').textContent = left<=0 ? 'Target reached' : secPerStep ? '~'+fmtTime(left*secPerStep)+' left' : `${fmtInt(left)} to go`;
@@ -1606,10 +1672,11 @@ function showSummary(s, reached){
   if(!s || s.active<5){ return; }
   const W=s.wk?WK[s.wk.id]:null, st=Math.round(steps(s));
   $('smTitle').textContent = W ? W.name+' – complete' : 'Walk complete';
-  const hit = W ? !!s.wkDone : st>=s.target;
+  const hit = W ? !!s.wkDone : st>=s.target;   // s.target already has today's watch steps taken off
   $('smBanner').textContent = hit ? (W ? '🎉 Workout complete. Well done!' : `🎉 Target reached: ${fmtInt(s.target)} steps.`) : (W ? 'Workout finished early – saved to History.' : `${fmtInt(Math.max(0,s.target-st))} steps short of your ${fmtInt(s.target)} target – saved to History.`);
   $('smBanner').classList.remove('hidden'); $('smBanner').classList.toggle('done', hit); $('smBanner').style.color=hit?'':'var(--muted)'; $('smBanner').style.borderColor=hit?'':'var(--line)';
   $('smSteps').textContent=fmtInt(st);
+  if(s.dayBase && !W){ const tot=s.dayBase+st; $('smBanner').textContent += ` · Today about ${fmtInt(tot)} steps (${fmtInt(s.dayBase)} from your watch + ${fmtInt(st)} on the pad)${tot>=(s.dayGoal||0)?' – daily goal reached':''}.`; }
   const hrs=s.samples.map(x=>x.hr).filter(Boolean), avg=hrs.length?Math.round(hrs.reduce((a,b)=>a+b,0)/hrs.length):null, mx=hrs.length?Math.max(...hrs):null;
   const avgSpd = s.active>0 ? (s.dist/1000)/(s.active/3600) : 0;
   const cells=[[fmtTime(s.active),'Time'],[(s.dist/1000).toFixed(2),'km'],[Math.round(kcalOf(s)),'kcal'],[avg??'–','Avg HR'],[mx??'–','Max HR'],[avgSpd.toFixed(1),'Avg km/h']];
@@ -1626,7 +1693,7 @@ $('smDone').onclick=closeSummary;
 $('smHist').onclick=()=>{ closeSummary(); const b=document.querySelector('nav button[data-tab="history"]'); if(b) b.click(); };
 
 // hook the new screens into the existing flow
-{ const _ub=updateButtons; updateButtons=function(){ _ub(); updateRunView(); }; }
+{ const _ub=updateButtons; updateButtons=function(){ _ub(); updateRunView(); const tf=$('rvTooFast'); if(tf) tf.classList.toggle('hidden', !(session && session.state==='running') || !!session.fit); }; }
 { const _rl=renderLive; renderLive=function(){ _rl(); renderRun(); }; }
 { const _fs=finishSession; finishSession=function(reached){ const s=session; _fs(reached); showSummary(s, reached); }; }
 
@@ -1735,7 +1802,10 @@ function addFitResult(r){
   if(r.vo2){ r.fitAge=fitnessAge(r.vo2,S.sex); r.pct=percentile(r.vo2,S.sex,S.hAge); }
   const h=store.get('wpad.fit',[]); h.push(r); store.set('wpad.fit',h); return r;
 }
-function renderFitSnap(){
+function fitInputs(){ if(document.activeElement!==$('fPace')) $('fPace').value=S.comfort||''; if(document.activeElement!==$('fTop')) $('fTop').value=S.topSpeed||''; }
+$('fPace').onchange=()=>{ const v=parseFloat($('fPace').value); S.comfort = v>=1&&v<=8 ? +v.toFixed(1) : null; if(S.comfort && S.topSpeed && S.topSpeed<S.comfort) S.topSpeed=S.comfort; saveSettings(); renderFitSnap(); showWkDesc(); };
+$('fTop').onchange=()=>{ const v=parseFloat($('fTop').value); S.topSpeed = v>=1&&v<=8 ? +v.toFixed(1) : null; if(S.gentle && S.topSpeed>4) S.topSpeed=4.0; saveSettings(); renderFitSnap(); showWkDesc(); };
+function renderFitSnap(){ fitInputs();
   const h=store.get('wpad.fit',[]), el=$('fitSnap'); if(!el) return;
   const last=[...h].reverse().find(x=>x.vo2), lastPace=[...h].reverse().find(x=>x.speed);
   let t='';
@@ -1912,7 +1982,7 @@ document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==
 { const _zc=zoneControl; zoneControl=function(now){ if(session&&session.fit) return; _zc(now); }; }
 { const _ru=updateRunView; updateRunView=function(){ _ru(); if(FC.on){ $('runView').classList.add('hidden'); $('rvBack').classList.add('hidden'); } }; }
 // gentle mode / personal top speed caps heart-rate control
-{ const _sc=speedCap; speedCap=function(){ return Math.min(_sc(), S.topSpeed||99, S.gentle?4.0:99); }; }
+{ const _sc=speedCap; speedCap=function(){ return Math.min(_sc(), userCap()); }; }
 if(S.agreed && !S.setupV) setTimeout(()=>{ /* existing users: offer the new setup once */ if(confirm('WalkPilot has a new setup with a Fitness Check. Set it up now? (Takes a minute.)')) openSetup(); else { S.setupV=1; saveSettings(); } },800);
 renderFitSnap();
 
@@ -1981,7 +2051,7 @@ function offerResume(){
 setTimeout(offerResume, 400);
 
 // every launch starts fresh: free walk with a 5,000-step target
-S.wkId='free'; S.target=5000; saveSettings(); $('target').value=S.target;
+S.wkId='free'; S.target=5000; saveSettings(); $('target').value=S.target; renderToday(); updateTargetHint(); renderWkSel();
 renderWkSel(); updateConn(); updateButtons(); updateTargetHint(); renderLive(); renderHistory();
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && session && session.state==='running') keepAwake(true); });
 if(typeof module!=='undefined') module.exports={parseTreadmill};
