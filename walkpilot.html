@@ -8,6 +8,7 @@
 <meta name="description" content="WalkPilot: free walking pad app. Set a step target, heart-rate zone workouts and live graphs. Controls Bluetooth walking pads and treadmills (UREVO and other FTMS pads) from Chrome on Android.">
 <meta name="keywords" content="walking pad app, treadmill app, step counter, step target, UREVO app, FTMS treadmill, heart rate zones, interval walking, Japanese walking">
 <link rel="manifest" href="walkpilot.webmanifest">
+<script>try{var _t=(JSON.parse(localStorage.getItem('wpad.settings')||'{}')||{}).theme;if(_t==='dark'||_t==='light')document.documentElement.dataset.theme=_t;}catch(e){}</script>
 <link rel="icon" href="walkpilot-192.png">
 <link rel="apple-touch-icon" href="walkpilot-192.png">
 <script>/* Chart.js 4.4.1 (MIT) */
@@ -94,6 +95,32 @@ nav button.active{color:var(--accent)}
 .sess small{color:var(--muted)}
 #log{font:12px ui-monospace,monospace;color:var(--muted);white-space:pre-wrap;max-height:140px;overflow:auto}
 .hidden{display:none!important}
+/* ---------- v28: tile home + sections ---------- */
+.tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media (min-width:640px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-align:left;padding:14px;border-radius:16px;min-height:104px;background:var(--card);border:1px solid var(--line);color:var(--ink)}
+.tile .ti{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--tc) 16%,transparent)}
+.tile b{font-size:15px;line-height:1.2}.tile small{font-size:13px;color:var(--muted);line-height:1.3}
+.tile.hero{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tile.hero small{color:inherit;opacity:.85}.tile.hero .ti{background:rgba(255,255,255,.22)}
+.tab.in-sec .home-part{display:none!important}
+.sec-head{display:flex;align-items:center;gap:8px;margin:0 0 12px}
+.sec-back{width:44px;height:44px;padding:0;display:flex;align-items:center;justify-content:center;border-radius:12px;flex:0 0 44px}
+.sec-head .ti{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--tc) 16%,transparent)}
+.sec-head b{flex:1;font-size:19px}
+.sec-done{width:100%;padding:14px;font-size:16px;font-weight:600;margin-bottom:12px}
+.home-sum{display:flex;align-items:center;gap:12px}
+.home-sum div:first-child{flex:1}
+#btnStart{font-size:18px;padding:16px;border-radius:16px}
+#btnPause:disabled,#btnStop:disabled{display:none}
+.wk-item{display:flex;width:100%;align-items:center;gap:10px;text-align:left;padding:12px;border-radius:14px;margin-top:8px}
+.wk-item.sel{border:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
+.wk-item div{flex:1}.wk-item b{display:block;font-size:15px}.wk-item small{color:var(--muted);font-size:12px}
+.wk-item>span{font-size:12px;color:var(--muted);white-space:nowrap}
+.wk-grp{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:14px}
+.fband{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:10px}.fband i{height:10px}
+.fband i:first-child{border-radius:5px 0 0 5px}.fband i:last-child{border-radius:0 5px 5px 0}.fband i.on{outline:2px solid var(--ink);outline-offset:1px}
+.fband-l{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;font-size:11px;color:var(--muted);text-align:center;margin-top:4px}.fband-l .on{color:var(--ink);font-weight:700}
 
 /* ---------- workout screen + summary ---------- */
 :root{ --z1:#94a3b8; --z2:#3b82f6; --z3:#22c55e; --z4:#f59e0b; --z5:#ef4444; }
@@ -157,7 +184,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v27</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-192.png" alt="" width="26" height="26" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v28</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -181,8 +208,9 @@ nav button.active{color:var(--accent)}
     <div class="row" style="margin-top:8px">
       <button id="btnWatch">❤️ Connect watch</button>
     </div>
+    <details style="margin-top:8px"><summary class="hint" style="margin:0;cursor:pointer">Connection tips</summary>
     <div class="hint" id="watchHint">Optional: live heart rate from a watch or chest strap. Turn on heart-rate broadcast first (Garmin: hold LIGHT → <b>Broadcast Heart Rate</b>), then tap Connect watch.</div>
-    <div class="hint">Turn the pad on and close the pad's own app first (e.g. UREVO) – the pad only accepts one connection.</div>
+    <div class="hint">Turn the pad on and close the pad's own app first (e.g. UREVO) – the pad only accepts one connection.</div></details>
   </div>
 
   <div class="card">
@@ -385,9 +413,9 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v27</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v28</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
-      <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup in History to keep a copy.<br><br>
+      <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
       Not affiliated with or endorsed by UREVO, Garmin or any equipment maker. Use at your own risk.
     </div>
@@ -916,7 +944,7 @@ document.querySelectorAll('[data-speed]').forEach(b=>b.onclick=()=>{
   if(+b.dataset.speed>0 && session) session.fastCap=null;      // walker asked for more: lift this walk's "too fast" limit
   const want=+(setSpeed+(+b.dataset.speed)*Math.max(live.speedStep,0.1)).toFixed(1);
   setSpeed=Math.min(live.speedMax, userCap(), Math.max(live.speedMin, want));
-  if(want>setSpeed+0.01) fastMsg(`Top speed is ${setSpeed.toFixed(1)} km/h – change it on the home page under Fitness › Change my pace or top speed.`);
+  if(want>setSpeed+0.01) fastMsg(`Top speed is ${setSpeed.toFixed(1)} km/h – change it under Fitness & check › Change my pace or top speed.`);
   S.speed=setSpeed; saveSettings(); zoneLastAdj=Date.now();
   if(session&&session.state==='running') padSpeed(setSpeed);
   renderLive(); updateTargetHint();
@@ -1463,7 +1491,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v27 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v28 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2054,6 +2082,133 @@ setTimeout(offerResume, 400);
 S.wkId='free'; S.target=5000; saveSettings(); $('target').value=S.target; renderToday(); updateTargetHint(); renderWkSel();
 renderWkSel(); updateConn(); updateButtons(); updateTargetHint(); renderLive(); renderHistory();
 document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible' && session && session.state==='running') keepAwake(true); });
+
+/* ================= v28: tile home screen, sections, dark mode ================= */
+const ICONS={
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/>',
+  workouts:'<path d="M3 12h4l3-8 4 16 3-8h4"/>',
+  heart:'<path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21.5l8.8-8.8a5 5 0 0 0 0-7.1z"/>',
+  speed:'<path d="M3 20l7-8 4 4 7-9"/><path d="M15 7h6v6"/>',
+  fitness:'<path d="M12 3v3"/><path d="M5.6 6.6l2.1 2.1"/><path d="M18.4 6.6l-2.1 2.1"/><path d="M4 16a8 8 0 0 1 16 0"/><path d="M12 16l3-5"/>',
+  glance:'<path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/>',
+  you:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  pad:'<rect x="2" y="14" width="20" height="5" rx="2"/><path d="M6 14l3-6h6l3 6"/>',
+  backup:'<path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/>',
+  theme:'<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+  about:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.5"/>',
+  back:'<path d="M15 5l-7 7 7 7"/>'
+};
+const svgIcon=(k,c,sz)=>`<svg width="${sz||20}" height="${sz||20}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[k]}</svg>`;
+const SEC={}; let secOpen=null;
+function makeTiles(tab, before){ const g=document.createElement('div'); g.className='tiles home-part'; tab.insertBefore(g, before||null); return g; }
+function makeSection(tab, grid, id, name, icon, color, cards, hero){
+  const sec=document.createElement('div'); sec.className='sec hidden'; sec.id='sec-'+id;
+  sec.innerHTML=`<div class="sec-head"><button class="sec-back" aria-label="Back">${svgIcon('back','currentColor',22)}</button><span class="ti" style="--tc:${color}">${svgIcon(icon,color,18)}</span><b>${name}</b></div>`;
+  cards.filter(Boolean).forEach(c=>sec.appendChild(c));
+  const done=document.createElement('button'); done.className='primary sec-done'; done.textContent='Done'; sec.appendChild(done);
+  tab.appendChild(sec);
+  const t=document.createElement('button'); t.className='tile'+(hero?' hero':''); t.style.setProperty('--tc',hero?'#ffffff':color);
+  t.innerHTML=`<span class="ti">${svgIcon(icon,hero?'#ffffff':color)}</span><b>${name}</b><small id="tv-${id}"></small>`;
+  grid.appendChild(t);
+  t.onclick=()=>openSec(id); sec.querySelector('.sec-back').onclick=closeSec; done.onclick=closeSec;
+  SEC[id]={sec,tab,tile:t};
+}
+function openSec(id){
+  const o=SEC[id]; if(!o) return;
+  if(secOpen) hideSec();
+  o.tab.classList.add('in-sec'); o.sec.classList.remove('hidden'); secOpen=id; window.scrollTo(0,0);
+  try{ history.pushState({wpSec:id},''); }catch(e){}
+  if(id==='glance'){ try{ renderHistory(); }catch(e){} }
+  setTimeout(()=>window.dispatchEvent(new Event('resize')),50);   // charts drawn while hidden size themselves now
+}
+function hideSec(){ if(!secOpen) return; const o=SEC[secOpen]; o.sec.classList.add('hidden'); o.tab.classList.remove('in-sec'); secOpen=null; window.scrollTo(0,0); refreshTiles(); }
+function closeSec(){ if(history.state && history.state.wpSec){ history.back(); } else hideSec(); }
+window.addEventListener('popstate',()=>hideSec());
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{ if(secOpen) closeSec(); }));
+
+// ---- workout list (replaces the dropdown; the dropdown stays hidden and drives the logic) ----
+function renderWkList(){
+  const box=$('wkList'); if(!box) return;
+  const cur=$('wkSel').value, mk=(id,name,sub,mins,locked)=>`<button class="wk-item${cur===id?' sel':''}" data-wk="${id}"${locked?' disabled':''}><div><b>${locked?'🔒 ':''}${name}</b><small>${sub}</small></div><span>${mins}</span></button>`;
+  let h=mk('free','Free walk','Walk until you reach your step target','');
+  const groups={}; Object.entries(WK).forEach(([id,w])=>(groups[w.lvl]=groups[w.lvl]||[]).push([id,w]));
+  Object.entries(groups).forEach(([g,list])=>{ h+=`<div class="wk-grp">${g}</div>`; list.forEach(([id,w])=>{ h+=mk(id,w.name,w.desc.split(/[.]/)[0],Math.round(w.total/60)+' min',wkLocked(id)); }); });
+  box.innerHTML=h;
+  box.querySelectorAll('[data-wk]').forEach(b=>b.onclick=()=>{ $('wkSel').value=b.dataset.wk; $('wkSel').onchange(); });
+}
+{ const _sd=showWkDesc; showWkDesc=function(){ _sd(); renderWkList(); refreshTiles(); }; }
+
+// ---- fitness band (Poor → Superior) ----
+function lastFit(){ const h=store.get('wpad.fit',[]); const l=[...h].reverse().find(x=>x.vo2); if(!l) return null; return {vo2:l.vo2, pct:percentile(l.vo2,S.sex,S.hAge), age:fitnessAge(l.vo2,S.sex)}; }
+{ const _rf=renderFitSnap; renderFitSnap=function(){ _rf(); const el=$('fitBand'); if(!el) return; const f=lastFit();
+    if(!f){ el.innerHTML=''; refreshTiles(); return; }
+    const names=['Poor','Fair','Good','Excellent','Superior'], idx=names.indexOf(rating(f.pct)), cols=['var(--z5)','var(--z4)','var(--z3)','var(--z2)','#7c3aed'];
+    el.innerHTML=`<div class="fband">${cols.map((c,i)=>`<i style="background:${c}" class="${i===idx?'on':''}"></i>`).join('')}</div><div class="fband-l">${names.map((n,i)=>`<span class="${i===idx?'on':''}">${n}</span>`).join('')}</div>`;
+    refreshTiles(); }; }
+
+// ---- appearance (dark mode) ----
+function applyTheme(){ const t=S.theme||'auto'; if(t==='auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme=t;
+  document.querySelectorAll('#themeSeg button').forEach(b=>b.classList.toggle('sel',b.dataset.theme===t)); }
+function themeCard(){
+  const c=document.createElement('div'); c.className='card';
+  c.innerHTML=`<h2>Appearance</h2><div class="seg2" id="themeSeg"><button data-theme="auto">Auto</button><button data-theme="light">Light</button><button data-theme="dark">Dark</button></div><div class="hint">Auto follows your phone's light or dark setting. Dark is easier on the eyes in a dim room.</div>`;
+  c.querySelectorAll('button').forEach(b=>b.onclick=()=>{ S.theme=b.dataset.theme; saveSettings(); applyTheme(); refreshTiles(); setTimeout(()=>{ try{ renderHistory(); }catch(e){} },50); });
+  return c;
+}
+
+// ---- tile values ----
+function refreshTiles(){
+  const set=(id,t)=>{ const e=$('tv-'+id); if(e && e.textContent!==t) e.textContent=t; };
+  try{
+    const b=todayBase(); set('target', fmtInt(S.target)+' steps'+(b?` · ${fmtInt(b)} done`:''));
+    const wid=$('wkSel').value; set('workouts', WK[wid]?WK[wid].name:'Free walk');
+    set('zones', $('zOn').checked ? 'Auto zone: on' : 'Auto zone: off');
+    set('speed', `${setSpeed.toFixed(1)} km/h · incline ${setIncl}`);
+    const f=lastFit(); set('fitness', f ? `VO2 ${f.vo2} · ${rating(f.pct)}` : 'Take a Fitness Check');
+    set('glance','All your graphs');
+    set('you', `${$('sHeight').value||'–'} cm · ${$('sWeight').value||'–'} kg · stride ${$('sStride').value||'–'} cm`);
+    set('hrz', `Max ${$('hMax').value||'–'} · rest ${$('hRest').value||'–'}`);
+    set('padset', `Voice ${$('sVoice').checked?'on':'off'} · auto-stop ${$('sAutoStop').checked?'on':'off'}`);
+    set('backup','Save or restore your walks');
+    set('theme', {auto:'Auto',light:'Light',dark:'Dark'}[S.theme||'auto']);
+    set('about','Help, safety & data report');
+    const sum=$('homeSumMain'), sub=$('homeSumToday');
+    if(sum){ const W=WK[wid]; if(W) sum.textContent=`${W.name} · ${Math.round(W.total/60)} min`;
+      else { const km=walkTarget()*S.stride/100000, min=Math.round(km/Math.max(setSpeed,0.1)*60); sum.textContent=`${fmtInt(walkTarget())} steps · about ${min} min`; }
+      sub.textContent = b ? fmtInt(b) : '–'; }
+  }catch(e){}
+}
+setInterval(refreshTiles, 1000);
+
+// ---- build the new layout from the existing cards (every control keeps its id and handlers) ----
+(function buildV28(){
+  const tw=$('tab-workout'), ts=$('tab-settings'), card=id=>{ const e=$(id); return e?e.closest('.card'):null; };
+  const startRow=$('btnStart').parentElement;
+  $('connectCard').classList.add('home-part');
+  // Workout tab: pad connect, tile grid, this-walk summary, Start
+  const g=makeTiles(tw, startRow);
+  const sum=document.createElement('div'); sum.className='card home-part home-sum';
+  sum.innerHTML=`<div><div class="hint" style="margin:0">This walk</div><b id="homeSumMain" style="font-size:15px"></b></div><div style="text-align:right"><div class="hint" style="margin:0">Today (watch)</div><b id="homeSumToday" style="font-size:15px">–</b></div>`;
+  tw.insertBefore(sum, startRow); startRow.classList.add('home-part');
+  const wkCard=card('wkSel'); $('wkSel').classList.add('hidden');
+  const list=document.createElement('div'); list.id='wkList'; $('wkSel').after(list);
+  const fb=document.createElement('div'); fb.id='fitBand'; $('fitSnap').after(fb);
+  makeSection(tw,g,'target','Step target','target','#0a8f6a',[$('targetCard')]);
+  makeSection(tw,g,'workouts','Workouts','workouts','#2563eb',[wkCard]);
+  makeSection(tw,g,'zones','Heart-rate zones','heart','#dc2626',[card('zOn')]);
+  makeSection(tw,g,'speed','Speed & incline','speed','#a855f7',[card('vSpeedSet')]);
+  makeSection(tw,g,'fitness','Fitness & check','fitness','#c2410c',[$('fitCard')]);
+  makeSection(tw,g,'glance','At a glance','glance','#0a8f6a',[card('vSteps'), card('liveCharts'), card('histCharts')], true);
+  // Settings tab: same tiles
+  const gs=makeTiles(ts, ts.firstChild);
+  makeSection(ts,gs,'you','About you','you','#0a8f6a',[card('sHeight')]);
+  makeSection(ts,gs,'hrz','Heart-rate zones','heart','#dc2626',[card('hMax')]);
+  makeSection(ts,gs,'padset','Pad & alerts','pad','#a855f7',[card('sKcal')]);
+  makeSection(ts,gs,'backup','Backup & restore','backup','#c2410c',[card('btnBackup')]);
+  makeSection(ts,gs,'theme','Appearance','theme','#2563eb',[themeCard()]);
+  makeSection(ts,gs,'about','About & help','about','#5d6b78',[card('btnShowWelcome'), card('btnCopyLog')]);
+  renderWkList(); renderFitSnap(); applyTheme(); refreshTiles();
+})();
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
