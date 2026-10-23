@@ -9,8 +9,8 @@
 <meta name="keywords" content="walking pad app, treadmill app, step counter, step target, UREVO app, FTMS treadmill, heart rate zones, interval walking, Japanese walking">
 <link rel="manifest" href="walkpilot.webmanifest">
 <script>try{var _t=(JSON.parse(localStorage.getItem('wpad.settings')||'{}')||{}).theme;if(_t==='dark'||_t==='light')document.documentElement.dataset.theme=_t;}catch(e){}</script>
-<link rel="icon" href="walkpilot-192.png">
-<link rel="apple-touch-icon" href="walkpilot-192.png">
+<link rel="icon" href="wp-icon-192.png">
+<link rel="apple-touch-icon" href="wp-icon-192.png">
 <script>/* Chart.js 4.4.1 (MIT) */
 /*!
  * Chart.js v4.4.1
@@ -95,6 +95,24 @@ nav button.active{color:var(--accent)}
 .sess small{color:var(--muted)}
 #log{font:12px ui-monospace,monospace;color:var(--muted);white-space:pre-wrap;max-height:140px;overflow:auto}
 .hidden{display:none!important}
+/* ---------- v31: desk walk ---------- */
+.tile.wide{grid-column:1/-1;flex-direction:row;align-items:center;min-height:76px;gap:12px}
+.tile.wide .tw{display:flex;flex-direction:column;gap:2px}
+.dk-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.dk-p{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;border-radius:14px;min-height:64px}
+.dk-p b{font-size:14px}.dk-p small{font-size:12px;color:var(--muted)}
+.dk-p.sel{border:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--card))}
+.dk-chips{display:flex;gap:6px;flex-wrap:wrap}.dk-chips button{flex:1;min-width:90px;padding:10px 6px;font-size:14px}
+.dk-chips button.sel{border:2px solid var(--accent);font-weight:700}.dk-chips.saving button{border-style:dashed;border-color:var(--accent)}
+#dkStart{width:100%;padding:16px;font-size:17px;border-radius:14px;margin-top:12px}
+.dk-row{display:flex;gap:8px;align-items:center;margin-top:8px}.dk-row>*{flex:1}
+.dk-days{display:flex;gap:4px}.dk-days label{flex:1;margin:0;text-align:center;font-size:12px}.dk-days input{width:auto;display:block;margin:4px auto 0}
+#dkCustom summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:14px;margin-top:14px}
+#dkCustom h3{font-size:13px;margin:16px 0 4px;color:var(--ink)}
+#runView.desk #rvNowCard{display:none}
+#runView.desk.dk-nohr #rvHrCard,#runView.desk.dk-noctl #rvCtl,#runView.desk.dk-noctl #rvTooFast,#runView.desk.dk-nostats .rv-stats,#runView.desk.dk-noprog #rvProg,#runView.desk.dk-noprog .rv-progtxt{display:none}
+#runView.desk.dk-big .rv-big{font-size:clamp(84px,30vw,140px)}#runView.desk.dk-small .rv-big{font-size:clamp(44px,14vw,64px)}
+#runView.force-dark{--bg:#0f1419;--card:#18212b;--ink:#e7edf3;--muted:#93a1ae;--line:#2a3642;--accent:#22c592;--accent-ink:#06261b;color:var(--ink)}
 /* ---------- v28: tile home + sections ---------- */
 .tiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
 @media (min-width:640px){.tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
@@ -184,7 +202,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="walkpilot-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v29</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v31</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -413,7 +431,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v29</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v31</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -482,7 +500,7 @@ nav button.active{color:var(--accent)}
 <!-- SETUP (first run, or Settings → Redo setup) -->
 <div id="setupView" class="overlay hidden" style="z-index:21">
  <div class="inner">
-  <div class="rv-top"><img src="walkpilot-192.png" alt="" width="32" height="32" style="border-radius:8px" onerror="this.remove()"><b>Set up WalkPilot</b></div>
+  <div class="rv-top"><img src="wp-icon-192.png" alt="" width="32" height="32" style="border-radius:8px" onerror="this.remove()"><b>Set up WalkPilot</b></div>
   <div class="steps-dots" id="suDots"><i></i><i></i><i></i><i></i></div>
 
   <div id="su1" class="card" style="margin:0">
@@ -549,7 +567,7 @@ nav button.active{color:var(--accent)}
 </div>
 <div id="welcome" class="hidden" style="position:fixed;inset:0;z-index:20;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center">
   <div class="card" style="max-width:520px;width:100%;margin:0;border-radius:18px 18px 0 0;max-height:92vh;overflow:auto">
-    <div style="display:flex;align-items:center;gap:10px"><img src="walkpilot-192.png" alt="" width="40" height="40" style="border-radius:10px" onerror="this.remove()"><div><b style="font-size:20px">Welcome to WalkPilot</b><div class="hint" style="margin:0">Your walking pad coach</div></div></div>
+    <div style="display:flex;align-items:center;gap:10px"><img src="wp-icon-192.png" alt="" width="40" height="40" style="border-radius:10px" onerror="this.remove()"><div><b style="font-size:20px">Welcome to WalkPilot</b><div class="hint" style="margin:0">Your walking pad coach</div></div></div>
     <div class="hint">A few details so step counts, calories and heart-rate zones fit you. You can change them later in Settings.</div>
     <div class="row">
       <div><label for="wAge">Age</label><input id="wAge" type="number" inputmode="numeric" placeholder="e.g. 50"></div>
@@ -1491,7 +1509,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v29 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v31 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2208,6 +2226,210 @@ setInterval(refreshTiles, 1000);
   makeSection(ts,gs,'theme','Appearance','theme','#2563eb',[themeCard()]);
   makeSection(ts,gs,'about','About & help','about','#5d6b78',[card('btnShowWelcome'), card('btnCopyLog')]);
   renderWkList(); renderFitSnap(); applyTheme(); refreshTiles();
+})();
+
+/* ================= v31: Desk Walk ================= */
+ICONS.desk='<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>';
+const DESK_DEF={presets:[{k:'type',n:'Typing',sp:null},{k:'call',n:'Calls / reading',sp:null},{k:'think',n:'Thinking',sp:null}], extra:[], sel:'type',
+  quiet:true, quietAlert:'vibrate', meetAction:'slow', meetSpeed:1.5, meetMute:true, show:{hr:true,ctl:true,stats:true,prog:true}, size:'normal', dark:false,
+  goal:6000, start:'09:00', end:'17:00', days:[1,2,3,4,5], countWatch:true, restMin:75, restLen:5};
+S.desk=Object.assign(JSON.parse(JSON.stringify(DESK_DEF)), S.desk||{}); S.desk.show=Object.assign({},DESK_DEF.show,S.desk.show||{});
+const D=()=>S.desk;
+function deskDefaultSp(k){ const p=pace(), c=(v,a,b)=>+Math.max(a,Math.min(b,v)).toFixed(1); return k==='type'?c(p-1.8,1.5,2.6):k==='call'?c(p-1.2,2.0,3.2):k==='think'?c(p-0.4,2.5,4.0):2.5; }
+function deskPresets(){ return D().presets.concat(D().extra).map(x=>({...x, speed: x.sp!=null ? x.sp : deskDefaultSp(x.k)})); }
+function deskPreset(k){ const l=deskPresets(); return l.find(x=>x.k===k)||l[0]; }
+function deskCap(){ return Math.min(live.speedMax||6, Math.max(4.0, ...deskPresets().map(x=>x.speed))); }
+const hm=t=>{ const [h,m]=String(t||'0:0').split(':').map(Number); return (h||0)*60+(m||0); };
+function isWorkday(ts){ return D().days.includes(new Date(ts).getDay()); }
+function inWorkHours(ts){ const d=new Date(ts), m=d.getHours()*60+d.getMinutes(); return m>=hm(D().start) && m<hm(D().end); }
+function workSteps(){
+  const now=Date.now(), day=dayKey(now), h=store.get('wpad.history',[]);
+  let n=h.filter(x=>dayKey(x.start)===day && isWorkday(x.start) && inWorkHours(x.start)).reduce((a,x)=>a+(x.steps||0),0);
+  if(session && session.state!=='done' && !h.some(x=>x.id===session.start) && isWorkday(session.start) && inWorkHours(session.start)) n+=Math.round(steps(session));
+  if(D().countWatch && isWorkday(now)) n+=today().steps||0;
+  return n;
+}
+function workRemaining(){ return Math.max(0, D().goal - workSteps()); }
+function chime(){ try{ const c=new (window.AudioContext||window.webkitAudioContext)(), o=c.createOscillator(), g=c.createGain(); o.frequency.value=880; g.gain.setValueAtTime(0.08,c.currentTime); g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+0.6); o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime+0.6); }catch(e){} }
+// quiet mode: during a desk walk (or a meeting) spoken alerts become a vibration, a chime or nothing
+{ const _an=announce; announce=function(text,big){ const s=session;
+    if(s && (s.muted || (s.desk && D().quiet))){ const a=s.muted?'none':D().quietAlert;
+      if(a==='vibrate'){ try{ navigator.vibrate && navigator.vibrate(big?[200,100,200]:[150]); }catch(e){} } else if(a==='chime') chime();
+      log('🔕 '+text); return; }
+    return _an(text,big); }; }
+{ const _zc=zoneControl; zoneControl=function(now){ if(session && session.desk) return; _zc(now); }; }
+{ const _uc=userCap; userCap=function(){ const c=_uc(); return (session && session.desk) ? Math.min(c, deskCap()) : c; }; }
+{ const _fs=finishSession; finishSession=function(){ const s=session, r=_fs.apply(this,arguments);
+    if(s && s.desk){ const h=store.get('wpad.history',[]); if(h[0] && h[0].id===s.start){ h[0].wk='Desk walk'; h[0].desk=true; store.set('wpad.history',h); try{ renderHistory(); }catch(e){} } }
+    return r; }; }
+{ const _ss=showSummary; showSummary=function(s,reached){ _ss(s,reached); if(s && s.desk && !$('sumView').classList.contains('hidden')){
+    $('smTitle').textContent='Desk walk – saved'; const w=workSteps(), g=D().goal;
+    $('smBanner').textContent = !(isWorkday(s.start) && inWorkHours(s.start)) ? 'Saved to History. This walk was outside your work hours, so it doesn\'t count towards the workday goal.' : w>=g ? `🎉 Workday goal reached: ${fmtInt(w)} of ${fmtInt(g)} steps.` : `Workday so far: ${fmtInt(w)} of ${fmtInt(g)} steps – ${fmtInt(g-w)} to go.`; } }; }
+
+async function startDesk(){
+  const s0=session;
+  if(s0 && (s0.state==='running'||s0.state==='paused')){ s0.desk=true; s0.hit=true; s0.preset=D().sel; if(secOpen) closeSec(); RV.min=false; renderLive(); updateButtons(); return; }
+  if(!live.connected){ alert('Connect the pad (or use Demo mode) first.'); return; }
+  const p=deskPreset(D().sel), prevWk=S.wkId;
+  if(secOpen) closeSec();
+  S.wkId='free'; setIncl=0; setSpeed=+Math.max(live.speedMin||1, Math.min(deskCap(), p.speed)).toFixed(1);
+  await startSession(); S.wkId=prevWk; saveSettings();
+  if(session){ session.desk=true; session.hit=true; session.preset=p.k; session.target=Math.max(500, workRemaining()); session.contWalk=0; }
+  setIncl=0; padIncline(0); renderLive(); updateButtons();
+}
+function deskSetPreset(k){
+  const s=session;
+  if(s && s.desk && s.saving){ const all=D().presets.concat(D().extra), x=all.find(q=>q.k===k); if(x){ x.sp=+setSpeed.toFixed(1); saveSettings(); fastMsg(`Saved ${setSpeed.toFixed(1)} km/h to ${x.n}.`); } s.saving=false; renderDeskChips(true); renderDesk(); return; }
+  D().sel=k; saveSettings();
+  if(s && s.desk && s.state==='running'){ s.preset=k; s.preMeet=null; setSpeed=+Math.max(live.speedMin||1, Math.min(deskCap(), deskPreset(k).speed)).toFixed(1); padSpeed(setSpeed); zoneLastAdj=Date.now(); renderLive(); }
+  renderDesk(); renderDeskChips(true);
+}
+function deskMeeting(){
+  const s=session; if(!s || !s.desk) return;
+  if(!s.meeting){ s.meeting=true; s.muted=!!D().meetMute;
+    if(D().meetAction==='pause'){ pauseSession(false); }
+    else { s.preMeet=setSpeed; setSpeed=+Math.max(live.speedMin||1, D().meetSpeed).toFixed(1); padSpeed(setSpeed); } }
+  else { s.meeting=false; s.muted=false;
+    if(s.state==='paused'){ s.reconn=false; startSession(); }
+    else if(s.preMeet){ setSpeed=s.preMeet; padSpeed(setSpeed); s.preMeet=null; } }
+  renderLive(); updateButtons();
+}
+// controls added to the workout screen for desk walks
+(function(){
+  $('rvNow').closest('.card').id='rvNowCard'; $('rvHr').closest('.card').id='rvHrCard'; $('rvSpeed').closest('.rv-ctl').id='rvCtl';
+  const box=document.createElement('div'); box.id='dkRun'; box.className='hidden';
+  box.innerHTML=`<div class="dk-chips" id="dkChips"></div><div class="dk-row"><button id="dkMeet" style="padding:14px;font-weight:700">🔇 Meeting</button><button id="dkSave">💾 Save speed</button></div><div id="dkRest" class="banner hidden" style="margin:8px 0 0"></div>`;
+  $('rvCtl').before(box);
+  $('dkMeet').onclick=deskMeeting;
+  $('dkSave').onclick=()=>{ if(!session) return; session.saving=!session.saving; renderDeskChips(true); if(session.saving) fastMsg(`Tap a preset to save ${setSpeed.toFixed(1)} km/h to it.`); };
+})();
+let _chipKey='';
+function renderDeskChips(force){
+  const s=session, el=$('dkChips'); if(!el || !s) return;
+  const key=JSON.stringify([deskPresets().map(x=>[x.k,x.n,x.speed]), s.preset, !!s.saving]); if(!force && key===_chipKey) return; _chipKey=key;
+  el.classList.toggle('saving', !!s.saving);
+  el.innerHTML=deskPresets().map(x=>`<button data-k="${x.k}" class="${x.k===s.preset?'sel':''}">${x.n}<br><small>${x.speed.toFixed(1)} km/h</small></button>`).join('');
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>deskSetPreset(b.dataset.k));
+}
+function deskApply(){
+  const rv=$('runView'), s=session, on=!!(s && s.desk && (s.state==='running'||s.state==='paused'));
+  rv.classList.toggle('desk',on); $('dkRun').classList.toggle('hidden',!on);
+  rv.classList.toggle('force-dark', on && !!D().dark);
+  if(!on) return;
+  const sh=D().show; rv.classList.toggle('dk-nohr',!sh.hr); rv.classList.toggle('dk-noctl',!sh.ctl); rv.classList.toggle('dk-nostats',!sh.stats); rv.classList.toggle('dk-noprog',!sh.prog);
+  rv.classList.toggle('dk-big',D().size==='big'); rv.classList.toggle('dk-small',D().size==='small');
+  const p=deskPreset(s.preset||D().sel);
+  $('rvTitle').textContent = s.meeting ? 'Desk walk · in a meeting' : `Desk walk · ${p.n}`;
+  $('rvStepsSub').textContent = (isWorkday(Date.now()) && inWorkHours(Date.now())) ? `this walk · workday ${fmtInt(workSteps())} / ${fmtInt(D().goal)}` : 'this walk · outside work hours';
+  $('dkMeet').textContent = s.meeting ? '▶ End meeting' : '🔇 Meeting';
+  $('dkMeet').classList.toggle('primary', !!s.meeting);
+  $('dkSave').textContent = s.saving ? 'Cancel save' : '💾 Save speed';
+  renderDeskChips(false);
+}
+{ const _rr=renderRun; renderRun=function(){ _rr(); try{ deskApply(); }catch(e){} }; }
+// pad rest reminder
+setInterval(()=>{
+  const s=session, el=$('dkRest'); if(!el) return;
+  if(!s || !s.desk || !(s.state==='running'||s.state==='paused') || !D().restMin){ el.classList.add('hidden'); return; }
+  const lim=D().restMin*60, rest=D().restLen*60;
+  if(s.state==='running' && live.speed>0.3){ s.contWalk=(s.contWalk||0)+1; s.restT=0; }
+  else if(s.state==='paused'){ s.restT=(s.restT||0)+1; if(s.restT>=rest && s.contWalk>=lim){ s.contWalk=0; s.rested=true; } }
+  if(s.contWalk>=lim && !s.restAsked){ s.restAsked=true; announce('Time to rest the pad.', true); }
+  if(s.contWalk<lim) s.restAsked=false;
+  let msg='';
+  if(s.state==='running' && s.contWalk>=lim) msg=`⏸ ${Math.round(s.contWalk/60)} min non-stop – give the pad a ${D().restLen}-minute rest. Tap <b>Pause</b>.`;
+  else if(s.state==='paused' && s.contWalk>=lim){ const left=Math.max(0,rest-(s.restT||0)); msg=`Resting the pad: ${fmtTime(left)} left.`; }
+  else if(s.state==='paused' && s.rested){ msg='✅ Pad rested – tap <b>Resume</b> when you\'re ready.'; }
+  if(s.state==='running') s.rested=false;
+  el.innerHTML=msg; el.classList.toggle('hidden',!msg);
+},1000);
+
+// ---- the Desk Walk section ----
+function deskCard(){
+  const c=document.createElement('div'); c.className='card'; c.id='deskCard';
+  const dayN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  c.innerHTML=`<h2>Today's workday</h2>
+  <div class="big" style="font-size:34px"><span id="dkWork">0</span> <small>/ <span id="dkGoal">6,000</span> work steps</small></div>
+  <div class="bar"><div id="dkBar"></div></div><div class="hint" id="dkHint" style="margin-top:2px"></div>
+  <h2 style="margin-top:16px">What are you doing?</h2>
+  <div class="dk-presets" id="dkPresets"></div>
+  <button class="primary" id="dkStart">▶ Start desk walk</button>
+  <div class="hint" id="dkInfo"></div>
+  <details id="dkCustom"><summary>Customise Desk Walk</summary>
+   <h3>Task speeds</h3><div id="dkEdit"></div><button id="dkAdd" style="margin-top:8px;width:100%">+ Add your own (up to 2)</button>
+   <div class="hint">Tip: during a desk walk, set a speed that feels right and tap <b>Save speed</b>, then the preset.</div>
+   <h3>Quiet mode</h3>
+   <label><input type="checkbox" id="dkQuiet" style="width:auto"> Quiet during desk walks (no spoken alerts)</label>
+   <label for="dkQA">Alerts while quiet</label><select id="dkQA"><option value="vibrate">Vibrate only</option><option value="chime">Soft chime</option><option value="none">Nothing</option></select>
+   <h3>Meeting button</h3>
+   <div class="dk-row"><div><label for="dkMA">When tapped</label><select id="dkMA"><option value="slow">Slow the belt</option><option value="pause">Pause the belt</option></select></div>
+   <div><label for="dkMS">Slow speed (km/h)</label><input id="dkMS" type="number" inputmode="decimal" step="0.1" min="1" max="3"></div></div>
+   <label><input type="checkbox" id="dkMM" style="width:auto"> Also mute all alerts during the meeting</label>
+   <h3>Work screen</h3>
+   <div class="dk-row"><label><input type="checkbox" id="dkShHr" style="width:auto"> Heart rate</label><label><input type="checkbox" id="dkShCtl" style="width:auto"> Speed controls</label></div>
+   <div class="dk-row"><label><input type="checkbox" id="dkShSt" style="width:auto"> Time · km · kcal</label><label><input type="checkbox" id="dkShPr" style="width:auto"> Progress bar</label></div>
+   <div class="dk-row"><div><label for="dkSize">Step number size</label><select id="dkSize"><option value="small">Small</option><option value="normal">Normal</option><option value="big">Big</option></select></div>
+   <div><label style="margin-top:28px"><input type="checkbox" id="dkDark" style="width:auto"> Always dark</label></div></div>
+   <h3>Workday goal</h3>
+   <div class="dk-row"><div><label for="dkG">Steps</label><input id="dkG" type="number" inputmode="numeric" step="500" min="500"></div>
+   <div><label for="dkS">From</label><input id="dkS" type="time"></div><div><label for="dkE">To</label><input id="dkE" type="time"></div></div>
+   <label>Workdays</label><div class="dk-days">${[1,2,3,4,5,6,0].map(d=>`<label>${dayN[d]}<input type="checkbox" data-day="${d}"></label>`).join('')}</div>
+   <label><input type="checkbox" id="dkCW" style="width:auto"> Count today's watch steps (from Step target) towards it</label>
+   <h3>Pad rest reminder</h3>
+   <div class="dk-row"><div><label for="dkRM">Remind after</label><select id="dkRM"><option value="0">Off</option><option value="60">60 min</option><option value="75">75 min</option><option value="90">90 min</option></select></div>
+   <div><label for="dkRL">Rest for</label><select id="dkRL"><option value="5">5 min</option><option value="10">10 min</option></select></div></div>
+   <div class="hint">Check your pad's manual – most recommend a short rest after 60–90 minutes of continuous use.</div>
+  </details>`;
+  return c;
+}
+function renderDesk(){
+  if(!$('deskCard')) return;
+  const w=workSteps(), g=D().goal, wd=isWorkday(Date.now());
+  $('dkWork').textContent=fmtInt(w); $('dkGoal').textContent=fmtInt(g); $('dkBar').style.width=Math.min(100,w/g*100)+'%';
+  $('dkHint').textContent = wd ? (w>=g?'🎉 Workday goal reached.':`${fmtInt(g-w)} to go · ${D().start}–${D().end}`) : 'Not a workday – desk walks still count towards your step target.';
+  const pr=$('dkPresets'), key=JSON.stringify([deskPresets().map(x=>[x.k,x.n,x.speed]),D().sel]);
+  if(pr.dataset.key!==key){ pr.dataset.key=key;
+    pr.innerHTML=deskPresets().map(x=>`<button class="dk-p${x.k===D().sel?' sel':''}" data-k="${x.k}"><b>${x.n}</b><small>${x.speed.toFixed(1)} km/h</small></button>`).join('');
+    pr.querySelectorAll('button').forEach(b=>b.onclick=()=>deskSetPreset(b.dataset.k)); }
+  const run=session && (session.state==='running'||session.state==='paused');
+  $('dkStart').textContent = run ? (session.desk ? '▶ Back to desk walk' : '▶ Switch this walk to desk mode') : '▶ Start desk walk';
+  $('dkInfo').innerHTML = `${D().quiet?'Quiet mode on':'Spoken alerts on'} · speed capped at ${deskCap().toFixed(1)} km/h · incline off`;
+}
+function fillDeskForm(){
+  const d=D(), ed=$('dkEdit'), all=d.presets.concat(d.extra);
+  ed.innerHTML=all.map((x,i)=>`<div class="dk-row" data-i="${i}"><input class="dkN" value="${x.n.replace(/"/g,'&quot;')}" aria-label="Preset name"><input class="dkV" type="number" inputmode="decimal" step="0.1" min="1" max="6" value="${(x.sp!=null?x.sp:deskDefaultSp(x.k)).toFixed(1)}" aria-label="Speed km/h" style="flex:0 0 84px">${i>=d.presets.length?'<button class="dkX" style="flex:0 0 44px" aria-label="Remove">✕</button>':''}</div>`).join('');
+  ed.querySelectorAll('.dk-row').forEach(r=>{ const i=+r.dataset.i, x=all[i];
+    r.querySelector('.dkN').onchange=e=>{ x.n=e.target.value.trim().slice(0,20)||x.n; saveSettings(); renderDesk(); };
+    r.querySelector('.dkV').onchange=e=>{ const v=parseFloat(e.target.value); if(v>=1&&v<=6){ x.sp=+v.toFixed(1); saveSettings(); renderDesk(); } };
+    const xb=r.querySelector('.dkX'); if(xb) xb.onclick=()=>{ d.extra.splice(i-d.presets.length,1); if(!deskPresets().some(q=>q.k===d.sel)) d.sel='type'; saveSettings(); fillDeskForm(); renderDesk(); }; });
+  $('dkAdd').disabled = d.extra.length>=2;
+  $('dkQuiet').checked=d.quiet; $('dkQA').value=d.quietAlert; $('dkMA').value=d.meetAction; $('dkMS').value=d.meetSpeed; $('dkMM').checked=d.meetMute;
+  $('dkShHr').checked=d.show.hr; $('dkShCtl').checked=d.show.ctl; $('dkShSt').checked=d.show.stats; $('dkShPr').checked=d.show.prog; $('dkSize').value=d.size; $('dkDark').checked=d.dark;
+  $('dkG').value=d.goal; $('dkS').value=d.start; $('dkE').value=d.end; document.querySelectorAll('[data-day]').forEach(b=>b.checked=d.days.includes(+b.dataset.day));
+  $('dkCW').checked=d.countWatch; $('dkRM').value=String(d.restMin); $('dkRL').value=String(d.restLen);
+}
+function wireDeskForm(){
+  const d=()=>D(), sv=()=>{ saveSettings(); renderDesk(); refreshTiles(); try{ renderRun(); }catch(e){} };
+  $('dkAdd').onclick=()=>{ if(d().extra.length>=2) return; d().extra.push({k:'c'+Date.now(), n:'My preset', sp:2.5}); saveSettings(); fillDeskForm(); renderDesk(); };
+  $('dkQuiet').onchange=e=>{ d().quiet=e.target.checked; sv(); }; $('dkQA').onchange=e=>{ d().quietAlert=e.target.value; sv(); };
+  $('dkMA').onchange=e=>{ d().meetAction=e.target.value; sv(); }; $('dkMS').onchange=e=>{ const v=parseFloat(e.target.value); if(v>=1&&v<=3){ d().meetSpeed=+v.toFixed(1); sv(); } }; $('dkMM').onchange=e=>{ d().meetMute=e.target.checked; sv(); };
+  [['dkShHr','hr'],['dkShCtl','ctl'],['dkShSt','stats'],['dkShPr','prog']].forEach(([id,k])=>$(id).onchange=e=>{ d().show[k]=e.target.checked; sv(); });
+  $('dkSize').onchange=e=>{ d().size=e.target.value; sv(); }; $('dkDark').onchange=e=>{ d().dark=e.target.checked; sv(); };
+  $('dkG').onchange=e=>{ const v=parseInt(e.target.value); if(v>=500&&v<=50000){ d().goal=v; sv(); } };
+  $('dkS').onchange=e=>{ if(e.target.value){ d().start=e.target.value; sv(); } }; $('dkE').onchange=e=>{ if(e.target.value){ d().end=e.target.value; sv(); } };
+  document.querySelectorAll('[data-day]').forEach(b=>b.onchange=()=>{ d().days=[...document.querySelectorAll('[data-day]')].filter(x=>x.checked).map(x=>+x.dataset.day); sv(); });
+  $('dkCW').onchange=e=>{ d().countWatch=e.target.checked; sv(); };
+  $('dkRM').onchange=e=>{ d().restMin=+e.target.value; sv(); }; $('dkRL').onchange=e=>{ d().restLen=+e.target.value; sv(); };
+  $('dkStart').onclick=startDesk;
+  $('dkCustom').addEventListener('toggle',()=>{ if($('dkCustom').open) fillDeskForm(); });
+}
+(function(){
+  const g=document.querySelector('#tab-workout .tiles');
+  makeSection($('tab-workout'), g, 'desk', 'Desk Walk', 'desk', '#0891b2', [deskCard()]);
+  const t=SEC.desk.tile; t.classList.add('wide'); const b=t.querySelector('b'), sm=t.querySelector('small'); const w=document.createElement('span'); w.className='tw'; w.append(b,sm); t.append(w); g.prepend(t);
+  wireDeskForm(); fillDeskForm(); renderDesk();
+  { const _rt=refreshTiles; refreshTiles=function(){ _rt(); try{ const e=$('tv-desk'); if(e){ const txt=isWorkday(Date.now()) ? `${fmtInt(workSteps())} / ${fmtInt(D().goal)} work steps today` : 'Typing, calls & thinking speeds'; if(e.textContent!==txt) e.textContent=txt; } if(secOpen==='desk') renderDesk(); }catch(e){} }; }
+  refreshTiles(); setInterval(()=>refreshTiles(),1000);
 })();
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
