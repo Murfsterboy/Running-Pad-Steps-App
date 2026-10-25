@@ -126,6 +126,12 @@ body{padding-bottom:150px}
 .sc-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:11px;color:var(--muted);text-align:center}.sc-days .ok{color:var(--accent);font-weight:700}
 .sc-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;align-items:end;height:62px}.sc-bars i{display:block;border-radius:4px;background:var(--accent);min-height:3px}.sc-bars i.lo{opacity:.45}.sc-bars i.today{outline:2px solid var(--ink);outline-offset:1px}
 .sc-w{grid-column:1/-1;min-height:0}
+.add-dev{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}.add-dev button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;font-size:12px;min-height:58px;border-radius:12px}
+.add-dev button span{font-size:20px;line-height:1}.add-dev button.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset;font-weight:600}
+.add-row{display:flex;gap:8px;margin-top:10px}.add-row input{flex:1;font-size:18px}.add-row button{flex:0 0 auto;min-width:84px}
+.add-list{margin-top:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden}.add-list>div{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14px}
+.add-list>div:last-child{border:0}.add-list span{flex:1}.add-list small{color:var(--muted)}.add-list button{flex:0 0 auto;min-height:36px;padding:0 12px;font-size:13px}
+.add-tot{background:var(--bg);font-weight:700}
 .dn-wrap{display:flex;align-items:center;gap:14px}.dn-leg{flex:1;display:flex;flex-direction:column;gap:5px;font-size:13px;min-width:0}
 .dn-leg div{display:flex;align-items:center;gap:7px}.dn-leg i{width:10px;height:10px;border-radius:50%;flex:0 0 10px}.dn-leg span{flex:1;min-width:0}.dn-leg b{font-variant-numeric:tabular-nums}
 .dots4{display:grid;grid-template-columns:repeat(28,minmax(0,1fr));align-items:center;justify-items:center;height:22px;margin-top:4px}
@@ -263,7 +269,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v34</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v35</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -506,7 +512,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v34</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v35</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1613,7 +1619,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v34 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v35 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2719,7 +2725,7 @@ function renderHomeCfg(){
       set('tv-target', fmtInt(S.target)); set('tv-workouts', WK[$('wkSel').value]?WK[$('wkSel').value].name:'Free walk'); set('tv-zones', $('zOn').checked?'Auto: on':'Auto: off');
       set('tv-speed', `${setSpeed.toFixed(1)} · incl ${setIncl}`); const f=lastFit(); set('tv-fitness', f?`${f.vo2} · ${rating(f.pct)}`:'Take a check'); set('tv-homecfg','');
       const W=WK[$('wkSel').value]; set('sbSum', W?`${Math.round(W.total/60)} min`:`${fmtInt(walkTarget())} · ${Math.round(walkTarget()*S.stride/100000/Math.max(setSpeed,0.1)*60)} min`);
-      const t=today(); set('ddTodayS', t.steps?`${fmtInt(t.steps)}${t.use?' · counting towards target':''}`:'Add steps from your watch');
+      const t=today(); set('ddTodayS', t.steps?`${fmtInt(t.steps)} added${t.use?' · counting towards target':''}`:'Add steps from a watch or other device');
       set('ddWeekS', `${fmtInt(D.week)} / ${fmtInt(S.weekGoal)} this week`);
       set('ddEstS', `≈ ${(walkTarget()*S.stride/100000).toFixed(2)} km · stride ${S.stride} cm`);
       set('ddZoneS', `${$('zMin').value||'–'}–${$('zMax').value||'–'} bpm · by ${$('zBy').value}`);
@@ -2904,7 +2910,7 @@ function todayParts(){
   const pad=sum(x=>!x.imported&&!x.desk), desk=sum(x=>!x.imported&&x.desk); if(pad) parts.push({k:'pad',n:'Pad workouts',v:pad,c:SRC_COL.pad}); if(desk) parts.push({k:'desk',n:'Desk walking',v:desk,c:SRC_COL.desk});
   const srcs={}; W.filter(x=>x.imported).forEach(x=>{ const n=x.src||'Imported'; srcs[n]=(srcs[n]||0)+(x.steps||0); });
   Object.entries(srcs).forEach(([n,v],i)=>{ if(v) parts.push({k:'imp',n:`${n} walks`,v,c:i?'#8b5cf6':SRC_COL.imp}); });
-  const w=today().steps||0; if(w) parts.push({k:'watch',n:'Watch / phone (added)',v:w,c:SRC_COL.watch});
+  const w=today().steps||0; if(w){ const d=Object.keys(addedSrc()).filter(k=>addedSrc()[k]>0); parts.push({k:'watch',n:d.length===1?`Added steps (${ADD_DEV[d[0]]?ADD_DEV[d[0]].short:'device'})`:'Added steps',v:w,c:SRC_COL.watch}); }
   return parts;
 }
 function donutSvg(parts,goal,w){
@@ -2975,6 +2981,45 @@ function renderGoals(){
   // the same breakdown at the top of Step target
   const tc=$('targetCard'); if(tc){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h2 style="margin-bottom:8px">Today so far</h2><div id="tgtBreak"></div>'; tc.before(d); }
   renderGoals(); refreshTiles();
+})();
+
+/* ================= v35: add steps from a watch or other device ================= */
+// Each device keeps one figure per day: enter what it shows now, and entering it again later updates it,
+// so the same steps are never counted twice. Clears at midnight. (Android app: phone steps fill in automatically.)
+const ADD_DEV={watch:{n:'Smart watch',short:'watch',i:'⌚'}, band:{n:'Fitness band',short:'band',i:'📿'}, phone:{n:'Phone',short:'phone',i:'📱'}, other:{n:'Other device',short:'other',i:'➕'}};
+let addDev='watch';
+function addedSrc(){ const t=today(); if(t.src) return Object.assign({},t.src); return t.steps?{watch:t.steps}:{}; }
+function saveAdded(src){ const t=today(); Object.keys(src).forEach(k=>{ if(!(src[k]>0)) delete src[k]; });
+  const sum=Object.values(src).reduce((a,x)=>a+x,0); store.set('wpad.today',{day:dayKey(Date.now()), steps:sum, use:sum?(t.steps?!!t.use:true):!!t.use, at:Date.now(), src, srcAt:Object.assign({},t.srcAt||{}, ...Object.keys(src).map(k=>({[k]:(t.src&&t.src[k]===src[k]&&t.srcAt&&t.srcAt[k])||Date.now()})))});
+  renderToday(); renderAdded(); try{ renderLive(); }catch(e){} try{ refreshTiles(); }catch(e){} if(secOpen==='glance') try{ renderStats(); }catch(e){} }
+saveToday=function(){ const t=today(); store.set('wpad.today',Object.assign({},t,{day:dayKey(Date.now()), use:$('todayUse').checked, at:Date.now(), src:addedSrc()})); renderToday(); renderAdded(); try{ renderLive(); refreshTiles(); }catch(e){} };
+$('todayUse').onchange=saveToday;
+function renderAdded(){
+  const box=$('addBox'); if(!box) return; const src=addedSrc(), t=today(), keys=Object.keys(src), sum=keys.reduce((a,k)=>a+src[k],0);
+  box.querySelectorAll('.add-dev button').forEach(b=>b.classList.toggle('sel',b.dataset.d===addDev));
+  $('addBtn').textContent = src[addDev] ? 'Update' : 'Add';
+  $('addSteps').placeholder = src[addDev] ? `Now ${fmtInt(src[addDev])} – new total` : `${ADD_DEV[addDev].short[0].toUpperCase()+ADD_DEV[addDev].short.slice(1)} steps`;
+  $('addList').innerHTML = keys.length ? keys.map(k=>`<div><span>${ADD_DEV[k]?ADD_DEV[k].i+' '+ADD_DEV[k].n:k}<br><small>updated ${new Date((t.srcAt&&t.srcAt[k])||t.at||Date.now()).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</small></span><b>${fmtInt(src[k])}</b><button data-rm="${k}" aria-label="Remove ${ADD_DEV[k]?ADD_DEV[k].n:k}">Remove</button></div>`).join('')
+      + `<div class="add-tot"><span>Added steps today</span><b>${fmtInt(sum)}</b></div>` : '';
+  $('addList').classList.toggle('hidden',!keys.length);
+  $('addList').querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{ const s2=addedSrc(); delete s2[b.dataset.rm]; saveAdded(s2); });
+}
+(function(){
+  const tb=document.querySelector('.today-box'); if(!tb) return;
+  $('todaySteps').classList.add('hidden'); const lab=tb.querySelector('label[for="todaySteps"]'); if(lab) lab.classList.add('hidden');
+  const box=document.createElement('div'); box.id='addBox';
+  box.innerHTML=`<div style="font-size:14px;font-weight:600">Add steps from another device</div>
+    <div class="hint" style="margin-top:2px">Steps you took away from the pad today. They show in the donut as <b>Added steps</b>.</div>
+    <div class="add-dev">${Object.entries(ADD_DEV).map(([k,d])=>`<button data-d="${k}" aria-label="${d.n}"><span>${d.i}</span>${d.n.replace(' device','')}</button>`).join('')}</div>
+    <div class="add-row"><input id="addSteps" type="number" inputmode="numeric" min="0" max="100000" aria-label="Steps"><button class="primary" id="addBtn">Add</button></div>
+    <div class="hint" style="margin-top:6px">Enter the total your device shows now. Entering it again later updates it, so nothing is counted twice. Add steps <b>before</b> you walk on the pad – a watch counts those steps too.</div>
+    <div class="add-list hidden" id="addList"></div>`;
+  tb.prepend(box);
+  box.querySelectorAll('.add-dev button').forEach(b=>b.onclick=()=>{ addDev=b.dataset.d; renderAdded(); $('addSteps').focus(); });
+  const go=()=>{ const v=parseInt($('addSteps').value); if(!(v>0&&v<=100000)){ $('addSteps').focus(); return; } const s2=addedSrc(); s2[addDev]=v; $('addSteps').value=''; saveAdded(s2); };
+  $('addBtn').onclick=go; $('addSteps').addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+  const uz=$('todayUse').closest('label'); if(uz) box.after(uz);
+  renderAdded();
 })();
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
