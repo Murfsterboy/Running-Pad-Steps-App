@@ -125,6 +125,22 @@ body{padding-bottom:150px}
 .sc-c{display:flex;justify-content:center}.sc-foot{margin-top:auto}
 .sc-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:11px;color:var(--muted);text-align:center}.sc-days .ok{color:var(--accent);font-weight:700}
 .sc-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;align-items:end;height:62px}.sc-bars i{display:block;border-radius:4px;background:var(--accent);min-height:3px}.sc-bars i.lo{opacity:.45}.sc-bars i.today{outline:2px solid var(--ink);outline-offset:1px}
+.sc-w{grid-column:1/-1;min-height:0}
+.dn-wrap{display:flex;align-items:center;gap:14px}.dn-leg{flex:1;display:flex;flex-direction:column;gap:5px;font-size:13px;min-width:0}
+.dn-leg div{display:flex;align-items:center;gap:7px}.dn-leg i{width:10px;height:10px;border-radius:50%;flex:0 0 10px}.dn-leg span{flex:1;min-width:0}.dn-leg b{font-variant-numeric:tabular-nums}
+.dots4{display:grid;grid-template-columns:repeat(28,minmax(0,1fr));align-items:center;justify-items:center;height:22px;margin-top:4px}
+.dots4 i{display:block;border-radius:50%;background:var(--muted);opacity:.45;width:4px;height:4px}.dots4 i.w{background:var(--accent);opacity:1}.dots4 i.t{box-shadow:0 0 0 2px var(--card),0 0 0 3.5px var(--ink)}
+.dots4l{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.su-step{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center}
+.su-opts{display:flex;flex-direction:column;gap:8px;margin-top:8px}.su-opts .route{margin-top:0;padding:12px 14px}.su-opts .route b{font-size:15px}
+.su-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.su-chips button{flex:0 0 auto;min-height:44px;padding:0 14px;border-radius:99px}
+.su-chips button.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.su-lab{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:14px}
+.plan-hero{background:var(--accent);color:var(--accent-ink);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.plan-hero small{opacity:.85;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}.plan-hero b{font-size:21px}
+.plan-pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;font-size:13px}.plan-pills span{background:rgba(255,255,255,.2);border-radius:99px;padding:3px 10px}
+.plan-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.plan-2>div{border:1px solid var(--line);border-radius:12px;padding:8px 12px}.plan-2 small{color:var(--muted);font-size:12px}.plan-2 b{display:block;font-size:17px}
+.plan-wk{border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-top:8px;display:flex;flex-direction:column;gap:5px;font-size:14px}.plan-wk div{display:flex;justify-content:space-between;gap:8px}.plan-wk span{color:var(--muted)}
 .sc-bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;display:flex}.sc-bar>i{display:block;height:100%}
 .sec-edit{margin-left:auto;font-weight:700;color:var(--accent);background:none;border:0;padding:10px 6px}
 .ed-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.ed-row:last-child{border:0}
@@ -247,7 +263,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v33</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v34</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -490,7 +506,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v33</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v34</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -560,7 +576,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 <div id="setupView" class="overlay hidden" style="z-index:21">
  <div class="inner">
   <div class="rv-top"><img src="wp-icon-192.png" alt="" width="32" height="32" style="border-radius:8px" onerror="this.remove()"><b>Set up WalkPilot</b></div>
-  <div class="steps-dots" id="suDots"><i></i><i></i><i></i><i></i></div>
+  <div class="steps-dots" id="suDots"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="su-step" id="suStepLab">Step 1 of 7</div>
 
   <div id="su1" class="card" style="margin:0">
    <h2>About you</h2>
@@ -580,21 +596,50 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   </div>
 
   <div id="su3" class="card hidden" style="margin:0">
-   <h2>Your heart rate and fitness</h2>
-   <button class="route" data-r="help"><b>Help me work it out</b><small>New to exercise or not sure of your numbers? WalkPilot will estimate them, then a 10-minute Fitness Check on the pad fine-tunes everything.</small></button>
-   <button class="route" data-r="know"><b>I know my numbers</b><small>Enter your max and resting heart rate, VO2 max (e.g. from Garmin) and walking speeds. Leave anything blank and WalkPilot estimates it.</small></button>
-   <div id="suKnow" class="hidden" style="margin-top:6px">
-    <div class="row"><div><label for="suMax">Max heart rate</label><input id="suMax" type="number" inputmode="numeric" placeholder="bpm"></div>
-     <div><label for="suRest">Resting heart rate</label><input id="suRest" type="number" inputmode="numeric" placeholder="bpm"></div></div>
-    <div class="row"><div><label for="suVo2">VO2 max</label><input id="suVo2" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 38"></div><div></div></div>
-    <div class="row"><div><label for="suComf">Comfortable walking speed</label><input id="suComf" type="number" inputmode="decimal" step="0.1" placeholder="km/h"></div>
-     <div><label for="suTop">Top speed allowed</label><input id="suTop" type="number" inputmode="decimal" step="0.1" placeholder="km/h"></div></div>
-   </div>
+   <h2>How active are you now?</h2>
+   <div class="hint" style="margin-top:0">Be honest – it sets where you start, not how far you can go.</div>
+   <div class="su-opts" id="suAct"></div>
   </div>
 
   <div id="su4" class="card hidden" style="margin:0">
-   <h2>Safety</h2>
-   <div class="banner" style="margin:0 0 10px;color:var(--ink)"><b>Safety first.</b> WalkPilot controls your pad's speed and incline. It is not a medical device and its heart-rate and fitness figures are estimates only. Keep the safety key clipped on, and stop if you feel dizzy, breathless, in pain or unwell.</div>
+   <h2>What's your main goal?</h2>
+   <div class="hint" style="margin-top:0">Pick the one that matters most. You can change it any time in Settings › My goals.</div>
+   <div class="su-opts" id="suGoal"></div>
+  </div>
+
+  <div id="su5" class="card hidden" style="margin:0">
+   <h2>When, and how much time?</h2>
+   <div class="hint" style="margin-top:0">WalkPilot spreads the work so it fits your week.</div>
+   <div class="su-lab">I want to get there in</div>
+   <div class="su-chips" id="suWeeks"><button data-v="4">4 weeks</button><button data-v="8">8 weeks</button><button data-v="12">12 weeks</button><button data-v="date">By a date</button><button data-v="0">No deadline</button></div>
+   <input id="suDate" type="date" class="hidden" style="margin-top:8px" aria-label="Target date">
+   <div class="su-lab">Days a week</div>
+   <div class="su-chips" id="suDays"><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button><button data-v="5">5</button><button data-v="6">6</button><button data-v="7">7</button></div>
+   <div class="su-lab">Minutes per walk</div>
+   <div class="su-chips" id="suMins"><button data-v="10">10</button><button data-v="20">20</button><button data-v="30">30</button><button data-v="45">45</button><button data-v="60">60+</button></div>
+   <div id="suTimeMsg" class="banner hidden" style="margin:12px 0 0;color:var(--ink)"></div>
+  </div>
+
+  <div id="su6" class="card hidden" style="margin:0">
+   <h2>Find your starting point</h2>
+   <div class="hint" style="margin-top:0">A 10-minute walking test sets your pace, heart-rate zones and plan level. Connect your watch for the best result.</div>
+   <button class="route" data-r="help"><b>10-minute Fitness Check <span style="font-size:12px;font-weight:700;color:var(--accent)">RECOMMENDED</span></b><small>Rest · find your pace · flat · gentle climb. You'll get your comfortable pace, top speed, VO2 max estimate and fitness age. It starts when you finish setup.</small></button>
+   <button class="route" data-r="know"><b>I know my numbers (from my watch)</b><small>Enter your VO2 max, max and resting heart rate and walking speeds. Leave anything blank and WalkPilot estimates it.</small></button>
+   <div id="suKnow" class="hidden" style="margin-top:6px">
+    <div class="row"><div><label for="suVo2">VO2 max</label><input id="suVo2" type="number" inputmode="decimal" step="0.1" placeholder="e.g. 38"></div><div></div></div>
+    <div class="row"><div><label for="suMax">Max heart rate</label><input id="suMax" type="number" inputmode="numeric" placeholder="bpm"></div>
+     <div><label for="suRest">Resting heart rate</label><input id="suRest" type="number" inputmode="numeric" placeholder="bpm"></div></div>
+    <div class="row"><div><label for="suComf">Comfortable walking speed</label><input id="suComf" type="number" inputmode="decimal" step="0.1" placeholder="km/h"></div>
+     <div><label for="suTop">Top speed allowed</label><input id="suTop" type="number" inputmode="decimal" step="0.1" placeholder="km/h"></div></div>
+   </div>
+   <button class="route" data-r="later"><b>Do it later</b><small>WalkPilot starts from your answers. Run the Fitness Check any time from Fitness &amp; check.</small></button>
+  </div>
+
+  <div id="su7" class="card hidden" style="margin:0">
+   <h2>Your WalkPilot plan</h2>
+   <div class="hint" style="margin-top:0">Based on your answers. You can change anything later in Settings › My goals.</div>
+   <div id="suPlan"></div>
+   <div class="banner" style="margin:12px 0 10px;color:var(--ink)"><b>Safety first.</b> WalkPilot controls your pad's speed and incline. It is not a medical device and its heart-rate and fitness figures are estimates only – general wellness guidance, not medical advice. Keep the safety key clipped on, and stop if you feel dizzy, breathless, in pain or unwell.</div>
    <div id="suSummary" class="hint" style="margin:0"></div>
    <label><input type="checkbox" id="suAgree" style="width:auto"> I understand and use WalkPilot at my own risk</label>
   </div>
@@ -1568,7 +1613,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v33 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v34 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -1812,14 +1857,15 @@ const HQ=[
   ['meds','Do you take medicine that affects your heart rate (for example beta-blockers)?'],
   ['preg','Are you pregnant or have you given birth in the last 6 months?'],
 ];
-const SU={step:1, sex:null, ans:{}, route:null};
+const SU={step:1, sex:null, ans:{}, route:null, act:null, goal:null, weeks:null, days:null, mins:null}, SU_N=7;
 const maxFromAge=a=>Math.round(208-0.7*a);
 function suShow(n){
-  SU.step=n; [1,2,3,4].forEach(i=>$('su'+i).classList.toggle('hidden',i!==n));
+  SU.step=n; for(let i=1;i<=SU_N;i++) $('su'+i).classList.toggle('hidden',i!==n); $('suStepLab').textContent=`Step ${n} of ${SU_N}`;
   [...$('suDots').children].forEach((d,i)=>d.classList.toggle('on',i<n));
   $('suBack').style.visibility = n>1 ? 'visible':'hidden';
-  $('suNext').textContent = n<4 ? 'Next' : 'Finish';
-  if(n===4) suSummary();
+  $('suNext').textContent = n<SU_N ? 'Next' : (SU.route==='help' ? 'Save & start Fitness Check' : 'Start walking');
+  if(n===5) suTimeMsg();
+  if(n===SU_N){ suSummary(); suPlanPreview(); }
   suValidate();
   $('setupView').scrollTo(0,0);
 }
@@ -1827,8 +1873,11 @@ function suValidate(){
   let ok=true;
   if(SU.step===1){ const a=+$('suAge').value, h=+$('suHeight').value, w=+$('suWeight').value; ok = a>=12&&a<=100 && h>=120&&h<=230 && w>=30&&w<=250 && !!SU.sex; }
   if(SU.step===2) ok = HQ.every(([k])=>SU.ans[k]!=null);
-  if(SU.step===3) ok = !!SU.route;
-  if(SU.step===4) ok = $('suAgree').checked;
+  if(SU.step===3) ok = !!SU.act;
+  if(SU.step===4) ok = !!SU.goal;
+  if(SU.step===5) ok = SU.weeks!=null && (SU.weeks!=='date' || Date.parse($('suDate').value)>Date.now()) && !!SU.days && !!SU.mins;
+  if(SU.step===6) ok = !!SU.route;
+  if(SU.step===7) ok = $('suAgree').checked;
   $('suNext').disabled=!ok;
 }
 function suQmsg(){
@@ -1843,10 +1892,13 @@ function suSummary(){
   const mx = (SU.route==='know' && +$('suMax').value) || maxFromAge(a);
   $('suSummary').innerHTML = `Max heart rate: <b>${mx} bpm</b>${SU.route==='know'&&+$('suMax').value?'':' (estimated – a Fitness Check and your walks refine it)'}<br>`+
     (gentle?'Gentle mode: <b>on</b> – top speed limited to 4.0 km/h until you change it in Settings.<br>':'')+
-    (SU.route==='help'?'Next: a <b>10-minute Fitness Check</b> on the pad to find your pace and fitness.':'You can run a Fitness Check any time from the Workout tab.');
+    (SU.route==='help'?'Next: a <b>10-minute Fitness Check</b> on the pad to find your pace and fitness – it fine-tunes this plan.':'You can run a Fitness Check any time from Fitness &amp; check.');
 }
-function openSetup(){
+function openSetup(at){
+  if(typeof at!=='number') at=1;
   SU.sex=S.sex||null; SU.ans=Object.assign({},S.health||{}); SU.route=S.route||null;
+  const pl=S.plan||{}; SU.act=pl.act||null; SU.goal=pl.goal||null; SU.weeks=pl.weeks!=null?pl.weeks:null; SU.days=pl.days||null; SU.mins=pl.mins||null; $('suDate').value=pl.weeks==='date'&&pl.end?dayKey(pl.end):'';
+  suFillOpts();
   $('suAge').value=S.hAge||''; $('suHeight').value=S.height||''; $('suWeight').value=S.weight||'';
   $('suMax').value=S.maxEntered?S.hMax:''; $('suRest').value=S.restEntered?S.hRest:''; $('suVo2').value='';
   $('suComf').value=S.comfort||''; $('suTop').value=S.topSpeed||'';
@@ -1854,17 +1906,17 @@ function openSetup(){
   $('suQs').innerHTML=HQ.map(([k,q])=>`<div class="q"><span>${q}</span><div class="seg2" data-k="${k}"><button data-v="n">No</button><button data-v="y">Yes</button></div></div>`).join('');
   $('suQs').querySelectorAll('.seg2').forEach(g=>{ const k=g.dataset.k;
     [...g.children].forEach(b=>{ b.classList.toggle('sel',SU.ans[k]===b.dataset.v); b.onclick=()=>{ SU.ans[k]=b.dataset.v; [...g.children].forEach(x=>x.classList.toggle('sel',x===b)); suQmsg(); suValidate(); }; }); });
-  document.querySelectorAll('#su3 .route').forEach(b=>b.classList.toggle('sel',b.dataset.r===SU.route));
+  document.querySelectorAll('#su6 .route').forEach(b=>b.classList.toggle('sel',b.dataset.r===SU.route));
   $('suKnow').classList.toggle('hidden',SU.route!=='know');
-  $('suAgree').checked=false; suQmsg(); suShow(1);
+  $('suAgree').checked=!!S.agreed; suQmsg(); suShow(at);
   $('setupView').classList.remove('hidden'); document.body.style.overflow='hidden';
 }
 [...$('suSex').children].forEach(b=>b.onclick=()=>{ SU.sex=b.dataset.v; [...$('suSex').children].forEach(x=>x.classList.toggle('sel',x===b)); suValidate(); });
-document.querySelectorAll('#su3 .route').forEach(b=>b.onclick=()=>{ SU.route=b.dataset.r; document.querySelectorAll('#su3 .route').forEach(x=>x.classList.toggle('sel',x===b)); $('suKnow').classList.toggle('hidden',SU.route!=='know'); suValidate(); });
+document.querySelectorAll('#su6 .route').forEach(b=>b.onclick=()=>{ SU.route=b.dataset.r; document.querySelectorAll('#su6 .route').forEach(x=>x.classList.toggle('sel',x===b)); $('suKnow').classList.toggle('hidden',SU.route!=='know'); suValidate(); });
 ['suAge','suHeight','suWeight','suAgree'].forEach(id=>$(id).addEventListener('input',suValidate));
 $('suAgree').addEventListener('change',suValidate);
 $('suBack').onclick=()=>suShow(Math.max(1,SU.step-1));
-$('suNext').onclick=()=>{ if(SU.step<4){ suShow(SU.step+1); return; } suFinish(); };
+$('suNext').onclick=()=>{ if(SU.step<SU_N){ suShow(SU.step+1); return; } suFinish(); };
 function suFinish(){
   const a=+$('suAge').value, ht=+$('suHeight').value, wt=+$('suWeight').value;
   S.hAge=a; S.height=ht; S.weight=wt; S.sex=SU.sex; S.health=SU.ans; S.route=SU.route;
@@ -1877,11 +1929,11 @@ function suFinish(){
   if(SU.route==='know' && tp>=1 && tp<=8) S.topSpeed=+tp.toFixed(1);
   if(S.gentle && (!S.topSpeed || S.topSpeed>4)) S.topSpeed=4.0;
   if(SU.route==='know' && vo>=10 && vo<=90) addFitResult({type:'entered', src:'watch', vo2:+vo.toFixed(1)});
-  S.agreed=true; S.setupV=2; saveSettings();
+  const firstRun=!S.agreed; S.agreed=true; S.setupV=3; applyPlan(firstRun); saveSettings();
   $('setupView').classList.add('hidden'); document.body.style.overflow='';
   ['hMax','hRest','sHeight','sWeight','sStride','hAge'].forEach(id=>{ const el=$(id); if(el) el.value = {hMax:S.hMax,hRest:S.hRest,sHeight:S.height,sWeight:S.weight,sStride:S.stride,hAge:S.hAge}[id]; });
   applyZoneSel(); renderZoneTable(); renderFitSnap(); refreshAll();
-  if(SU.route==='help') setTimeout(()=>{ if(confirm('Do your 10-minute Fitness Check now? (Connect the pad first – a heart-rate watch is recommended.)')) openFitness('quick'); },300);
+  if(SU.route==='help') setTimeout(()=>openFitness('quick'),300);
 }
 showWelcome=openSetup;           // the old welcome card is replaced by the setup
 $('btnShowWelcome').onclick=openSetup;
@@ -2089,6 +2141,7 @@ document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==
 // gentle mode / personal top speed caps heart-rate control
 { const _sc=speedCap; speedCap=function(){ return Math.min(_sc(), userCap()); }; }
 if(S.agreed && !S.setupV) setTimeout(()=>{ /* existing users: offer the new setup once */ if(confirm('WalkPilot has a new setup with a Fitness Check. Set it up now? (Takes a minute.)')) openSetup(); else { S.setupV=1; saveSettings(); } },800);
+else if(S.agreed && S.setupV<3 && !S.plan) setTimeout(()=>{ if(confirm('New in WalkPilot: tell it your goal and how much time you have, and get a plan. Set your goals now? (Takes a minute.)')) openSetup(3); else { S.setupV=3; saveSettings(); } },1200);
 renderFitSnap();
 
 
@@ -2237,12 +2290,8 @@ function themeCard(){
 function refreshTiles(){
   const set=(id,t)=>{ const e=$('tv-'+id); if(e && e.textContent!==t) e.textContent=t; };
   try{
-    const b=todayBase(); set('target', fmtInt(S.target)+' steps'+(b?` · ${fmtInt(b)} done`:''));
-    const wid=$('wkSel').value; set('workouts', WK[wid]?WK[wid].name:'Free walk');
-    set('zones', $('zOn').checked ? 'Auto zone: on' : 'Auto zone: off');
-    set('speed', `${setSpeed.toFixed(1)} km/h · incline ${setIncl}`);
-    const f=lastFit(); set('fitness', f ? `VO2 ${f.vo2} · ${rating(f.pct)}` : 'Take a Fitness Check');
-    set('glance','All your graphs');
+    const b=todayBase();   // tile text for the home tiles is written once, further down (v32)
+    const wid=$('wkSel').value;
     set('you', `${$('sHeight').value||'–'} cm · ${$('sWeight').value||'–'} kg · stride ${$('sStride').value||'–'} cm`);
     set('hrz', `Max ${$('hMax').value||'–'} · rest ${$('hRest').value||'–'}`);
     set('padset', `Voice ${$('sVoice').checked?'on':'off'} · auto-stop ${$('sAutoStop').checked?'on':'off'}`);
@@ -2564,7 +2613,7 @@ function renderStats(){
   if(statsEdit){ renderStatsEdit(); return; }
   const D=statsData();
   g.innerHTML=S.cards.order.filter(k=>CARDS[k] && !S.cards.hidden.includes(k)).map(k=>{ const c=CARDS[k]; let body=''; try{ body=c.r(D); }catch(e){ body='<div class="sc-sub">–</div>'; }
-    return `<button class="sc" data-card="${k}"><span class="sc-h">${svgIcon(c.i,c.c,18)}<span>${c.n}</span>${c.pro?'<span class="pro">PRO</span>':''}</span>${body}</button>`; }).join('')
+    return `<button class="sc${c.wide?' sc-w':''}" data-card="${k}"><span class="sc-h">${svgIcon(c.i,c.c,18)}<span>${c.n}</span>${c.pro?'<span class="pro">PRO</span>':''}</span>${body}</button>`; }).join('')
     + `<div class="sc-sub" style="grid-column:1/-1;text-align:center">Figures are estimates, not medical measurements. Tap a card for more.</div>`;
   g.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{ const k=b.dataset.card, c=CARDS[k];
     if(k==='dist'){ if(confirm('Mark the walking pad belt as serviced (cleaned / lubricated) today?')){ S.belt.last=+statsData().totalKm.toFixed(1); saveSettings(); renderStats(); } return; }
@@ -2786,6 +2835,147 @@ $('fImport').onchange=async e=>{
 })();
 // Fitness card: say where the figure came from
 { const _r=CARDS.fitness.r; CARDS.fitness.r=D=>{ const h=[...store.get('wpad.fit',[])].reverse().find(x=>x.vo2); return _r(D) + (h&&h.src==='watch'?'<div class="sc-sub" style="text-align:center">from your watch</div>':''); }; }
+
+/* ================= v34: goals & plan in setup, step sources donut, 4-week walk dots ================= */
+const ACTS=[['sit','Mostly sitting','Under 3,000 steps a day'],['light','Lightly active','3,000–7,000 steps a day'],['active','Active','7,000–10,000+ steps a day'],['regular','I exercise regularly','3 or more sessions a week'],['event',"I'm training for an event",'A race, walk or challenge']];
+const GOALS=[['move','Move more','Hit a daily step goal'],['desk','Desk health','Walk while I work'],['weight','Lose weight','Steady walking most days'],['fitter','Get fitter','Improve VO2 max and fitness age'],['5k','Walk a 5K or 10K','Build up to a long brisk walk'],['c25k','Base for Couch to 5K','Brisk walking before you start running outdoors'],['endurance','Endurance base','Zone 2 for running, triathlon or cycling'],['recover','Recover after injury or illness',"With your GP or physio's advice"]];
+const GOAL_NAME={move:'Move more',desk:'Desk health',weight:'Lose weight steadily',fitter:'Get fitter','5k':'Walk a 5K or 10K',c25k:'Base for Couch to 5K',endurance:'Endurance base',recover:'Gentle recovery'};
+const PLAN_WK={move:['free','z2','recovery'],desk:['desk','desk','z2'],weight:['z2','hills','z2','recovery','free'],fitter:['z2','japanese','z2','recovery','pyramid'],'5k':['z2','japanese','free','recovery'],c25k:['japanese','z2','japanese','recovery'],endurance:['z2','z2','pyramid','recovery','z2'],recover:['recovery','recovery','z2']};
+const PLAN_DAYS={2:[0,3],3:[0,2,4],4:[0,2,4,6],5:[0,1,3,4,6],6:[0,1,2,3,4,5],7:[0,1,2,3,4,5,6]};
+function suFillOpts(){
+  const mk=(box,list,key)=>{ const el=$(box); el.innerHTML=list.map(([v,t,sub])=>`<button class="route${SU[key]===v?' sel':''}" data-v="${v}"><b>${t}</b><small>${sub}</small></button>`).join('');
+    el.querySelectorAll('button').forEach(b=>b.onclick=()=>{ SU[key]=b.dataset.v; el.querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b)); suValidate(); }); };
+  mk('suAct',ACTS,'act'); mk('suGoal',GOALS,'goal');
+  const chips=(box,key,num)=>{ const el=$(box); el.querySelectorAll('button').forEach(b=>{ const v=num&&b.dataset.v!=='date'?+b.dataset.v:b.dataset.v; b.classList.toggle('sel',SU[key]===v);
+    b.onclick=()=>{ SU[key]=v; el.querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b)); if(key==='weeks') $('suDate').classList.toggle('hidden',v!=='date'); suTimeMsg(); suValidate(); }; }); };
+  chips('suWeeks','weeks',true); chips('suDays','days',true); chips('suMins','mins',true);
+  $('suDate').classList.toggle('hidden',SU.weeks!=='date');
+}
+$('suDate').addEventListener('input',()=>{ suTimeMsg(); suValidate(); });
+function suTimeMsg(){
+  const el=$('suTimeMsg'); if(!SU.days||!SU.mins){ el.classList.add('hidden'); return; }
+  const m=SU.days*SU.mins, h=m/60, t=h<1?`${m} minutes`:`${(Math.round(h*2)/2).toString().replace(/\.0$/,'')} hour${h>=1.25?'s':''}`;
+  el.innerHTML=`That's about <b>${t} a week</b> – `+(m>=150?'that meets the NHS advice of 150 active minutes a week.':m>=75?'a good amount for steady progress.':'a gentle start. You can add more later.');
+  el.classList.remove('hidden');
+}
+function planWeeks(p){ if(p.weeks==='date' && p.end) return Math.max(1,Math.ceil((p.end-(p.start||Date.now()))/(7*DAYMS))); return +p.weeks||0; }
+// Works out the plan from the answers. vo2/age/sex let it show where you are now and what to aim for.
+function makePlan(p, fit){
+  const base={sit:5000,light:7000,active:9000,regular:10000,event:10000}[p.act]||7000;
+  let tgt=base+({move:1000,weight:1000}[p.goal]||0); if(p.goal==='recover'||S.gentle) tgt=Math.min(tgt,6000); tgt=Math.min(15000,Math.round(tgt/500)*500);
+  const ids=PLAN_WK[p.goal]||PLAN_WK.move, gentleStart=p.act==='sit'||p.goal==='recover'||S.gentle;
+  let swapped=false; const days=p.goal==='desk'?[0,1,2,3,4,5,6].slice(0,p.days):(PLAN_DAYS[p.days]||PLAN_DAYS[3]);
+  const sched=days.map((d,i)=>{ let id=ids[i%ids.length]; if(WK[id] && (wkLocked(id) || (gentleStart && WK[id].lvl!=='Easy'))){ id=gentleStart?'recovery':'z2'; swapped=true; }
+    const mins=WK[id]?Math.round(WK[id].total/60):p.mins; return {day:d, id, name:WK[id]?WK[id].name:(id==='desk'?'Desk Walk':'Free walk'), mins}; });
+  const wks=planWeeks(p), end=p.weeks==='date'?p.end:(wks?(p.start||Date.now())+wks*7*DAYMS:null);
+  let now=null, aim=null; if(fit && fit.vo2){ now={vo2:fit.vo2, r:rating(fit.pct)}; const R=['Poor','Fair','Good','Excellent','Superior']; aim=R[Math.min(4,R.indexOf(now.r)+(['fitter','endurance','c25k','5k'].includes(p.goal)?1:0))]; }
+  const title=GOAL_NAME[p.goal]+(p.weeks==='date'&&end?` by ${new Date(end).toLocaleDateString([], {day:'numeric',month:'short'})}`:wks?` in ${wks} weeks`:'');
+  return {title, target:tgt, weekGoal:tgt*7, sched, swapped, wks, end, now, aim};
+}
+function planHtml(pl, p, note){
+  return `<div class="plan-hero"><small>Recommended</small><b>${pl.title}</b><span style="font-size:14px;opacity:.9">${p.days} walks a week · about ${p.mins>=60?'60+':p.mins} min</span>
+     <div class="plan-pills">${pl.now?`<span>Now: ${pl.now.r} · VO2 ${pl.now.vo2}</span>${pl.aim&&pl.aim!==pl.now.r?`<span>→ Aim: ${pl.aim}</span>`:''}`:`<span>${note||'Fitness level: take a Fitness Check'}</span>`}</div></div>
+    <div class="plan-2"><div><small>Daily target</small><b>${fmtInt(pl.target)} steps</b></div><div><small>Weekly goal</small><b>${fmtInt(pl.weekGoal)}</b></div></div>
+    <div class="plan-wk"><b style="font-size:14px">Each week</b>${pl.sched.map(x=>`<div><span style="color:var(--ink)">${x.name}</span><span>${DNAME[x.day]} · ${x.mins} min</span></div>`).join('')}</div>
+    ${pl.swapped?'<div class="hint">Interval and hard workouts join your plan once you have done 10 walks (or unlock them in Workouts).</div>':''}`;
+}
+function suAnswers(){ return {act:SU.act, goal:SU.goal, weeks:SU.weeks, end:SU.weeks==='date'?Date.parse($('suDate').value):null, days:SU.days, mins:SU.mins}; }
+function suFit(){ const a=+$('suAge').value||S.hAge, sx=SU.sex||S.sex, vo=+$('suVo2').value;
+  if(SU.route==='know' && vo>=10 && vo<=90) return {vo2:+vo.toFixed(1), pct:percentile(vo,sx,a)}; const f=lastFit(); return f?{vo2:f.vo2,pct:percentile(f.vo2,sx,a)}:null; }
+function suPlanPreview(){ const p=suAnswers(); if(!p.goal){ $('suPlan').innerHTML=''; return; }
+  $('suPlan').innerHTML=planHtml(makePlan(p,suFit()),p, SU.route==='help'?'Your Fitness Check sets your level':'Fitness level: take a Fitness Check'); }
+function applyPlan(firstRun){
+  if(!SU.goal) return; const p=suAnswers(); p.start=(S.plan&&S.plan.goal===p.goal&&S.plan.start)||Date.now();
+  const pl=makePlan(p,suFit()); S.plan=Object.assign(p,{set:Date.now()}); S.target=pl.target; S.weekGoal=pl.weekGoal;
+  const t=$('target'); if(t) t.value=S.target; const wg=$('weekGoal'); if(wg) wg.value=S.weekGoal;
+  if(firstRun){ // fit My Stats and the home screen to the goal
+    if(p.goal==='desk'){ const keep=CARD_PRESETS.desk; S.cards={order:['plan'].concat(keep, CARD_DEF.filter(k=>k!=='plan'&&!keep.includes(k))), hidden:CARD_DEF.filter(k=>k!=='plan'&&!keep.includes(k))}; S.home.big=['desk','glance']; }
+    else if(['fitter','endurance','c25k','5k'].includes(p.goal)){ const keep=['steps','week','fitness','active','load','hr','last','streak']; S.cards={order:['steps','week','plan'].concat(keep.slice(2), CARD_DEF.filter(k=>k!=='plan'&&!keep.includes(k))), hidden:CARD_DEF.filter(k=>k!=='plan'&&!keep.includes(k))}; S.home.big=['glance','desk']; }
+    try{ applyHome(); }catch(e){}
+  }
+  try{ renderGoals(); refreshTiles(); }catch(e){}
+}
+
+// ---- where today's steps came from ----
+const SRC_COL={pad:'#3b82f6', desk:'#22b8cf', watch:'#22c55e', imp:'#a78bfa'};
+function todayParts(){
+  const tk=dayKey(Date.now()), W=walksAll().filter(x=>dayKey(x.start)===tk), parts=[];
+  const sum=f=>W.filter(f).reduce((a,x)=>a+(x.steps||0),0);
+  const pad=sum(x=>!x.imported&&!x.desk), desk=sum(x=>!x.imported&&x.desk); if(pad) parts.push({k:'pad',n:'Pad workouts',v:pad,c:SRC_COL.pad}); if(desk) parts.push({k:'desk',n:'Desk walking',v:desk,c:SRC_COL.desk});
+  const srcs={}; W.filter(x=>x.imported).forEach(x=>{ const n=x.src||'Imported'; srcs[n]=(srcs[n]||0)+(x.steps||0); });
+  Object.entries(srcs).forEach(([n,v],i)=>{ if(v) parts.push({k:'imp',n:`${n} walks`,v,c:i?'#8b5cf6':SRC_COL.imp}); });
+  const w=today().steps||0; if(w) parts.push({k:'watch',n:'Watch / phone (added)',v:w,c:SRC_COL.watch});
+  return parts;
+}
+function donutSvg(parts,goal,w){
+  w=w||128; const sw=w*0.11, r=w/2-sw/2-2, C=2*Math.PI*r, done=parts.reduce((a,x)=>a+x.v,0), tot=Math.max(goal,done,1), gap=parts.length+(done<goal?1:0)>1?4:0;
+  let off=0, o=`<circle cx="${w/2}" cy="${w/2}" r="${r}" fill="none" stroke="var(--line)" stroke-width="${sw}"/>`;
+  parts.forEach(p=>{ const L=C*p.v/tot; const len=Math.max(0.1,L-gap); o+=`<circle cx="${w/2}" cy="${w/2}" r="${r}" fill="none" stroke="${p.c}" stroke-width="${sw}" stroke-dasharray="${len.toFixed(1)} ${(C-len).toFixed(1)}" stroke-dashoffset="${(-off-gap/2).toFixed(1)}" transform="rotate(-90 ${w/2} ${w/2})"/>`; off+=L; });
+  const pct=Math.round(done/Math.max(1,goal)*100);
+  return `<svg width="${w}" height="${w}" viewBox="0 0 ${w} ${w}" role="img" aria-label="${fmtInt(done)} of ${fmtInt(goal)} steps, ${pct} percent">${o}
+    <text x="${w/2}" y="${w/2-2}" text-anchor="middle" font-size="${(w*0.17).toFixed(0)}" font-weight="800" fill="var(--ink)">${fmtInt(done)}</text>
+    <text x="${w/2}" y="${w/2+w*0.12}" text-anchor="middle" font-size="${(w*0.085).toFixed(0)}" fill="var(--muted)">/ ${fmtInt(goal)}</text>
+    <text x="${w/2}" y="${w/2+w*0.24}" text-anchor="middle" font-size="${(w*0.085).toFixed(0)}" font-weight="700" fill="var(--accent)">${pct}% goal</text></svg>`;
+}
+function stepsBreakdown(w){
+  const parts=todayParts(), done=parts.reduce((a,x)=>a+x.v,0), left=Math.max(0,S.target-done);
+  return `<div class="dn-wrap">${donutSvg(parts,S.target,w)}<div class="dn-leg">${parts.map(p=>`<div><i style="background:${p.c}"></i><span>${p.n}</span><b>${fmtInt(p.v)}</b></div>`).join('')}
+    ${left?`<div><i style="background:var(--line)"></i><span>Still to go</span><b>${fmtInt(left)}</b></div>`:`<div style="color:var(--accent);font-weight:700">🎉 Goal reached</div>`}
+    ${parts.length?'':'<div class="sc-sub">No steps yet today. Walk on the pad, or add steps from your watch in Step target.</div>'}</div></div>`;
+}
+CARDS.steps.wide=true;
+CARDS.steps.r=D=>stepsBreakdown(128);
+
+// ---- 4-week walk dots on This week ----
+function dots4(){
+  const W=walksAll(), now=Date.now(), out=[]; let walks=0, secs=0;
+  for(let i=27;i>=0;i--){ const d=new Date(now-i*DAYMS); d.setHours(12,0,0,0); const k=dayKey(d.getTime()), ws=W.filter(x=>dayKey(x.start)===k && (x.active||0)>=60), m=ws.reduce((a,x)=>a+(x.active||0),0)/60;
+    walks+=ws.length; secs+=m*60; const sz=m?Math.round(9+Math.min(1,m/60)*6):4;
+    out.push(`<i class="${m?'w':''}${i===0?' t':''}" style="width:${sz}px;height:${sz}px" title="${d.toLocaleDateString([], {weekday:'short',day:'numeric',month:'short'})}${m?` · ${ws.length} walk${ws.length>1?'s':''}, ${Math.round(m)} min`:''}"></i>`); }
+  const st=new Date(now-27*DAYMS);
+  return `<div class="sc-sub" style="margin-top:10px;display:flex;justify-content:space-between"><b style="color:var(--ink)">Last 4 weeks</b><span>${walks} walk${walks===1?'':'s'} · ${secs>=3600?Math.floor(secs/3600)+' h ':''}${Math.round(secs%3600/60)} min</span></div>
+    <div class="dots4" aria-label="Walks over the last 4 weeks: ${walks}">${out.join('')}</div>
+    <div class="dots4l"><span>${st.toLocaleDateString([], {day:'numeric',month:'short'})}</span><span>Bigger dot = longer walk</span><span>Today</span></div>`;
+}
+CARDS.week.wide=true;
+{ const _w=CARDS.week.r; CARDS.week.r=D=>_w(D)+dots4(); }
+
+// ---- My plan card ----
+function planNow(){
+  const p=S.plan; if(!p||!p.goal) return null; const pl=makePlan(p,lastFit()), now=Date.now(), ws=weekStart(now), dow=(new Date().getDay()+6)%7;
+  const done=walksAll().filter(x=>x.start>=ws && (x.active||0)>=600), wk=Math.floor((now-weekStart(p.start||now))/(7*DAYMS))+1;
+  const doneToday=done.some(x=>dayKey(x.start)===dayKey(now)); const nx=pl.sched.find(x=>x.day>dow || (x.day===dow && !doneToday)) || pl.sched[0];
+  return {p, pl, done:done.length, wk, next:nx, nextToday:nx.day===dow && !doneToday, finished:pl.end && now>pl.end};
+}
+CARDS.plan={n:'My plan', c:'#2563eb', i:'target', go:'goals', r:D=>{ const P=planNow(); if(!P) return `<div class="sc-big" style="font-size:18px;margin-top:10px">No plan yet</div><div class="sc-sub">Tell WalkPilot your goal and how much time you have. Tap to set your goals.</div>`;
+  const per=P.p.days; return `<b style="font-size:15px;line-height:1.25">${P.pl.title}</b><div class="sc-sub">${P.finished?'Plan finished – set a new goal':`Week ${P.wk}${P.pl.wks?` of ${P.pl.wks}`:''}`} · ${Math.min(P.done,per)} of ${per} walks</div>
+    <div class="sc-bar" style="margin-top:6px"><i style="width:${Math.min(100,P.done/per*100).toFixed(0)}%;background:#2563eb"></i></div>
+    <div class="sc-sub sc-foot" style="color:#2563eb;font-weight:600">Next: ${P.next.name}<br><span style="font-weight:400;color:var(--muted)">${P.nextToday?'today':DNAME[P.next.day]} · ${P.next.mins} min</span></div>`; }};
+CARD_DEF.splice(2,0,'plan');
+if(!S.cards.order.includes('plan')){ const i=S.cards.order.indexOf('week'); S.cards.order.splice(i>=0?i+1:0,0,'plan'); }
+
+// ---- Settings › My goals ----
+function goalsCard(){ const c=document.createElement('div'); c.className='card'; c.id='goalsCard'; return c; }
+function renderGoals(){
+  const c=$('goalsCard'); if(!c) return; const p=S.plan;
+  if(!p||!p.goal){ c.innerHTML=`<h2>My goals</h2><div class="hint" style="margin-top:0">Tell WalkPilot how active you are, your main goal and how much time you have. It sets your daily target, weekly goal and suggests workouts.</div><button class="primary" id="gSet" style="width:100%;margin-top:10px">Set my goals</button>`; }
+  else { const pl=makePlan(p,lastFit()), a=ACTS.find(x=>x[0]===p.act);
+    c.innerHTML=planHtml(pl,p)+`<div class="hint">Started ${new Date(p.start||p.set).toLocaleDateString([], {day:'numeric',month:'short'})} · ${a?a[1]:''}. Changing your goals resets your daily target and weekly goal.</div>
+     <div class="row" style="margin-top:10px"><button class="primary" id="gSet">Change my goals</button><button id="gFit">Fitness Check</button></div>`;
+    const f=$('gFit'); if(f) f.onclick=()=>{ closeSec(); setTimeout(()=>openFitness('quick'),60); }; }
+  $('gSet').onclick=()=>openSetup(3);
+}
+(function(){
+  const ts=$('tab-settings'), gs=ts&&ts.querySelector('.tiles'); if(!gs) return;
+  makeSection(ts, gs, 'goals', 'My goals', 'target', '#2563eb', [goalsCard()]);
+  gs.insertBefore(SEC.goals.tile, gs.firstChild);
+  { const _os=openSec; openSec=function(id){ _os(id); if(id==='goals') renderGoals(); }; }
+  { const _rt=refreshTiles; refreshTiles=function(){ _rt(); try{ const e=$('tv-goals'), t=S.plan&&S.plan.goal?GOAL_NAME[S.plan.goal]:'Set your goals'; if(e && e.textContent!==t) e.textContent=t;
+      const b=$('tgtBreak'); if(b){ const h=stepsBreakdown(112); if(b.dataset.h!==h){ b.dataset.h=h; b.innerHTML=h; } } }catch(e){} }; }
+  // the same breakdown at the top of Step target
+  const tc=$('targetCard'); if(tc){ const d=document.createElement('div'); d.className='card'; d.innerHTML='<h2 style="margin-bottom:8px">Today so far</h2><div id="tgtBreak"></div>'; tc.before(d); }
+  renderGoals(); refreshTiles();
+})();
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
