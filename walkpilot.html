@@ -95,6 +95,51 @@ nav button.active{color:var(--accent)}
 .sess small{color:var(--muted)}
 #log{font:12px ui-monospace,monospace;color:var(--muted);white-space:pre-wrap;max-height:140px;overflow:auto}
 .hidden{display:none!important}
+/* ---------- v32: compact home, My Stats, dropdowns ---------- */
+body{padding-bottom:150px}
+#connectCard.cc{background:none;border:0;padding:0;margin-bottom:8px}
+#connectCard.cc>h2,#connectCard.cc>.hint,#connectCard.cc>details{display:none}
+#connectCard.cc .row:first-of-type{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#connectCard.cc .row:first-of-type button{font-size:14px;padding:10px 4px;min-height:46px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#connectCard.cc .row:empty{display:none}
+#tab-workout .tiles{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#tab-workout .tile:not(.wide){min-height:84px;padding:10px;gap:4px;border-radius:14px}
+#tab-workout .tile:not(.wide) .ti{width:28px;height:28px;border-radius:8px}
+#tab-workout .tile:not(.wide) b{font-size:13px}#tab-workout .tile:not(.wide) small{font-size:12px}
+#tab-workout .tile.wide{min-height:62px;padding:10px 12px}
+.tile.add{border-style:dashed;background:transparent;align-items:center;justify-content:center;text-align:center}
+.tile.glance-t{flex-direction:column!important;align-items:stretch!important;gap:8px!important}
+.gt-row{display:flex;align-items:center;gap:8px}.gt-row b{flex:1}.gt-row small{font-size:12px}
+.mini7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:end;height:44px}
+.mini7 i{display:block;border-radius:4px;background:rgba(255,255,255,.9);min-height:3px}.mini7 i.today{background:rgba(255,255,255,.55);outline:2px solid #fff;outline-offset:1px}
+.mini7l{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;font-size:11px;text-align:center;opacity:.85}.mini7l .today{font-weight:700;opacity:1}
+#startBar{position:fixed;left:0;right:0;z-index:6;background:var(--bg);border-top:1px solid var(--line);padding:10px 16px}
+#startBar .sb-in{max-width:720px;margin:0 auto;display:flex;gap:10px;align-items:center}
+#startBar .sb-sum{flex:0 0 auto;font-size:12px;color:var(--muted);line-height:1.3}#startBar .sb-sum b{display:block;font-size:14px;color:var(--ink)}
+#startBar .row{flex:1;margin:0!important}#startBar #btnStart{min-height:52px}
+.stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
+@media (min-width:640px){.stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.sc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:5px;min-height:190px;text-align:left;color:var(--ink);font:inherit;cursor:pointer}
+.sc-h{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600}.sc-h .pro{margin-left:auto;font-size:10px;font-weight:800;color:#0b0f14;background:#f2c14e;border-radius:4px;padding:2px 5px}
+.sc-big{font-size:24px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}.sc-sub{font-size:12px;color:var(--muted)}
+.sc-c{display:flex;justify-content:center}.sc-foot{margin-top:auto}
+.sc-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:11px;color:var(--muted);text-align:center}.sc-days .ok{color:var(--accent);font-weight:700}
+.sc-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;align-items:end;height:62px}.sc-bars i{display:block;border-radius:4px;background:var(--accent);min-height:3px}.sc-bars i.lo{opacity:.45}.sc-bars i.today{outline:2px solid var(--ink);outline-offset:1px}
+.sc-bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;display:flex}.sc-bar>i{display:block;height:100%}
+.sec-edit{margin-left:auto;font-weight:700;color:var(--accent);background:none;border:0;padding:10px 6px}
+.ed-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.ed-row:last-child{border:0}
+.ed-row span{flex:1;font-size:15px}.ed-row.off span{color:var(--muted)}.ed-row button{min-width:44px;height:40px;padding:0 10px}
+.ed-row .tg{min-width:76px;border-radius:99px}.ed-row .tg.on{border-color:var(--accent);color:var(--accent);font-weight:600}
+details.dd{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 12px;margin-top:10px}
+details.dd>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 0;min-height:24px}
+details.dd>summary::-webkit-details-marker{display:none}details.dd>summary::after{content:'▾';color:var(--muted);font-size:14px;transition:transform .2s}
+details.dd[open]>summary::after{transform:rotate(180deg)}details.dd>summary span{flex:1}details.dd>summary b{display:block;font-size:15px}details.dd>summary small{font-size:12px;color:var(--muted)}
+details.dd>.dd-in{padding-bottom:12px}
+#targetCard>h2{display:none}#targetCard .today-box{margin:0;padding:0;border:0}
+.tgt-big{display:grid;grid-template-columns:52px 1fr 52px;gap:8px;align-items:center}.tgt-big button{font-size:24px;height:52px;padding:0}
+.tgt-big input{font-size:30px;font-weight:800;text-align:center;padding:6px}
+details.wk-g>summary{list-style:none;cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:14px;padding:6px 0}
+details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::after{content:' ▾'}details.wk-g[open]>summary::after{content:' ▴'}
 /* ---------- v31: desk walk ---------- */
 .tile.wide{grid-column:1/-1;flex-direction:row;align-items:center;min-height:76px;gap:12px}
 .tile.wide .tw{display:flex;flex-direction:column;gap:2px}
@@ -202,7 +247,7 @@ nav button.active{color:var(--accent)}
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v31</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v32</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -431,7 +476,7 @@ nav button.active{color:var(--accent)}
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v31</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v32</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1509,7 +1554,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v31 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v32 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2431,6 +2476,205 @@ function wireDeskForm(){
   { const _rt=refreshTiles; refreshTiles=function(){ _rt(); try{ const e=$('tv-desk'); if(e){ const txt=isWorkday(Date.now()) ? `${fmtInt(workSteps())} / ${fmtInt(D().goal)} work steps today` : 'Typing, calls & thinking speeds'; if(e.textContent!==txt) e.textContent=txt; } if(secOpen==='desk') renderDesk(); }catch(e){} }; }
   refreshTiles(); setInterval(()=>refreshTiles(),1000);
 })();
+
+/* ================= v32: compact home, My Stats, dropdowns, customise home ================= */
+ICONS.steps='<path d="M8 4c2 0 3 2.5 3 5.5S10 15 8 15s-3-2.5-3-5.5S6 4 8 4z"/><path d="M16 9c2 0 3 2.5 3 5.5S18 20 16 20s-3-2.5-3-5.5S14 9 16 9z"/>';
+ICONS.clock='<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 2h6"/>';
+ICONS.walk='<circle cx="13" cy="4.5" r="1.8"/><path d="M12 8l-2 5 3 2 1 5"/><path d="M10 13l-3 1"/><path d="M13 9l3 3h3"/>';
+ICONS.fire='<path d="M12 21c4 0 6-2.7 6-6 0-4-3-6-4-9-1 2-2 3-3 3 0-2-1-4-2-5 0 4-3 6-3 11 0 3.3 2 6 6 6z"/>';
+ICONS.check='<path d="M5 13l4 4 10-10"/>'; ICONS.dist='<path d="M4 19h16"/><path d="M6 15l4-8 4 5 4-7"/>';
+ICONS.load='<circle cx="12" cy="12" r="9"/><path d="M12 12l5-3"/>'; ICONS.plus='<path d="M12 5v14"/><path d="M5 12h14"/>';
+if(!S.weekGoal) S.weekGoal=50000;
+S.belt=Object.assign({every:300,last:0}, S.belt||{});
+const DAYMS=86400000, DNAME=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function weekStart(ts){ const d=new Date(ts); d.setHours(0,0,0,0); return d.getTime()-((d.getDay()+6)%7)*DAYMS; }
+function walksAll(){ const h=store.get('wpad.history',[]); const list=h.slice(); if(session && session.state!=='done' && !h.some(x=>x.id===session.start)) list.unshift({id:session.start,start:session.start,steps:Math.round(steps(session)),dist:session.dist,kcal:kcalOf(session),active:session.active,samples:session.samples,desk:!!session.desk,wk:session.wk?WK[session.wk.id].name:(session.desk?'Desk walk':null),live:true}); return list; }
+function zoneSecs(w){ const z=[0,0,0,0,0,0]; const sm=(w.samples||[]).filter(x=>x && x.t!=null); for(let i=1;i<sm.length;i++){ const dt=Math.min(30,Math.max(0,sm[i].t-sm[i-1].t)); const hr=sm[i].hr; z[hr?zoneOf(hr):0]+=dt; } return z; }
+function activeSecs(w){ const z=zoneSecs(w), hrSecs=z[1]+z[2]+z[3]+z[4]+z[5]; if(hrSecs>60) return z[2]+z[3]+z[4]+z[5]; const kmh=w.active>0?(w.dist/1000)/(w.active/3600):0; return kmh>=4.0 ? (w.active||0) : 0; }
+function loadOf(w){ const z=zoneSecs(w), hrSecs=z[1]+z[2]+z[3]+z[4]+z[5]; if(hrSecs>60) return (z[1]*1+z[2]*2+z[3]*3+z[4]*4+z[5]*5)/60; return (w.active||0)/60*1.5; }
+function statsData(){
+  const W=walksAll(), now=Date.now(), tk=dayKey(now), ws=weekStart(now), watch=today().steps||0;
+  const padOn=k=>W.filter(x=>dayKey(x.start)===k).reduce((a,x)=>a+(x.steps||0),0);
+  const days=[]; for(let i=0;i<7;i++){ const ts=ws+i*DAYMS, k=dayKey(ts); days.push({lab:DNAME[i], ts, k, today:k===tk, future:ts>now, steps:padOn(k)+(k===tk?watch:0)}); }
+  const inWeek=W.filter(x=>x.start>=ws);
+  const todayW=W.filter(x=>dayKey(x.start)===tk);
+  // streak of days hitting the daily target
+  const hit=k=>padOn(k)+(k===tk?watch:0)>=S.target;
+  let streak=0, d=new Date(); d.setHours(12,0,0,0); if(!hit(dayKey(d.getTime()))) d=new Date(d.getTime()-DAYMS);
+  while(streak<400 && hit(dayKey(d.getTime()))){ streak++; d=new Date(d.getTime()-DAYMS); }
+  let best=streak; if(W.length){ let run=0; const first=new Date(Math.min(...W.map(x=>x.start))); first.setHours(12,0,0,0); for(let t=first.getTime(); t<=now+DAYMS/2; t+=DAYMS){ if(hit(dayKey(t))){ run++; best=Math.max(best,run);} else run=0; } }
+  const last7=W.filter(x=>x.start>=now-7*DAYMS).reduce((a,x)=>a+loadOf(x),0);
+  const prev=[0,1,2,3].map(k=>W.filter(x=>x.start<now-k*7*DAYMS && x.start>=now-(k+1)*7*DAYMS).reduce((a,x)=>a+loadOf(x),0));   // prev[0] = last 7 days
+  const base=(prev[1]+prev[2]+prev[3])/3;
+  const totalKm=W.reduce((a,x)=>a+(x.dist||0),0)/1000;
+  return { W, days, watch, todaySteps:days.find(x=>x.today).steps, todayPad:padOn(tk),
+    week:days.reduce((a,x)=>a+x.steps,0), activeMin:Math.round(inWeek.reduce((a,x)=>a+activeSecs(x),0)/60),
+    last:W.find(x=>!x.live)||W[0]||null, streak, best, kcalWeek:inWeek.reduce((a,x)=>a+(x.kcal||0),0), kcalToday:todayW.reduce((a,x)=>a+(x.kcal||0),0),
+    kmWeek:inWeek.reduce((a,x)=>a+(x.dist||0),0)/1000, deskMin:Math.round(inWeek.filter(x=>x.desk).reduce((a,x)=>a+(x.active||0),0)/60),
+    load:{now:last7, base, bars:[prev[3],prev[2],prev[1],last7]}, beltDue:Math.max(0, Math.round(S.belt.every-(totalKm-S.belt.last))), totalKm };
+}
+const ringSvg=(frac,label,col,w)=>{ w=w||104; const r=w/2-8, c=2*Math.PI*r; return `<svg width="${w}" height="${w}" viewBox="0 0 ${w} ${w}" role="img" aria-label="${label}"><circle cx="${w/2}" cy="${w/2}" r="${r}" fill="none" stroke="var(--line)" stroke-width="9"/><circle cx="${w/2}" cy="${w/2}" r="${r}" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${(c*Math.max(0,Math.min(1,frac))).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 ${w/2} ${w/2})"/><text x="${w/2}" y="${w/2+7}" text-anchor="middle" font-size="20" font-weight="700" fill="var(--ink)">${label}</text></svg>`; };
+function gaugeSvg(segs,frac,label,w){ w=w||116; const cx=w/2, cy=w/2, r=w/2-10, st=150, sw=240, gap=4, tot=segs.reduce((a,x)=>a+x[1],0); const P=a=>[cx+r*Math.cos(a*Math.PI/180), cy+r*Math.sin(a*Math.PI/180)];
+  let a=st, o=''; segs.forEach(([col,sh])=>{ const sp=sw*sh/tot, [x0,y0]=P(a+gap/2), [x1,y1]=P(a+sp-gap/2); o+=`<path d="M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 ${sp>180?1:0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}" fill="none" stroke="${col}" stroke-width="9" stroke-linecap="round"/>`; a+=sp; });
+  const [mx,my]=P(st+sw*Math.max(0,Math.min(1,frac))); o+=`<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="7" fill="var(--ink)" stroke="var(--card)" stroke-width="3"/>`;
+  return `<svg width="${w}" height="${w-14}" viewBox="0 0 ${w} ${w-14}" role="img" aria-label="${label}">${o}<text x="${cx}" y="${cy+8}" text-anchor="middle" font-size="24" font-weight="700" fill="var(--ink)">${label}</text></svg>`; }
+const ZC=['#94a3b8','#94a3b8','#3b82f6','#22c55e','#f59e0b','#ef4444'];
+const CARDS={
+  steps:{n:'Steps today', c:'#5aa9ff', i:'steps', go:'target', r:D=>`<div class="sc-c">${ringSvg(D.todaySteps/S.target, fmtInt(D.todaySteps), 'var(--accent)')}</div><div class="sc-sub" style="text-align:center">goal ${fmtInt(S.target)}${D.watch?` · ${fmtInt(D.watch)} from watch`:''}</div><div class="sc-days sc-foot">${D.days.map(d=>`<span class="${d.steps>=S.target?'ok':''}">${d.steps>=S.target?'✓':d.lab[0]}</span>`).join('')}</div>`},
+  week:{n:'This week', c:'#22c592', i:'glance', go:'target', r:D=>{ const mx=Math.max(S.target,...D.days.map(d=>d.steps)); return `<div class="sc-big">${fmtInt(D.week)}</div><div class="sc-sub">of ${fmtInt(S.weekGoal)} · ${Math.round(D.week/S.weekGoal*100)}%</div><div class="sc-bars sc-foot">${D.days.map(d=>`<i class="${d.steps<S.target?'lo':''} ${d.today?'today':''}" style="height:${Math.max(3,d.steps/mx*62).toFixed(0)}px"></i>`).join('')}</div><div class="sc-days">${D.days.map(d=>`<span>${d.lab[0]}</span>`).join('')}</div>`; }},
+  fitness:{n:'Fitness', c:'#f2994a', i:'fitness', go:'fitness', r:D=>{ const f=lastFit(); if(!f) return `<div class="sc-big" style="font-size:18px;margin-top:10px">No check yet</div><div class="sc-sub">Take the 10-minute Fitness Check to see your VO2 max and fitness age.</div>`;
+      const h=store.get('wpad.fit',[]), l=[...h].reverse().find(x=>x.vo2), due=l&&l.date?new Date(l.date+28*DAYMS).toLocaleDateString([], {day:'numeric',month:'short'}):'';
+      const frac=Math.min(1,Math.max(0,f.pct/100)); return `<div class="sc-c">${gaugeSvg([['#ef4444',1],['#f59e0b',1],['#22c55e',1],['#3b82f6',1],['#8b5cf6',1]],frac,String(f.vo2))}</div><div style="text-align:center;font-weight:600;margin-top:-6px">${rating(f.pct)}</div><div class="sc-sub" style="text-align:center">fitness age ${f.age}${due?` · retest ${due}`:''}</div>`; }},
+  active:{n:'Active minutes', c:'#f2c14e', i:'clock', r:D=>`<div class="sc-c">${ringSvg(D.activeMin/150, String(D.activeMin), '#f2c14e')}</div><div class="sc-sub" style="text-align:center">of 150 this week (NHS)</div><div class="sc-sub sc-foot" style="text-align:center">zone 2 and above, or brisk walking</div>`},
+  last:{n:'Last walk', c:'#5aa9ff', i:'walk', r:D=>{ const w=D.last; if(!w) return `<div class="sc-sub" style="margin-top:10px">No walks yet.</div>`; const z=zoneSecs(w), tot=z.reduce((a,x)=>a+x,0);
+      return `<div class="sc-big">${fmtInt(w.steps||0)}</div><div class="sc-sub">steps · ${fmtTime(w.active||0)} · ${((w.dist||0)/1000).toFixed(2)} km</div><div class="sc-sub" style="margin-top:6px">${w.wk||'Free walk'} · ${new Date(w.start).toLocaleDateString([], {weekday:'short'})} ${new Date(w.start).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</div>`
+       +(tot>60?`<div class="sc-bar sc-foot">${[1,2,3,4,5].map(k=>`<i style="width:${(z[k]/tot*100).toFixed(1)}%;background:${ZC[k]}"></i>`).join('')}</div><div class="sc-sub">time in heart-rate zones</div>`:'<div class="sc-sub sc-foot">Connect your watch to see heart-rate zones.</div>'); }},
+  hr:{n:'Heart rate', c:'#ff6b6b', i:'heart', r:D=>{ const w=D.last, hrs=w?(w.samples||[]).map(x=>x.hr).filter(Boolean):[]; if(!hrs.length) return `<div class="sc-sub" style="margin-top:10px">No heart rate on your last walk. Connect your watch before walking.</div>${S.hRest?`<div class="sc-foot">resting <b>${S.hRest}</b></div>`:''}`;
+      const avg=Math.round(hrs.reduce((a,x)=>a+x,0)/hrs.length), mx=Math.max(...hrs), lo=S.hRest||50, hi=S.hMax||180;
+      return `<div class="sc-c">${gaugeSvg([['#94a3b8',1.2],['#3b82f6',1],['#22c55e',1],['#f59e0b',0.8],['#ef4444',0.8]],(avg-lo)/Math.max(1,hi-lo),String(avg))}</div><div class="sc-sub" style="text-align:center;margin-top:-6px">avg bpm · last walk</div><div class="sc-foot" style="display:flex;justify-content:space-between;font-size:13px"><span>max <b>${mx}</b></span>${S.hRest?`<span>rest <b>${S.hRest}</b></span>`:''}</div>`; }},
+  workday:{n:'Workday', c:'#22b8cf', i:'desk', go:'desk', r:D=>{ const w=workSteps(), g=S.desk.goal; return `<div class="sc-big">${fmtInt(w)}</div><div class="sc-sub">of ${fmtInt(g)} work steps</div><div class="sc-bar" style="margin-top:10px"><i style="width:${Math.min(100,w/g*100).toFixed(1)}%;background:#22b8cf"></i></div><div class="sc-sub sc-foot">${isWorkday(Date.now())?`${S.desk.start}–${S.desk.end}`:'Not a workday'}<br>${D.deskMin} min desk walking this week</div>`; }},
+  streak:{n:'Streak', c:'#22c592', i:'check', r:D=>`<div class="sc-big" style="font-size:30px">🔥 ${D.streak} <span class="sc-sub" style="font-size:14px">day${D.streak===1?'':'s'}</span></div><div class="sc-sub">daily target hit</div><div class="sc-sub" style="margin-top:8px">Best: ${D.best} day${D.best===1?'':'s'}</div><div class="sc-days sc-foot">${D.days.map(d=>`<span class="${d.steps>=S.target?'ok':''}">${d.steps>=S.target?'✓':d.lab[0]}</span>`).join('')}</div>`},
+  kcal:{n:'Calories', c:'#ff8a3d', i:'fire', r:D=>`<div class="sc-big">${fmtInt(Math.round(D.kcalWeek))}</div><div class="sc-sub">kcal walking this week (estimate)</div><div class="sc-bar sc-foot"><i style="width:${D.kcalWeek?(D.kcalToday/D.kcalWeek*100).toFixed(1):0}%;background:#ef4444"></i><i style="flex:1;background:#3b82f6"></i></div><div style="display:flex;justify-content:space-between;font-size:12px"><span><b>${fmtInt(Math.round(D.kcalToday))}</b> today</span><span><b>${fmtInt(Math.round(D.kcalWeek-D.kcalToday))}</b> earlier</span></div>`},
+  dist:{n:'Distance', c:'#a78bfa', i:'dist', r:D=>`<div class="sc-big">${D.kmWeek.toFixed(1)} km</div><div class="sc-sub">this week on the pad</div><div class="sc-sub" style="margin-top:8px">${D.beltDue>0?`Belt care due in ${D.beltDue} km`:'⚠️ Belt care due now'}</div><div class="sc-bar sc-foot"><i style="width:${Math.min(100,(S.belt.every-D.beltDue)/S.belt.every*100).toFixed(1)}%;background:#a78bfa"></i></div><div class="sc-sub">tap to mark the belt as serviced</div>`},
+  load:{n:'Training load', c:'#f2c14e', i:'load', pro:true, r:D=>{ const L=D.load, ratio=L.base>5?L.now/L.base:null, st=ratio==null?'Building':ratio<0.8?'Low':ratio>1.3?'High':'Balanced', mx=Math.max(1,...L.bars);
+      return `<div class="sc-big">${st}</div><div class="sc-sub">${ratio==null?'needs a few weeks of walks':'last 7 days vs your usual'}</div><div class="sc-foot" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;align-items:end;height:46px">${L.bars.map((v,i)=>`<i style="display:block;height:${Math.max(3,v/mx*46).toFixed(0)}px;border-radius:4px;background:${i===3?'#f2c14e':'var(--line)'}"></i>`).join('')}</div><div class="sc-sub">last 4 weeks</div>`; }}
+};
+const CARD_DEF=Object.keys(CARDS);
+S.cards=Object.assign({order:CARD_DEF.slice(), hidden:[]}, S.cards||{}); CARD_DEF.forEach(k=>{ if(!S.cards.order.includes(k)) S.cards.order.push(k); });
+const CARD_PRESETS={desk:['workday','steps','week','streak','active','dist','last','fitness'], training:['active','load','fitness','hr','last','week','steps','streak']};
+let statsEdit=false;
+function renderStats(){
+  const g=$('statsGrid'), ed=$('statsEdit'); if(!g) return;
+  g.classList.toggle('hidden',statsEdit); ed.classList.toggle('hidden',!statsEdit); $('moreGraphs').classList.toggle('hidden',statsEdit);
+  const eb=$('statsEditBtn'); if(eb) eb.textContent=statsEdit?'Done':'Edit';
+  if(statsEdit){ renderStatsEdit(); return; }
+  const D=statsData();
+  g.innerHTML=S.cards.order.filter(k=>CARDS[k] && !S.cards.hidden.includes(k)).map(k=>{ const c=CARDS[k]; let body=''; try{ body=c.r(D); }catch(e){ body='<div class="sc-sub">–</div>'; }
+    return `<button class="sc" data-card="${k}"><span class="sc-h">${svgIcon(c.i,c.c,18)}<span>${c.n}</span>${c.pro?'<span class="pro">PRO</span>':''}</span>${body}</button>`; }).join('')
+    + `<div class="sc-sub" style="grid-column:1/-1;text-align:center">Figures are estimates, not medical measurements. Tap a card for more.</div>`;
+  g.querySelectorAll('[data-card]').forEach(b=>b.onclick=()=>{ const k=b.dataset.card, c=CARDS[k];
+    if(k==='dist'){ if(confirm('Mark the walking pad belt as serviced (cleaned / lubricated) today?')){ S.belt.last=+statsData().totalKm.toFixed(1); saveSettings(); renderStats(); } return; }
+    if(c.go){ openSec(c.go); return; }
+    const m=$('moreGraphs'); m.open=true; setTimeout(()=>{ window.dispatchEvent(new Event('resize')); m.scrollIntoView({behavior:'smooth'}); },60); });
+}
+function renderStatsEdit(){
+  const ed=$('statsEdit'), o=S.cards.order;
+  ed.innerHTML=`<div class="card"><div class="hint" style="margin-top:0">Choose which cards show and their order. The first two cards are also used on the home-screen My Stats tile.</div>
+    ${o.map((k,i)=>{ const on=!S.cards.hidden.includes(k); return `<div class="ed-row${on?'':' off'}"><span style="display:flex;align-items:center;gap:8px">${svgIcon(CARDS[k].i,CARDS[k].c,16)}${CARDS[k].n}${CARDS[k].pro?' <small class="pro" style="font-size:10px;font-weight:800;color:#0b0f14;background:#f2c14e;border-radius:4px;padding:2px 5px">PRO</small>':''}</span><button data-up="${i}" aria-label="Move up"${i===0?' disabled':''}>↑</button><button data-dn="${i}" aria-label="Move down"${i===o.length-1?' disabled':''}>↓</button><button class="tg${on?' on':''}" data-tg="${k}">${on?'Shown':'Hidden'}</button></div>`; }).join('')}
+    <div class="row" style="margin-top:12px"><button data-pre="desk">Desk worker layout</button><button data-pre="training">Training layout</button></div>
+    <div class="row" style="margin-top:8px"><button data-pre="all">Show all (default)</button></div></div>`;
+  const sv=()=>{ saveSettings(); renderStatsEdit(); refreshTiles(); };
+  ed.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.up; [o[i-1],o[i]]=[o[i],o[i-1]]; sv(); });
+  ed.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.dn; [o[i+1],o[i]]=[o[i],o[i+1]]; sv(); });
+  ed.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{ const k=b.dataset.tg, h=S.cards.hidden; if(h.includes(k)) h.splice(h.indexOf(k),1); else h.push(k); sv(); });
+  ed.querySelectorAll('[data-pre]').forEach(b=>b.onclick=()=>{ const p=b.dataset.pre;
+    if(p==='all'){ S.cards={order:CARD_DEF.slice(), hidden:[]}; }
+    else { const keep=CARD_PRESETS[p]; S.cards={order:keep.concat(CARD_DEF.filter(k=>!keep.includes(k))), hidden:CARD_DEF.filter(k=>!keep.includes(k))}; }
+    sv(); });
+}
+
+// ---- customise home screen ----
+const HOME_DEF={big:['desk','glance'], small:['target','workouts','fitness','zones','speed'], hidden:[], chart:true};
+S.home=Object.assign(JSON.parse(JSON.stringify(HOME_DEF)), S.home||{});
+const HNAME={desk:'Desk Walk',glance:'My Stats',target:'Step target',workouts:'Workouts',fitness:'Fitness & check',zones:'Heart-rate zones',speed:'Speed & incline'};
+function applyHome(){
+  const g=document.querySelector('#tab-workout .tiles'); if(!g) return;
+  S.home.big.forEach(id=>{ const t=SEC[id]&&SEC[id].tile; if(t){ t.classList.add('wide'); t.classList.remove('hidden'); g.appendChild(t); } });
+  S.home.small.forEach(id=>{ const t=SEC[id]&&SEC[id].tile; if(t){ t.classList.remove('wide'); t.classList.toggle('hidden', S.home.hidden.includes(id)); g.appendChild(t); } });
+  if(SEC.homecfg) g.appendChild(SEC.homecfg.tile);
+  const m=$('mini7wrap'); if(m) m.classList.toggle('hidden',!S.home.chart);
+}
+function homeCfgCard(){ const c=document.createElement('div'); c.className='card'; c.id='homeCfg'; return c; }
+function renderHomeCfg(){
+  const c=$('homeCfg'); if(!c) return; const H=S.home;
+  c.innerHTML=`<h2>Big tiles at the top</h2>${H.big.map((id,i)=>`<div class="ed-row"><span>${HNAME[id]}</span><button data-bsw="1" aria-label="Swap order">${i===0?'↓':'↑'}</button></div>`).join('')}
+   <h2 style="margin-top:16px">Small tiles</h2>${H.small.map((id,i)=>{ const on=!H.hidden.includes(id); return `<div class="ed-row${on?'':' off'}"><span>${HNAME[id]}</span><button data-up="${i}" aria-label="Move up"${i===0?' disabled':''}>↑</button><button data-dn="${i}" aria-label="Move down"${i===H.small.length-1?' disabled':''}>↓</button><button class="tg${on?' on':''}" data-tg="${id}">${on?'Shown':'Hidden'}</button></div>`; }).join('')}
+   <label style="margin-top:12px"><input type="checkbox" id="hcChart" style="width:auto"${H.chart?' checked':''}> Show the 7-day chart on the My Stats tile</label>
+   <div class="row" style="margin-top:12px"><button id="hcReset">Reset to default</button></div>`;
+  const sv=()=>{ saveSettings(); applyHome(); renderHomeCfg(); refreshTiles(); };
+  c.querySelectorAll('[data-bsw]').forEach(b=>b.onclick=()=>{ H.big.reverse(); sv(); });
+  c.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.up, o=H.small; [o[i-1],o[i]]=[o[i],o[i-1]]; sv(); });
+  c.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{ const i=+b.dataset.dn, o=H.small; [o[i+1],o[i]]=[o[i],o[i+1]]; sv(); });
+  c.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{ const id=b.dataset.tg; if(H.hidden.includes(id)) H.hidden.splice(H.hidden.indexOf(id),1); else H.hidden.push(id); sv(); });
+  $('hcChart').onchange=e=>{ H.chart=e.target.checked; sv(); };
+  $('hcReset').onclick=()=>{ S.home=JSON.parse(JSON.stringify(HOME_DEF)); saveSettings(); applyHome(); renderHomeCfg(); refreshTiles(); };
+}
+
+// ---- build ----
+(function buildV32(){
+  const tw=$('tab-workout'), g=tw.querySelector('.tiles');
+  // compact pad row; connection tips move to About & help
+  const cc=$('connectCard'); cc.classList.add('cc'); const r1=cc.querySelector('.row'); r1.appendChild($('btnWatch'));
+  const tips=cc.querySelector('details'); const about=$('btnShowWelcome').closest('.card'); if(tips && about){ tips.open=false; about.insertBefore(tips, about.querySelector('h2').nextSibling); }
+  { const _uw=updateWatch; updateWatch=function(on){ _uw(on); $('btnWatch').textContent = on ? '❤️ Watch ✓' : '❤️ Watch'; }; }
+  { const _uc=updateConn; updateConn=function(){ _uc(); $('btnConnect').textContent = live.connected && !live.demo ? '✓ Pad' : 'Connect pad'; $('btnDemo').textContent = live.demo ? '✓ Demo' : 'Demo'; }; }
+  $('btnWatch').textContent = (typeof watchDev!=='undefined' && watchDev && watchDev.gatt && watchDev.gatt.connected) ? '❤️ Watch ✓' : '❤️ Watch';
+  // pinned start bar
+  const startRow=$('btnStart').parentElement, bar=document.createElement('div'); bar.id='startBar'; bar.className='home-part';
+  bar.innerHTML='<div class="sb-in"><div class="sb-sum">This walk<b id="sbSum">–</b></div></div>'; bar.firstChild.appendChild(startRow); startRow.classList.remove('home-part');
+  tw.appendChild(bar); const oldSum=$('homeSumMain')&&$('homeSumMain').closest('.card'); if(oldSum) oldSum.classList.add('hidden');
+  const placeBar=()=>{ const n=document.querySelector('nav'); bar.style.bottom=(n?n.offsetHeight:56)+'px'; }; placeBar(); addEventListener('resize',placeBar);
+  // My Stats (was At a glance)
+  const G=SEC.glance; G.tile.querySelector('b').textContent='My Stats'; G.sec.querySelector('.sec-head b').textContent='My Stats';
+  G.tile.classList.add('glance-t'); const ic=G.tile.querySelector('.ti').outerHTML;
+  G.tile.innerHTML=`<span class="gt-row">${ic}<b>My Stats</b><small id="tv-glance"></small></span><span id="mini7wrap"><span class="mini7" id="mini7"></span><span class="mini7l" id="mini7l"></span></span>`;
+  const head=G.sec.querySelector('.sec-head'), eb=document.createElement('button'); eb.className='sec-edit'; eb.id='statsEditBtn'; eb.textContent='Edit'; head.appendChild(eb);
+  eb.onclick=()=>{ statsEdit=!statsEdit; renderStats(); };
+  const grid=document.createElement('div'); grid.id='statsGrid'; grid.className='stats-grid'; head.after(grid);
+  const edit=document.createElement('div'); edit.id='statsEdit'; edit.className='hidden'; grid.after(edit);
+  const more=document.createElement('details'); more.id='moreGraphs'; more.className='dd'; more.innerHTML='<summary><span><b>More graphs</b><small>Last walk, live graphs and the last 14 days</small></span></summary><div class="dd-in"></div>';
+  edit.after(more); const inner=more.querySelector('.dd-in');
+  [...G.sec.querySelectorAll(':scope > .card')].forEach(c=>inner.appendChild(c));
+  more.addEventListener('toggle',()=>{ if(more.open){ try{ renderHistory(); }catch(e){} setTimeout(()=>window.dispatchEvent(new Event('resize')),60); } });
+  { const _os=openSec; openSec=function(id){ _os(id); if(id==='glance'){ statsEdit=false; renderStats(); } if(id==='homecfg') renderHomeCfg(); }; }
+  setInterval(()=>{ if(secOpen==='glance' && !statsEdit) renderStats(); }, 5000);
+  // step target: big target with − / +, then dropdowns
+  const tc=$('targetCard'), inp=$('target'), big=document.createElement('div'); big.className='tgt-big'; inp.before(big);
+  const mk=(t,l,d)=>{ const b=document.createElement('button'); b.textContent=t; b.setAttribute('aria-label',l); b.onclick=()=>{ inp.value=Math.max(500,Math.min(100000,(parseInt(inp.value)||0)+d)); inp.onchange(); }; return b; };
+  big.append(mk('−','Less',-500), inp, mk('+','More',500));
+  const dd=(id,title)=>{ const e=document.createElement('details'); e.className='dd'; e.id=id; e.innerHTML=`<summary><span><b>${title}</b><small id="${id}S"></small></span></summary><div class="dd-in"></div>`; return e; };
+  const dT=dd('ddToday','Steps so far today'), dW=dd('ddWeek','Weekly goal'), dE=dd('ddEst','Distance & time estimate');
+  const tb=tc.querySelector('.today-box'); dT.querySelector('.dd-in').appendChild(tb);
+  tb.insertAdjacentHTML('beforeend','<div class="dk-row" style="background:var(--bg);border-radius:10px;padding:8px 10px;margin-top:8px"><span style="font-size:13px;color:var(--muted)">Phone steps</span><span style="font-size:13px;flex:3">Counted automatically in the Android app – coming soon</span></div>');
+  dW.querySelector('.dd-in').innerHTML='<label for="weekGoal" style="margin-top:0">Weekly step goal (Monday to Sunday)</label><input id="weekGoal" type="number" inputmode="numeric" step="1000" min="1000">';
+  dE.querySelector('.dd-in').appendChild($('targetHint'));
+  tc.querySelector('.chips').after(dT, dW, dE);
+  $('weekGoal').value=S.weekGoal; $('weekGoal').onchange=e=>{ const v=parseInt(e.target.value); if(v>=1000&&v<=500000){ S.weekGoal=v; saveSettings(); refreshTiles(); } };
+  // heart-rate zone options into a dropdown
+  const zc=$('zOn').closest('.card'), zd=dd('ddZone','Limits & how it adjusts'); const rows=[...zc.querySelectorAll(':scope > .row')]; rows.forEach(r=>zd.querySelector('.dd-in').appendChild(r)); $('zStatus').before(zd);
+  // home customise tile
+  makeSection(tw, g, 'homecfg', 'Customise', 'plus', '#5d6b78', [homeCfgCard()]);
+  SEC.homecfg.tile.classList.add('add'); SEC.homecfg.sec.querySelector('.sec-head b').textContent='Customise home';
+  const ab=document.createElement('button'); ab.textContent='Customise home screen'; ab.style.cssText='width:100%;margin-top:10px'; ab.onclick=()=>{ document.querySelector('nav button[data-tab="workout"]').click(); setTimeout(()=>openSec('homecfg'),50); };
+  const th=$('themeSeg'); if(th) th.closest('.card').appendChild(ab);
+  applyHome();
+  // tile + summary values
+  { const _rt=refreshTiles; refreshTiles=function(){ _rt(); try{
+      const D=statsData(), set=(id,t)=>{ const e=$(id); if(e && e.textContent!==t) e.textContent=t; };
+      set('tv-glance', `This week ${fmtInt(D.week)} / ${fmtInt(S.weekGoal)}`);
+      const m=$('mini7'); if(m && S.home.chart){ const mx=Math.max(S.target,...D.days.map(d=>d.steps)); const h=D.days.map(d=>`<i class="${d.today?'today':''}" style="height:${Math.max(3,d.steps/mx*44).toFixed(0)}px"></i>`).join(''); if(m.dataset.h!==h){ m.dataset.h=h; m.innerHTML=h; $('mini7l').innerHTML=D.days.map(d=>`<span class="${d.today?'today':''}">${d.lab[0]}</span>`).join(''); } }
+      set('tv-target', fmtInt(S.target)); set('tv-workouts', WK[$('wkSel').value]?WK[$('wkSel').value].name:'Free walk'); set('tv-zones', $('zOn').checked?'Auto: on':'Auto: off');
+      set('tv-speed', `${setSpeed.toFixed(1)} · incl ${setIncl}`); const f=lastFit(); set('tv-fitness', f?`${f.vo2} · ${rating(f.pct)}`:'Take a check'); set('tv-homecfg','');
+      const W=WK[$('wkSel').value]; set('sbSum', W?`${Math.round(W.total/60)} min`:`${fmtInt(walkTarget())} · ${Math.round(walkTarget()*S.stride/100000/Math.max(setSpeed,0.1)*60)} min`);
+      const t=today(); set('ddTodayS', t.steps?`${fmtInt(t.steps)}${t.use?' · counting towards target':''}`:'Add steps from your watch');
+      set('ddWeekS', `${fmtInt(D.week)} / ${fmtInt(S.weekGoal)} this week`);
+      set('ddEstS', `≈ ${(walkTarget()*S.stride/100000).toFixed(2)} km · stride ${S.stride} cm`);
+      set('ddZoneS', `${$('zMin').value||'–'}–${$('zMax').value||'–'} bpm · by ${$('zBy').value}`);
+    }catch(e){} }; }
+  refreshTiles();
+})();
+// workout list: each level is a dropdown, the one holding your choice open
+renderWkList=function(){
+  const box=$('wkList'); if(!box) return;
+  const cur=$('wkSel').value, mk=(id,name,sub,mins,locked)=>`<button class="wk-item${cur===id?' sel':''}" data-wk="${id}"${locked?' disabled':''}><div><b>${locked?'🔒 ':''}${name}</b><small>${sub}</small></div><span>${mins}</span></button>`;
+  let h=mk('free','Free walk','Walk until you reach your step target','');
+  const groups={}; Object.entries(WK).forEach(([id,w])=>(groups[w.lvl]=groups[w.lvl]||[]).push([id,w]));
+  Object.entries(groups).forEach(([g,list])=>{ const open=g==='Easy' || list.some(([id])=>id===cur);
+    h+=`<details class="wk-g"${open?' open':''}><summary>${g} · ${list.length}</summary>${list.map(([id,w])=>mk(id,w.name,w.desc.split(/[.]/)[0],Math.round(w.total/60)+' min',wkLocked(id))).join('')}</details>`; });
+  box.innerHTML=h;
+  box.querySelectorAll('[data-wk]').forEach(b=>b.onclick=()=>{ $('wkSel').value=b.dataset.wk; $('wkSel').onchange(); });
+};
+renderWkList();
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
