@@ -247,7 +247,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v32</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v33</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -392,8 +392,22 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
     <div class="charts" id="detailCharts" style="margin-top:12px"></div>
     <div class="row" style="margin-top:12px">
       <button id="btnCalib">Calibrate stride from this</button>
+      <button id="btnTcx">Export TCX</button>
       <button class="danger" id="btnDelSess">Delete</button>
     </div>
+  </div>
+  <div class="card" id="ioCard">
+    <h2>Import &amp; export</h2>
+    <div class="row"><button class="primary" id="btnImport">Import walks</button><button id="btnTcxLast">Export last walk</button></div>
+    <input type="file" id="fImport" accept=".tcx,.gpx,.xml,application/gpx+xml,application/vnd.garmin.tcx+xml" multiple class="hidden">
+    <div class="hint" id="ioMsg"></div>
+    <details class="dd" style="margin-top:10px"><summary><span><b>How to get walks from Garmin, Strava and others</b><small>TCX or GPX files</small></span></summary><div class="dd-in hint" style="margin:0">
+      <b>Garmin Connect:</b> open the activity on connect.garmin.com → ⚙ (top right) → <b>Export to TCX</b>.<br>
+      <b>Strava:</b> open the activity on strava.com → ⋯ → <b>Export GPX</b>.<br>
+      <b>Other apps:</b> most can export TCX or GPX. Save the file, then tap <b>Import walks</b> and choose it (you can pick several).<br><br>
+      Imported walks count towards This week, Distance, Streak and Active minutes. Walks that overlap one already in History are skipped, so nothing is counted twice.<br><br>
+      <b>Sending a WalkPilot walk the other way:</b> tap a walk below → <b>Export TCX</b>, then upload it at connect.garmin.com → Import Data, or strava.com → Upload. Set the activity type to <i>Treadmill walk</i> or <i>Walk</i> after uploading. If your watch recorded the same walk, don't upload it – it would be counted twice.
+    </div></details>
   </div>
   <div class="card">
     <h2>Sessions</h2>
@@ -476,7 +490,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v32</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v33</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1554,7 +1568,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v32 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v33 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2675,6 +2689,103 @@ renderWkList=function(){
   box.querySelectorAll('[data-wk]').forEach(b=>b.onclick=()=>{ $('wkSel').value=b.dataset.wk; $('wkSel').onchange(); });
 };
 renderWkList();
+
+/* ================= v33: import walks (TCX / GPX), export TCX, watch VO2 max ================= */
+function xmlEsc(v){ return String(v).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+function walkToTcx(h){
+  const t0=h.start, iso=ms=>new Date(ms).toISOString(), sm=(h.samples||[]).filter(x=>x && x.t!=null);
+  const hrs=sm.map(x=>x.hr).filter(Boolean), avg=hrs.length?Math.round(hrs.reduce((a,b)=>a+b,0)/hrs.length):(h.hr||0), mx=hrs.length?Math.max(...hrs):0;
+  const tps=sm.map(x=>`<Trackpoint><Time>${iso(t0+x.t*1000)}</Time>${x.dist!=null?`<DistanceMeters>${(x.dist*1000).toFixed(1)}</DistanceMeters>`:''}${x.hr?`<HeartRateBpm><Value>${Math.round(x.hr)}</Value></HeartRateBpm>`:''}<Extensions><ns3:TPX><ns3:Speed>${((x.speed||0)/3.6).toFixed(3)}</ns3:Speed></ns3:TPX></Extensions></Trackpoint>`).join('');
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<TrainingCenterDatabase xmlns="http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2" xmlns:ns3="http://www.garmin.com/xmlschemas/ActivityExtension/v2">
+<Activities><Activity Sport="Other"><Id>${iso(t0)}</Id>
+<Lap StartTime="${iso(t0)}"><TotalTimeSeconds>${Math.round(h.active||0)}</TotalTimeSeconds><DistanceMeters>${Math.round(h.dist||0)}</DistanceMeters><Calories>${Math.round(h.kcal||0)}</Calories>${avg?`<AverageHeartRateBpm><Value>${avg}</Value></AverageHeartRateBpm>`:''}${mx?`<MaximumHeartRateBpm><Value>${mx}</Value></MaximumHeartRateBpm>`:''}<Intensity>Active</Intensity><TriggerMethod>Manual</TriggerMethod>
+<Track>${tps}</Track><Extensions><ns3:LX><ns3:Steps>${Math.round(h.steps||0)}</ns3:Steps></ns3:LX></Extensions></Lap>
+<Notes>${xmlEsc(`WalkPilot – ${h.wk||'Treadmill walk'} – ${fmtInt(h.steps||0)} steps`)}</Notes><Creator xsi:type="Application_t" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><Name>WalkPilot</Name></Creator></Activity></Activities></TrainingCenterDatabase>`;
+}
+function downloadText(name, text, type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([text],{type})); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },1000); }
+function exportTcx(h){ if(!h) return; const d=new Date(h.start), name=`walkpilot-${dayKey(h.start)}-${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}.tcx`; downloadText(name, walkToTcx(h), 'application/vnd.garmin.tcx+xml'); return name; }
+$('btnTcx').onclick=()=>{ const h=store.get('wpad.history',[]).find(x=>x.id===detailId); const n=exportTcx(h); if(n) $('ioMsg').textContent=`Saved ${n} to Downloads.`; };
+$('btnTcxLast').onclick=()=>{ const h=store.get('wpad.history',[])[0]; if(!h){ $('ioMsg').textContent='No walks yet.'; return; } const n=exportTcx(h); $('ioMsg').textContent=`Saved ${n} to Downloads – upload it at connect.garmin.com → Import Data, or strava.com → Upload.`; };
+
+// ---- parsing ----
+function hav(a,b){ const R=6371000, r=Math.PI/180, dLa=(b.lat-a.lat)*r, dLo=(b.lon-a.lon)*r, x=Math.sin(dLa/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLo/2)**2; return 2*R*Math.asin(Math.sqrt(x)); }
+const kids=(el,name)=>el?[...el.getElementsByTagName('*')].filter(e=>e.localName===name):[];
+const kid=(el,name)=>kids(el,name)[0];
+const num=(el,name)=>{ const e=kid(el,name); const v=e?parseFloat(e.textContent):NaN; return isFinite(v)?v:null; };
+function parseWorkoutFile(text, fname){
+  const doc=new DOMParser().parseFromString(text,'application/xml'); if(doc.getElementsByTagName('parsererror').length) throw new Error('not a readable TCX or GPX file');
+  const root=doc.documentElement.localName, out=[];
+  if(root==='TrainingCenterDatabase'){
+    kids(doc,'Activity').forEach(act=>{
+      const laps=kids(act,'Lap'); if(!laps.length) return;
+      let time=0, dist=0, kcal=0, steps=0, pts=[];
+      laps.forEach(l=>{ time+=num(l,'TotalTimeSeconds')||0; dist+=num(l,'DistanceMeters')||0; kcal+=num(l,'Calories')||0; const st=num(l,'Steps'); if(st) steps+=st;
+        kids(l,'Trackpoint').forEach(tp=>{ const t=Date.parse((kid(tp,'Time')||{}).textContent||''); if(!isFinite(t)) return;
+          const hrE=kid(tp,'HeartRateBpm'); pts.push({ts:t, dist:num(tp,'DistanceMeters'), hr:hrE?num(hrE,'Value'):null, cad:num(tp,'RunCadence')??num(tp,'Cadence'), sp:num(tp,'Speed')}); }); });
+      const start=Date.parse((kid(act,'Id')||{}).textContent||'') || (pts[0]&&pts[0].ts) || Date.parse(laps[0].getAttribute('StartTime'));
+      const cr=kid(act,'Creator'); out.push({sport:act.getAttribute('Sport')||'', creator:cr?((kid(cr,'Name')||{}).textContent||''):'', start, time, dist, kcal, steps, pts});
+    });
+  } else if(root==='gpx'){
+    kids(doc,'trk').forEach(trk=>{
+      const pts=[]; let prev=null, dist=0;
+      kids(trk,'trkpt').forEach(tp=>{ const t=Date.parse((kid(tp,'time')||{}).textContent||''); if(!isFinite(t)) return;
+        const p={lat:+tp.getAttribute('lat'), lon:+tp.getAttribute('lon')}; if(prev && isFinite(p.lat) && isFinite(prev.lat)) dist+=hav(prev,p); prev=p;
+        pts.push({ts:t, dist, hr:num(tp,'hr'), cad:num(tp,'cad'), sp:null}); });
+      if(pts.length<2) return;
+      out.push({sport:(kid(trk,'type')||{}).textContent||'', creator:doc.documentElement.getAttribute('creator')||'', start:pts[0].ts, time:(pts[pts.length-1].ts-pts[0].ts)/1000, dist, kcal:0, steps:0, pts});
+    });
+  } else throw new Error('not a TCX or GPX file');
+  return out.filter(a=>a.start && a.time>30);
+}
+function toWalk(a, fname){
+  const t0=a.start, pts=a.pts.filter(p=>p.ts>=t0).sort((x,y)=>x.ts-y.ts);
+  const dist=a.dist || (pts.length ? (pts[pts.length-1].dist||0) : 0);
+  // steps: from the file if given; else cadence (Garmin gives strides per minute for walking/running); else distance ÷ stride
+  let steps=a.steps;
+  if(!steps && pts.some(p=>p.cad)){ let s=0; for(let i=1;i<pts.length;i++){ const c=pts[i].cad, dt=(pts[i].ts-pts[i-1].ts)/1000; if(c && dt>0 && dt<60) s+=c*2*dt/60; } steps=Math.round(s); }
+  let est=false; if(!steps){ steps=Math.round(dist*100/S.stride); est=true; }
+  const k=pts.length>720?Math.ceil(pts.length/720):1, samples=[];
+  pts.forEach((p,i)=>{ if(i%k) return; const t=Math.round((p.ts-t0)/1000), frac=dist?(p.dist||0)/dist:(t/Math.max(1,a.time));
+    const prv=pts[Math.max(0,i-k)], dd=(p.dist||0)-(prv.dist||0), dt=(p.ts-prv.ts)/1000, sp=p.sp!=null?p.sp*3.6:(dt>0?dd/dt*3.6:0);
+    samples.push({t, steps:Math.round(steps*Math.min(1,frac)), speed:+Math.max(0,sp).toFixed(2), incl:0, kcal:0, dist:+((p.dist||0)/1000).toFixed(3), elev:0, hr:p.hr?Math.round(p.hr):null}); });
+  const hrs=samples.map(x=>x.hr).filter(Boolean), who=(a.creator||'')+' '+fname;
+  const src=/walkpilot/i.test(who)?'WalkPilot':/strava/i.test(who)?'Strava':/garmin|forerunner|fenix|f[eē]nix|venu|vivo|instinct|epix|edge/i.test(who)?'Garmin':/polar/i.test(who)?'Polar':/suunto/i.test(who)?'Suunto':/coros/i.test(who)?'COROS':/fitbit/i.test(who)?'Fitbit':'Imported';
+  const kcal=a.kcal || Math.round((S.weight||80)*dist/1000*0.5);
+  return {id:t0, start:t0, end:t0+a.time*1000, target:0, steps, dist, kcal, elev:0, active:Math.round(a.time), stride:S.stride,
+    hr:hrs.length?Math.round(hrs.reduce((x,y)=>x+y,0)/hrs.length):null, reached:false, wk:src==='Imported'?'Imported walk':`${src} walk`, device:a.creator||'', imported:true, src, stepsEstimated:est, samples};
+}
+$('btnImport').onclick=()=>$('fImport').click();
+$('fImport').onchange=async e=>{
+  const files=[...e.target.files]; e.target.value=''; if(!files.length) return;
+  const hist=store.get('wpad.history',[]); let added=0, skipped=0, bad=[];
+  const overlaps=w=>hist.some(h=>{ const hs=h.start, he=h.end||(h.start+(h.active||0)*1000); return w.start<he-60000 && w.end>hs+60000; });
+  for(const f of files){
+    try{ const acts=parseWorkoutFile(await f.text(), f.name);
+      if(!acts.length) bad.push(`${f.name} (no activity found)`);
+      acts.forEach(a=>{ const w=toWalk(a, f.name); if(overlaps(w)){ skipped++; return; } hist.push(w); added++; });
+    }catch(err){ bad.push(`${f.name} (${err.message})`); }
+  }
+  hist.sort((a,b)=>b.start-a.start); store.set('wpad.history',hist);
+  try{ renderHistory(); }catch(e){} try{ refreshTiles(); }catch(e){}
+  $('ioMsg').innerHTML = `${added?`✅ Imported ${added} walk${added>1?'s':''}.`:''} ${skipped?`Skipped ${skipped} that overlap walks already in History.`:''} ${bad.length?`<br>Couldn't read: ${bad.map(xmlEsc).join(', ')}. FIT files aren't supported yet – export TCX or GPX instead.`:''}`.trim() || 'Nothing imported.';
+};
+
+// ---- VO2 max from your watch ----
+(function(){
+  const fc=$('fitCard'); if(!fc) return;
+  const d=document.createElement('details'); d.className='dd'; d.id='ddWatchVo2';
+  d.innerHTML=`<summary><span><b>VO2 max from my watch</b><small id="ddWatchVo2S">Use your watch's figure as well</small></span></summary><div class="dd-in">
+    <div class="row"><input id="wVo2" type="number" inputmode="decimal" step="0.1" min="15" max="90" placeholder="e.g. 37" aria-label="Watch VO2 max"><button class="primary" id="wVo2Save" style="flex:0 0 auto">Save</button></div>
+    <div class="hint">Garmin Connect: Performance stats → VO2 max. Saved alongside your WalkPilot results and shown on the Fitness card as "from your watch". Your watch and WalkPilot measure differently, so the two won't match exactly.</div></div>`;
+  const btns=$('btnFit').parentElement; fc.insertBefore(d, btns);
+  $('wVo2Save').onclick=()=>{ const v=parseFloat($('wVo2').value); if(!(v>=15&&v<=90)){ alert('Enter your watch VO2 max, e.g. 37.'); return; }
+    addFitResult({type:'watch', src:'watch', vo2:+v.toFixed(1), date:Date.now(), age:S.hAge, sex:S.sex}); $('wVo2').value=''; d.open=false; renderFitSnap(); refreshTiles(); };
+  const last=()=>[...store.get('wpad.fit',[])].reverse().find(x=>x.vo2 && x.src==='watch');
+  { const _rt=refreshTiles; refreshTiles=function(){ _rt(); try{ const w=last(), e=$('ddWatchVo2S'); const t=w?`${w.vo2} on ${new Date(w.date).toLocaleDateString([], {day:'numeric',month:'short'})}`:"Use your watch's figure as well"; if(e && e.textContent!==t) e.textContent=t; }catch(e){} }; }
+})();
+// Fitness card: say where the figure came from
+{ const _r=CARDS.fitness.r; CARDS.fitness.r=D=>{ const h=[...store.get('wpad.fit',[])].reverse().find(x=>x.vo2); return _r(D) + (h&&h.src==='watch'?'<div class="sc-sub" style="text-align:center">from your watch</div>':''); }; }
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
