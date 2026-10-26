@@ -126,6 +126,19 @@ body{padding-bottom:150px}
 .sc-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:11px;color:var(--muted);text-align:center}.sc-days .ok{color:var(--accent);font-weight:700}
 .sc-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;align-items:end;height:62px}.sc-bars i{display:block;border-radius:4px;background:var(--accent);min-height:3px}.sc-bars i.lo{opacity:.45}.sc-bars i.today{outline:2px solid var(--ink);outline-offset:1px}
 .sc-w{grid-column:1/-1;min-height:0}
+.ck{display:flex;flex-direction:column;gap:12px}.ck h3{margin:0;font-size:16px}.ck-hd{display:flex;align-items:baseline;gap:8px}.ck-hd h3{flex:1}.ck-hd b{font-size:14px}
+.ck-eff{display:flex;gap:4px;align-items:flex-end}.ck-eff button{flex:1;min-width:0;padding:0 0 5px;border-radius:8px;font-size:13px;font-weight:700;display:flex;align-items:flex-end;justify-content:center;border:0;background:var(--line);color:var(--muted)}
+.ck-eff button.on{color:#fff}.ck-eff button.sel{outline:3px solid var(--ink);outline-offset:2px}
+.ck-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:-6px}
+.ck-feel{display:flex;gap:6px}.ck-feel button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 0;border-radius:14px;font-size:11px}
+.ck-feel button span{font-size:26px;line-height:1}.ck-feel button.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset;font-weight:700}
+.ck-chips{display:flex;flex-wrap:wrap;gap:6px}.ck-chips button{flex:0 0 auto;min-height:38px;padding:0 12px;border-radius:99px;font-size:14px}
+.ck-chips button.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}.ck-chips button.warn.sel{background:#dc2626;border-color:#dc2626;color:#fff}
+.ck-lab{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ck-do{background:color-mix(in srgb,#2563eb 12%,var(--card));border-radius:14px;padding:12px 14px;font-size:14px;display:flex;flex-direction:column;gap:4px}.ck-do b{color:#2563eb}
+.ck-stop{background:#fdecec;color:#7f1d1d;border:1px solid #dc2626;border-radius:14px;padding:12px 14px;font-size:14px}
+.ck-tags{display:flex;flex-wrap:wrap;gap:6px}.ck-tag{border-radius:99px;padding:3px 10px;font-size:13px;font-weight:700}
+.ck-skip{background:none;border:0;color:var(--muted);font-size:14px;padding:6px 4px;min-height:0}
 .add-dev{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:6px}.add-dev button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;font-size:12px;min-height:58px;border-radius:12px}
 .add-dev button span{font-size:20px;line-height:1}.add-dev button.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent) inset;font-weight:600}
 .add-row{display:flex;gap:8px;margin-top:10px}.add-row input{flex:1;font-size:18px}.add-row button{flex:0 0 auto;min-width:84px}
@@ -269,7 +282,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v35</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v36</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -512,7 +525,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v35</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v36</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1619,7 +1632,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v35 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v36 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -3021,6 +3034,125 @@ function renderAdded(){
   const uz=$('todayUse').closest('label'); if(uz) box.after(uz);
   renderAdded();
 })();
+
+/* ================= v36: after-walk check-in (effort 1–10, feeling, extras) ================= */
+const EFF_COL=['#22c55e','#22c55e','#84cc16','#84cc16','#eab308','#eab308','#f97316','#f97316','#ef4444','#b91c1c'];
+const EFF_WORD=e=>e<=2?'Very easy':e<=4?'Easy':e<=6?'Moderate':e<=8?'Hard':e===9?'Very hard':'Max';
+const FEELS=[['😫','Drained'],['😕','Weak'],['😐','Normal'],['🙂','Good'],['💪','Strong']];
+const CK_LEGS=[['fresh','Fresh'],['heavy','Heavy'],['sore','Sore']];
+const CK_FLAGS=[['dizzy','Dizzy'],['breath','Breathless'],['joint','Joint pain'],['chest','Chest discomfort']];
+const CK_CTX=[['sleep','Slept badly'],['stress','Stressed'],['hot','Hot room'],['meal','Just eaten'],['unwell','Unwell']];
+// Effort suggested from heart rate (time in each zone), or from pace and incline when no watch was worn.
+function ckSuggest(w){
+  const z=zoneSecs(w), tot=z[1]+z[2]+z[3]+z[4]+z[5];
+  if(tot>120){ const m=[0,2,4,6,8,9.5]; let v=0; for(let k=1;k<=5;k++) v+=z[k]*m[k]; return {v:Math.max(1,Math.min(10,Math.round(v/tot))), hr:true}; }
+  const kmh=w.active>0?(w.dist/1000)/(w.active/3600):0, sm=(w.samples||[]).filter(x=>x&&x.incl!=null), inc=sm.length?sm.reduce((a,x)=>a+x.incl,0)/sm.length:0;
+  let v=3+Math.round(((kmh/Math.max(2,pace()))-0.9)*10)+Math.round(inc/3); if(w.active>45*60) v++;
+  return {v:Math.max(1,Math.min(10,v)), hr:false};
+}
+function ckEasyWalk(w){ if(!w.wkId) return true; const W=WK[w.wkId]; return !W || W.lvl==='Easy'; }
+// What WalkPilot will do with the answers. Returns lines to show, and apply() to make the changes when saved.
+function ckOutcome(st, w){
+  const lines=[], acts=[], sug=w.sug||{v:null,hr:false}, easy=ckEasyWalk(w);
+  const stop=st.flags.includes('chest')||st.flags.includes('dizzy');
+  const tired=st.feel!=null&&st.feel<=1 || st.legs==='heavy' || st.legs==='sore' || st.ctx.includes('sleep') || st.ctx.includes('unwell') || st.flags.length>0;
+  if(stop){ lines.push('<b>Gentle mode is now on</b> – top speed 4.0 km/h until you change it in Fitness &amp; check.'); acts.push(()=>{ S.gentle=true; if(!S.topSpeed||S.topSpeed>4) S.topSpeed=4.0; }); }
+  if(st.eff>=8 && easy){ const p=+Math.max(2.5,pace()-0.2).toFixed(1); lines.push(`That was meant to be easy but felt hard – <b>comfortable pace lowered to ${p.toFixed(1)} km/h</b> for future workouts.`); acts.push(()=>{ S.comfort=p; }); }
+  else if(st.eff!=null && st.eff<=3 && (st.feel==null||st.feel>=3) && easy && !tired && !S.gentle && (w.active||0)>=900){ const cap=Math.min(userCap(),8), p=+Math.min(cap,pace()+0.1).toFixed(1); if(p>pace()){ lines.push(`Felt easy – <b>comfortable pace nudged up to ${p.toFixed(1)} km/h</b>.`); acts.push(()=>{ S.comfort=p; }); } }
+  if(tired||st.eff>=9){ lines.push('<b>Your next walk will be an easy one</b> – any interval or hard workout in the next day or so becomes a Zone 2 Builder. You can still pick any workout.'); acts.push(()=>{ S.easyUntil=Date.now()+36*3600e3; }); }
+  if(sug.hr && st.eff!=null){ const d=st.eff-sug.v; if(d>=3) lines.push('It felt harder than your heart rate suggests. If you\'re tired or getting ill, go easy.'); else if(d<=-3) lines.push('It felt easier than your heart rate suggests – a sign of fitness, or check your watch strap.'); }
+  if(!lines.length && st.eff!=null) lines.push('No change needed – this walk suited you.');
+  return {lines, stop, apply:()=>acts.forEach(f=>f())};
+}
+// Builds the check-in into box. w: {id, samples, active, dist, wkId, wk}. opts.done(saved) after save/skip.
+function ckWidget(box, w, opts){
+  opts=opts||{}; w.sug=w.sug||ckSuggest(w);
+  const prev=w.chk||null;
+  const st=prev?{eff:prev.eff, feel:prev.feel, legs:prev.legs||null, flags:(prev.flags||[]).slice(), ctx:(prev.ctx||[]).slice(), note:prev.note||'', touched:false}
+               :{eff:w.sug.v, feel:null, legs:null, flags:[], ctx:[], note:'', touched:false};
+  const chips=(list,key,multi,warn)=>`<div class="ck-chips">${list.map(([k,t])=>{ const on=multi?st[key].includes(k):st[key]===k; return `<button data-${key}="${k}" class="${on?'sel':''}${warn&&['dizzy','chest'].includes(k)?' warn':''}">${t}</button>`; }).join('')}</div>`;
+  const draw=()=>{
+    const o=ckOutcome(st,w), more=st.legs||st.flags.length||st.ctx.length||st.note;
+    box.innerHTML=`<div class="ck">
+      <div class="ck-hd"><h3>How hard was it?</h3><b style="color:${EFF_COL[st.eff-1]}">${st.eff} · ${EFF_WORD(st.eff)}</b></div>
+      <div class="ck-eff" role="radiogroup" aria-label="Effort 1 to 10">${[1,2,3,4,5,6,7,8,9,10].map(i=>`<button role="radio" aria-checked="${i===st.eff}" aria-label="${i} ${EFF_WORD(i)}" data-eff="${i}" class="${i<=st.eff?'on':''}${i===st.eff?' sel':''}" style="height:${30+i*3}px;${i<=st.eff?`background:${EFF_COL[i-1]}`:''}">${i}</button>`).join('')}</div>
+      <div class="ck-scale"><span>Very easy</span><span>Moderate</span><span>Max</span></div>
+      ${!prev&&!st.touched?`<div class="hint" style="margin:-4px 0 0">${w.sug.hr?'Suggested from your heart rate':'Suggested from your pace'} – tap to change.</div>`:''}
+      <h3>How do you feel?</h3>
+      <div class="ck-feel">${FEELS.map(([e,t],i)=>`<button data-feel="${i}" class="${st.feel===i?'sel':''}" aria-pressed="${st.feel===i}"><span>${e}</span>${t}</button>`).join('')}</div>
+      <details class="dd ck-more"${more||opts.open?' open':''}><summary><span><b>Add more</b><small>Legs, anything wrong, how you slept, a note – optional</small></span></summary><div class="dd-in" style="display:flex;flex-direction:column;gap:8px">
+        <div class="ck-lab">Legs</div>${chips(CK_LEGS,'legs',false)}
+        <div class="ck-lab">Anything wrong?</div>${chips(CK_FLAGS,'flags',true,true)}
+        <div class="ck-lab">Today</div>${chips(CK_CTX,'ctx',true)}
+        <div class="ck-lab">Note</div><input id="ckNote" maxlength="200" placeholder="e.g. busy day, did it after work" value="${xmlEsc(st.note)}">
+      </div></details>
+      ${o.stop?`<div class="ck-stop" role="alert"><b>Please stop exercising for today.</b> If you have chest pain or tightness that spreads to your arm, neck or jaw, or you feel very unwell, <b>call 999</b>. Otherwise speak to your GP or call NHS 111 before your next walk.</div>`:''}
+      ${st.touched||prev?`<div class="ck-do"><b>What WalkPilot will do</b>${o.lines.map(l=>`<span>• ${l}</span>`).join('')}</div>`:''}
+      ${opts.saveBtn?`<div class="row"><button class="primary" id="ckSave"${st.touched?'':' disabled'}>${prev?'Update check-in':'Save check-in'}</button></div>`:''}
+      ${opts.skip&&!prev?`<button class="ck-skip" id="ckSkip">Skip the check-in</button>`:''}
+    </div>`;
+    const touch=()=>{ st.touched=true; const dd=box.querySelector('.ck-more'), op=dd&&dd.open; draw(); const d2=box.querySelector('.ck-more'); if(d2&&op) d2.open=true; if(opts.change) opts.change(st); };
+    box.querySelectorAll('[data-eff]').forEach(b=>b.onclick=()=>{ st.eff=+b.dataset.eff; touch(); });
+    box.querySelectorAll('[data-feel]').forEach(b=>b.onclick=()=>{ const v=+b.dataset.feel; st.feel=st.feel===v?null:v; touch(); });
+    box.querySelectorAll('[data-legs]').forEach(b=>b.onclick=()=>{ st.legs=st.legs===b.dataset.legs?null:b.dataset.legs; touch(); });
+    ['flags','ctx'].forEach(key=>box.querySelectorAll(`[data-${key}]`).forEach(b=>b.onclick=()=>{ const k=b.dataset[key], a=st[key]; if(a.includes(k)) a.splice(a.indexOf(k),1); else a.push(k); touch(); }));
+    const n=box.querySelector('#ckNote'); if(n) n.oninput=()=>{ st.note=n.value; if(!st.touched){ st.touched=true; if(opts.change) opts.change(st); const sb=box.querySelector('#ckSave'); if(sb) sb.disabled=false; } };
+    const sv=box.querySelector('#ckSave'); if(sv) sv.onclick=()=>{ ckSave(w,st); if(opts.done) opts.done(true); };
+    const sk=box.querySelector('#ckSkip'); if(sk) sk.onclick=()=>{ st.skipped=true; box.innerHTML='<div class="hint" style="margin:0">Check-in skipped. You can add it later from the walk in History.</div>'; if(opts.done) opts.done(false); };
+  };
+  draw(); return st;
+}
+function ckSave(w, st){
+  const hist=store.get('wpad.history',[]), h=hist.find(x=>x.id===w.id); if(!h) return false;
+  const o=ckOutcome(st,w); o.apply();
+  h.chk={eff:st.eff, feel:st.feel, legs:st.legs, flags:st.flags, ctx:st.ctx, note:(st.note||'').trim().slice(0,200), sug:w.sug?w.sug.v:null, sugHr:!!(w.sug&&w.sug.hr), load:Math.round(st.eff*(h.active||0)/60), at:Date.now(), did:o.lines};
+  store.set('wpad.history',hist); saveSettings();
+  try{ renderFitSnap(); }catch(e){} try{ renderHistory(); }catch(e){} try{ refreshTiles(); }catch(e){}
+  return true;
+}
+// After a hard or tiring check-in, the plan's next day or so is eased: hard workouts become Zone 2 Builder.
+{ const _mp=makePlan; makePlan=function(p,fit){ const pl=_mp(p,fit); if(S.easyUntil && Date.now()<S.easyUntil){ const dow=(new Date().getDay()+6)%7;
+    pl.sched=pl.sched.map(x=>{ const near=x.day===dow||x.day===(dow+1)%7; if(near && WK[x.id] && WK[x.id].lvl!=='Easy') return Object.assign({},x,{id:'z2',name:WK.z2.name+' (eased)',mins:Math.round(WK.z2.total/60)}); return x; }); } return pl; }; }
+
+// ---- on the summary screen ----
+let ckSum=null;
+{ const _ss=showSummary; showSummary=function(s,reached){ _ss(s,reached);
+    const sv=$('sumView'); let box=$('ckBox'); if(box) box.remove(); ckSum=null; $('smDone').textContent='Done';
+    if(!s || s.fit || s.desk || sv.classList.contains('hidden') || (s.dist||0)<=5) return;
+    box=document.createElement('div'); box.id='ckBox'; box.className='card'; box.style.margin='0';
+    sv.querySelector('.sm-hero').after(box);
+    const w={id:s.start, samples:s.samples, active:s.active, dist:s.dist, wkId:s.wk?s.wk.id:null};
+    ckSum={w, st:ckWidget(box, w, {skip:true, change:()=>{ $('smDone').textContent='Save & done'; }, done:()=>{ $('smDone').textContent='Done'; }})};
+  }; }
+{ const save=()=>{ if(ckSum && ckSum.st.touched && !ckSum.st.skipped){ ckSave(ckSum.w, ckSum.st); } ckSum=null; };
+  const _d=$('smDone').onclick, _h=$('smHist').onclick;
+  $('smDone').onclick=()=>{ save(); _d(); }; $('smHist').onclick=()=>{ save(); _h(); }; }
+
+// ---- on the walk in History ----
+function ckTags(c){ if(!c) return ''; const f=c.feel!=null?FEELS[c.feel]:null;
+  return `<span class="ck-tag" style="background:${EFF_COL[c.eff-1]}22;color:${EFF_COL[c.eff-1]}">Effort ${c.eff} · ${EFF_WORD(c.eff)}</span>${f?`<span class="ck-tag" style="background:var(--bg)">${f[0]} ${f[1]}</span>`:''}`; }
+{ const _sd=showDetail; showDetail=function(id){ _sd(id);
+    const h=store.get('wpad.history',[]).find(x=>x.id===id); if(!h) return;
+    let box=$('detailChk'); if(!box){ box=document.createElement('div'); box.id='detailChk'; box.style.cssText='margin-top:12px;border-top:1px solid var(--line);padding-top:12px'; $('detailCharts').before(box); }
+    const c=h.chk;
+    const extra=c?[CK_LEGS.find(x=>x[0]===c.legs), ...CK_FLAGS.filter(x=>(c.flags||[]).includes(x[0])), ...CK_CTX.filter(x=>(c.ctx||[]).includes(x[0]))].filter(Boolean).map(x=>x[1]):[];
+    const sumHtml=c?`<div class="ck-tags">${ckTags(c)}</div>${extra.length||c.note?`<div class="hint" style="margin:6px 0 0">${extra.join(' · ')}${c.note?`${extra.length?' · ':''}"${xmlEsc(c.note)}"`:''}</div>`:''}
+      <div class="grid" style="margin-top:8px"><div class="stat"><b>${fmtInt(c.load)}</b><span>Effort load</span></div>${c.sugHr&&c.sug?`<div class="stat"><b>${Math.abs(c.eff-c.sug)<3?'Matches':c.eff>c.sug?'Felt harder':'Felt easier'}</b><span>Heart rate vs feel</span></div>`:''}</div>`:'';
+    box.innerHTML=`${c?sumHtml:''}<details class="dd" id="ckDetDd"${c?'':' open'}><summary><span><b>${c?'Change check-in':'Add a check-in'}</b><small>${c?'Effort, feeling and notes':'How hard was it and how did you feel?'}</small></span></summary><div class="dd-in" id="ckDetIn"></div></details>`;
+    ckWidget($('ckDetIn'), {id:h.id, samples:h.samples, active:h.active, dist:h.dist, wkId:Object.keys(WK).find(k=>WK[k].name===h.wk)||null, chk:c}, {saveBtn:true, done:()=>showDetail(id)});
+  }; }
+{ const _rh=renderHistory; renderHistory=function(){ _rh(); try{ const hist=store.get('wpad.history',[]), els=$('sessList').querySelectorAll('.sess');
+    els.forEach((el,i)=>{ const h=hist[i]; if(h && h.chk && !el.querySelector('.ck-tags')){ const t=document.createElement('div'); t.className='ck-tags'; t.style.marginTop='4px'; t.innerHTML=ckTags(h.chk); el.firstElementChild.appendChild(t); } }); }catch(e){} }; }
+
+// ---- My Stats: effort card ----
+CARDS.effort={n:'Effort', c:'#f97316', i:'load', r:D=>{ const ws=store.get('wpad.history',[]).filter(x=>x.chk).slice(0,10).reverse();
+  if(!ws.length) return `<div class="sc-big" style="font-size:18px;margin-top:10px">No check-ins yet</div><div class="sc-sub">After each walk, tap how hard it was and how you feel. WalkPilot uses it to set your next workouts.</div>`;
+  const avg=ws.reduce((a,x)=>a+x.chk.eff,0)/ws.length, W=140, H=50, X=i=>ws.length>1?6+i*(W-12)/(ws.length-1):W/2, Y=e=>H-5-(e-1)*(H-10)/9;
+  const tired=ws.slice(-3).length===3 && ws.slice(-3).every(x=>x.chk.sugHr && x.chk.sug && x.chk.eff-x.chk.sug>=2);
+  return `<div class="sc-big">${avg.toFixed(1)} <span class="sc-sub" style="font-size:13px">avg · ${EFF_WORD(Math.round(avg))}</span></div><div class="sc-sub">last ${ws.length} check-in${ws.length>1?'s':''}</div>
+    <svg class="sc-foot" width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Effort over recent walks"><polyline points="${ws.map((x,i)=>`${X(i).toFixed(0)},${Y(x.chk.eff).toFixed(0)}`).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>${ws.map((x,i)=>`<circle cx="${X(i).toFixed(0)}" cy="${Y(x.chk.eff).toFixed(0)}" r="3" fill="${EFF_COL[x.chk.eff-1]}"/>`).join('')}</svg>
+    ${tired?'<div class="sc-sub" style="color:#c2410c;font-weight:600">Last 3 walks felt harder than your heart rate – take an easy day.</div>':''}`; }};
+CARD_DEF.push('effort'); if(!S.cards.order.includes('effort')){ const i=S.cards.order.indexOf('active'); S.cards.order.splice(i>=0?i+1:S.cards.order.length,0,'effort'); }
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
