@@ -126,6 +126,26 @@ body{padding-bottom:150px}
 .sc-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:11px;color:var(--muted);text-align:center}.sc-days .ok{color:var(--accent);font-weight:700}
 .sc-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;align-items:end;height:62px}.sc-bars i{display:block;border-radius:4px;background:var(--accent);min-height:3px}.sc-bars i.lo{opacity:.45}.sc-bars i.today{outline:2px solid var(--ink);outline-offset:1px}
 .sc-w{grid-column:1/-1;min-height:0}
+.sw{position:relative;flex:0 0 46px;width:46px;height:28px;margin:0}.sw input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
+.sw span{position:absolute;inset:0;border-radius:99px;background:#c5ced6;transition:background .15s}.sw span::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
+.sw input:checked+span{background:var(--accent)}.sw input:checked+span::after{left:21px}.sw input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2px}
+.nf-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.nf-row:last-child{border:0}.nf-row .e{font-size:20px;width:26px;text-align:center}
+.nf-row .t{flex:1;min-width:0}.nf-row .t b{display:block;font-size:15px;font-weight:600}.nf-row .t small{color:var(--muted);font-size:12px}
+.nf-row input[type=time]{width:auto;max-width:112px;flex:0 0 auto;padding:6px 6px;font-size:14px}.nf-row.wrap{flex-wrap:wrap}.nf-row.wrap .t{flex:1 1 100%}
+.nf-days{display:flex;gap:4px;flex-wrap:wrap;padding:0 0 10px 36px}.nf-days button{flex:0 0 auto;min-height:36px;padding:0 10px;border-radius:99px;font-size:13px}.nf-days button.sel{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.nf-off{opacity:.5}
+.wk-hero{background:var(--accent);color:var(--accent-ink);border-radius:18px;padding:14px 16px}.wk-hero small{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.85}.wk-hero b{display:block;font-size:20px;margin-top:4px}
+.wk-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.wk-st{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px}.wk-st small{color:var(--muted);font-size:12px;font-weight:600}.wk-st b{display:block;font-size:21px;line-height:1.15}.wk-st span{font-size:12px;color:var(--muted)}
+.wk-bar{height:6px;border-radius:99px;background:var(--line);margin-top:6px;overflow:hidden}.wk-bar i{display:block;height:6px;border-radius:99px}
+.pc-step{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.pc-step:last-child{border:0}.pc-step i{font-style:normal;width:22px;text-align:center}
+.pc-rep{width:100%;box-sizing:border-box;min-height:180px;font:12px/1.4 ui-monospace,Menlo,monospace;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px;white-space:pre}
+.pc-verdict{border-radius:14px;padding:12px 14px;font-size:15px;font-weight:600}
+.rec-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.rec-row:last-child{border:0}.rec-row span:first-child{font-size:22px}.rec-row div{flex:1}.rec-row small{color:var(--muted)}
+.bdg-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.bdg{border:1px solid var(--line);border-radius:14px;padding:10px 4px;text-align:center;font-size:11px;line-height:1.25;background:var(--card)}
+.bdg b{display:block;font-size:26px;line-height:1.1;margin-bottom:4px}.bdg.off{opacity:.4;filter:grayscale(1)}.bdg small{display:block;color:var(--muted);font-size:10px;margin-top:2px}
+.help-dd p{margin:0 0 8px;font-size:14px;line-height:1.45}.help-dd ul{margin:0 0 8px;padding-left:18px;font-size:14px;line-height:1.45}
+.pro-badge{display:inline-block;font-size:10px;font-weight:800;color:#0b0f14;background:#f2c14e;border-radius:4px;padding:2px 5px;vertical-align:middle}
+.toast{position:fixed;left:50%;bottom:120px;transform:translateX(-50%);z-index:40;background:var(--ink);color:var(--bg);padding:12px 16px;border-radius:14px;font-size:14px;font-weight:600;max-width:90vw;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .ck{display:flex;flex-direction:column;gap:12px}.ck h3{margin:0;font-size:16px}.ck-hd{display:flex;align-items:baseline;gap:8px}.ck-hd h3{flex:1}.ck-hd b{font-size:14px}
 .ck-eff{display:flex;gap:4px;align-items:flex-end}.ck-eff button{flex:1;min-width:0;padding:0 0 5px;border-radius:8px;font-size:13px;font-weight:700;display:flex;align-items:flex-end;justify-content:center;border:0;background:var(--line);color:var(--muted)}
 .ck-eff button.on{color:#fff}.ck-eff button.sel{outline:3px solid var(--ink);outline-offset:2px}
@@ -282,7 +302,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v36</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v38</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -303,6 +323,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
       <button class="primary" id="btnConnect">Connect pad</button>
       <button id="btnDemo">Demo mode</button>
     </div>
+    <button id="btnAnyPad" class="ck-skip" style="margin-top:4px">Pad not in the list? Show all Bluetooth devices</button>
     <div class="row" style="margin-top:8px">
       <button id="btnWatch">❤️ Connect watch</button>
     </div>
@@ -525,7 +546,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v36</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v38</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -908,7 +929,8 @@ async function connect(){
 async function attachPad(){
   {
     const server = await device.gatt.connect();
-    const svc = await server.getPrimaryService(FTMS);
+    let svc=null; try{ svc=await server.getPrimaryService(FTMS); }catch(e){ log('no standard FTMS service – looking for the pad\'s own control channel'); }
+    if(svc){
     try{ const r=await (await svc.getCharacteristic(C_SPEED_RANGE)).readValue();
       live.speedMin=r.getUint16(0,true)/100; live.speedMax=r.getUint16(2,true)/100; live.speedStep=Math.max(0.1,r.getUint16(4,true)/100);
       log(`speed range ${live.speedMin}–${live.speedMax}`);}catch(e){ log('no speed range, using 0.5–6'); }
@@ -933,8 +955,11 @@ async function attachPad(){
       if(d.incline!=null) live.ftmsIncl=true;
       if(!UR.active) onData(d); });
     await padRequestControl();
+    }
     live.connected=true; live.demo=false; updateConn();
     await discoverExtra(server).catch(e=>log('extra channels: '+e.message));
+    if(!svc && !UR.ch){ const d=device; device=null; live.connected=false; updateConn(); try{ d.gatt.disconnect(); }catch(e){}
+      setConnMsg('That device isn\'t a walking pad WalkPilot can control yet. Run <b>Settings › Pad check</b> and send us the report.'); toast('That device isn\'t a walking pad WalkPilot can control yet – try Settings › Pad check.',6000); throw new Error('no supported pad service'); }
   }
 }
 function onDisconnect(){ live.connected=false; cpChar=null; UR.ch=null; UR.active=false; UR.state=null; UR.buf=[]; UR.inclRaw=null; UR.inclWant=null; UR.ftmsCtl=false; live.ftmsIncl=false; updateConn(); log('Disconnected');
@@ -1485,10 +1510,10 @@ $('wkSel').onchange=()=>{ S.wkId=$('wkSel').value; saveSettings(); showWkDesc();
 
 /* ---------- backup / restore ---------- */
 $('btnBackup').onclick=()=>{
-  const data={app:'steppad', version:5, saved:new Date().toISOString(), settings:S, history:store.get('wpad.history',[])};
+  const data={app:'steppad', version:6, saved:new Date().toISOString(), settings:S, history:store.get('wpad.history',[]), fit:store.get('wpad.fit',[]), today:store.get('wpad.today',null)};
   const blob=new Blob([JSON.stringify(data)],{type:'application/json'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='walkpilot-backup-'+dayKey(Date.now())+'.json'; a.click();
-  $('backupHint').textContent=`Backup saved with ${data.history.length} walks. Move it from Downloads to Google Drive to keep it safe.`;
+  $('backupHint').textContent=`Backup saved with ${data.history.length} walks and ${data.fit.length} fitness result${data.fit.length===1?'':'s'}. Move it from Downloads to Google Drive to keep it safe.`;
 };
 $('btnRestore').onclick=()=>$('fRestore').click();
 $('fRestore').onchange=async e=>{
@@ -1500,6 +1525,8 @@ $('fRestore').onchange=async e=>{
     const added=data.history.filter(h=>!ids.has(h.id));
     const merged=cur.concat(added).sort((a,b)=>b.start-a.start);
     store.set('wpad.history', merged);
+    if(Array.isArray(data.fit)){ const cf=store.get('wpad.fit',[]), fk=new Set(cf.map(x=>x.date+'|'+x.vo2)); const fa=data.fit.filter(x=>!fk.has(x.date+'|'+x.vo2)); if(fa.length) store.set('wpad.fit', cf.concat(fa).sort((a,b)=>(a.date||0)-(b.date||0))); }
+    if(data.today && data.today.day===dayKey(Date.now()) && !today().steps) store.set('wpad.today', data.today);
     if(data.settings && confirm('Also restore your settings (stride, weight, zones)?')){ Object.assign(S,data.settings); saveSettings(); location.reload(); return; }
     $('backupHint').textContent=`Restored ${added.length} walk(s). You now have ${merged.length} in total.`;
     renderHistory();
@@ -1632,7 +1659,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v36 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v38 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2603,7 +2630,7 @@ function gaugeSvg(segs,frac,label,w){ w=w||116; const cx=w/2, cy=w/2, r=w/2-10, 
 const ZC=['#94a3b8','#94a3b8','#3b82f6','#22c55e','#f59e0b','#ef4444'];
 const CARDS={
   steps:{n:'Steps today', c:'#5aa9ff', i:'steps', go:'target', r:D=>`<div class="sc-c">${ringSvg(D.todaySteps/S.target, fmtInt(D.todaySteps), 'var(--accent)')}</div><div class="sc-sub" style="text-align:center">goal ${fmtInt(S.target)}${D.watch?` · ${fmtInt(D.watch)} from watch`:''}</div><div class="sc-days sc-foot">${D.days.map(d=>`<span class="${d.steps>=S.target?'ok':''}">${d.steps>=S.target?'✓':d.lab[0]}</span>`).join('')}</div>`},
-  week:{n:'This week', c:'#22c592', i:'glance', go:'target', r:D=>{ const mx=Math.max(S.target,...D.days.map(d=>d.steps)); return `<div class="sc-big">${fmtInt(D.week)}</div><div class="sc-sub">of ${fmtInt(S.weekGoal)} · ${Math.round(D.week/S.weekGoal*100)}%</div><div class="sc-bars sc-foot">${D.days.map(d=>`<i class="${d.steps<S.target?'lo':''} ${d.today?'today':''}" style="height:${Math.max(3,d.steps/mx*62).toFixed(0)}px"></i>`).join('')}</div><div class="sc-days">${D.days.map(d=>`<span>${d.lab[0]}</span>`).join('')}</div>`; }},
+  week:{n:'This week', c:'#22c592', i:'glance', go:'week', r:D=>{ const mx=Math.max(S.target,...D.days.map(d=>d.steps)); return `<div class="sc-big">${fmtInt(D.week)}</div><div class="sc-sub">of ${fmtInt(S.weekGoal)} · ${Math.round(D.week/S.weekGoal*100)}%</div><div class="sc-bars sc-foot">${D.days.map(d=>`<i class="${d.steps<S.target?'lo':''} ${d.today?'today':''}" style="height:${Math.max(3,d.steps/mx*62).toFixed(0)}px"></i>`).join('')}</div><div class="sc-days">${D.days.map(d=>`<span>${d.lab[0]}</span>`).join('')}</div>`; }},
   fitness:{n:'Fitness', c:'#f2994a', i:'fitness', go:'fitness', r:D=>{ const f=lastFit(); if(!f) return `<div class="sc-big" style="font-size:18px;margin-top:10px">No check yet</div><div class="sc-sub">Take the 10-minute Fitness Check to see your VO2 max and fitness age.</div>`;
       const h=store.get('wpad.fit',[]), l=[...h].reverse().find(x=>x.vo2), due=l&&l.date?new Date(l.date+28*DAYMS).toLocaleDateString([], {day:'numeric',month:'short'}):'';
       const frac=Math.min(1,Math.max(0,f.pct/100)); return `<div class="sc-c">${gaugeSvg([['#ef4444',1],['#f59e0b',1],['#22c55e',1],['#3b82f6',1],['#8b5cf6',1]],frac,String(f.vo2))}</div><div style="text-align:center;font-weight:600;margin-top:-6px">${rating(f.pct)}</div><div class="sc-sub" style="text-align:center">fitness age ${f.age}${due?` · retest ${due}`:''}</div>`; }},
@@ -3153,6 +3180,378 @@ CARDS.effort={n:'Effort', c:'#f97316', i:'load', r:D=>{ const ws=store.get('wpad
     <svg class="sc-foot" width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Effort over recent walks"><polyline points="${ws.map((x,i)=>`${X(i).toFixed(0)},${Y(x.chk.eff).toFixed(0)}`).join(' ')}" fill="none" stroke="var(--muted)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>${ws.map((x,i)=>`<circle cx="${X(i).toFixed(0)}" cy="${Y(x.chk.eff).toFixed(0)}" r="3" fill="${EFF_COL[x.chk.eff-1]}"/>`).join('')}</svg>
     ${tired?'<div class="sc-sub" style="color:#c2410c;font-weight:600">Last 3 walks felt harder than your heart rate – take an easy day.</div>':''}`; }};
 CARD_DEF.push('effort'); if(!S.cards.order.includes('effort')){ const i=S.cards.order.indexOf('active'); S.cards.order.splice(i>=0?i+1:S.cards.order.length,0,'effort'); }
+
+/* ================= v37: Pad check, any-device connect, records & badges, help guide, Pro framework ================= */
+function toast(t,ms){ const el=document.createElement('div'); el.className='toast'; el.setAttribute('role','status'); el.textContent=t; document.body.appendChild(el); setTimeout(()=>el.remove(), ms||3500); }
+function addSettingsSection(id,name,icon,color,cards,first){ const ts=$('tab-settings'), gs=ts&&ts.querySelector('.tiles'); if(!gs) return; makeSection(ts,gs,id,name,icon,color,cards); if(first) gs.insertBefore(SEC[id].tile, gs.firstChild); else if(SEC.about) gs.insertBefore(SEC[id].tile, SEC.about.tile); }
+const mkCard=(id,html)=>{ const c=document.createElement('div'); c.className='card'; if(id) c.id=id; if(html) c.innerHTML=html; return c; };
+ICONS.trophy='<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3"/><path d="M7 5H4v2a3 3 0 0 0 3 3"/>';
+ICONS.help='<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.9.6c0 1.6-2.4 2-2.4 3.4"/><path d="M12 17h.01"/>';
+ICONS.probe='<path d="M4 12h3l2-5 4 10 2-5h5"/>';
+ICONS.star='<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>';
+ICONS.shield='<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>';
+
+// ---- connect to any Bluetooth device (for pads that don't advertise FTMS or a UREVO name) ----
+$('btnAnyPad').onclick=async()=>{
+  if(!navigator.bluetooth){ showBtBanner(); return; }
+  try{ device=await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:EXTRA_SERVICES});
+    device.addEventListener('gattserverdisconnected', onDisconnect); log('Connecting to '+(device.name||'device')); await attachPad(); }
+  catch(e){ log('Connect failed: '+e.message); if(!/cancel/i.test(e.message)) toast('Couldn\'t connect: '+e.message,5000); }
+};
+
+/* ---- Pad check: tests any pad and writes a report ---- */
+const PC={on:false, dev:null, lines:[], rep:{}};
+{ const _pr=padReconnect; padReconnect=async function(){ if(PC.on) return; return _pr(); }; }
+const hex=b=>Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join(' ');
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function pcStep(icon,text){ PC.lines.push([icon,text]); const el=$('pcSteps'); if(el) el.innerHTML=PC.lines.map(([i,t])=>`<div class="pc-step"><i>${i}</i><span>${t}</span></div>`).join(''); }
+function pcSetLast(icon,text){ PC.lines[PC.lines.length-1]=[icon,text]; pcStep.apply(null,PC.lines.pop()); }
+function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
+  <div class="hint" style="margin-top:0">Tests whether WalkPilot can read and control your walking pad, and writes a report. Use it for a pad that isn't a UREVO, or if something isn't working.</div>
+  <ul class="hint" style="padding-left:18px;margin:8px 0">
+   <li>Switch the pad on with the <b>safety key in</b>. Close the pad maker's app (only one app can connect at a time).</li>
+   <li>The control test starts the belt at a slow 1.5 km/h for a few seconds. <b>Stand beside the pad, not on it.</b></li></ul>
+  <div class="row"><button class="primary" id="pcGo">Start Pad check</button></div>
+  <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
+async function runPadCheck(){
+  if(!navigator.bluetooth){ showBtBanner(); return; }
+  const R=PC.rep={when:new Date().toISOString(), app:'v38', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  try{
+    if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
+    PC.on=true;
+    pcStep('…','Choose your pad in the list (it may show as a code, e.g. URTM051 or FS-1A2B3C)');
+    const dev=PC.dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true, optionalServices:EXTRA_SERVICES});
+    R.name=dev.name||'(no name)'; pcSetLast('✓',`Chosen: <b>${xmlEsc(R.name)}</b>`);
+    pcStep('…','Connecting');
+    const srv=await dev.gatt.connect(); pcSetLast('✓','Connected');
+    // device information
+    try{ const di=await srv.getPrimaryService(0x180a); const rd=async u=>{ try{ return new TextDecoder().decode(await (await di.getCharacteristic(u)).readValue()).replace(/\0/g,'').trim(); }catch(e){ return null; } };
+      R.maker=await rd(0x2a29); R.model=await rd(0x2a24); R.fw=await rd(0x2a26); R.hw=await rd(0x2a27); }catch(e){}
+    if(R.maker||R.model) pcStep('ℹ️',`Made by ${xmlEsc(R.maker||'?')} · model ${xmlEsc(R.model||'?')}${R.fw?` · firmware ${xmlEsc(R.fw)}`:''}`);
+    // services and characteristics
+    pcStep('…','Reading what the pad offers');
+    const svcs=await srv.getPrimaryServices(); R.layout=[]; const chars={};
+    for(const sv of svcs){ let cs=[]; try{ cs=await sv.getCharacteristics(); }catch(e){}
+      for(const c of cs){ const p=c.properties, pr=['read','write','writeWithoutResponse','notify','indicate'].filter(k=>p[k]).join(','); const key=shortU(sv.uuid)+'/'+shortU(c.uuid); R.layout.push(`${key} [${pr}]`); chars[key]=c; } }
+    const has=k=>!!chars[k];
+    R.ftms=has('1826/2acd')||has('1826/2ad9'); R.fitshow=has('fff0/fff1')&&has('fff0/fff2'); R.ks=Object.keys(chars).some(k=>k.startsWith('fe00/')); R.hrSvc=Object.keys(chars).some(k=>k.startsWith('180d/'));
+    pcSetLast('✓',`Found ${svcs.length} services: ${[R.ftms&&'standard fitness control (FTMS)',R.fitshow&&'FitShow/UREVO channel (FFF0)',R.ks&&'KingSmith-style channel (FE00)',R.hrSvc&&'heart rate'].filter(Boolean).join(', ')||'no known walking pad service'}`);
+    // FTMS details
+    if(R.ftms){
+      try{ const f=await chars['1826/2acc'].readValue(); const mf=f.getUint32(0,true), tf=f.getUint32(4,true); R.ftmsFeatures=hex(new Uint8Array(f.buffer)); R.canSpeed=!!(tf&1); R.canIncline=!!(tf&2); R.reportsIncline=!!(mf&8); R.reportsHr=!!(mf&1024); }catch(e){}
+      try{ const r=await chars['1826/2ad4'].readValue(); R.speedRange=`${r.getUint16(0,true)/100}–${r.getUint16(2,true)/100} km/h, step ${r.getUint16(4,true)/100}`; }catch(e){}
+      try{ const r=await chars['1826/2ad5'].readValue(); R.inclRange=`${r.getInt16(0,true)/10}–${r.getInt16(2,true)/10} %, step ${r.getUint16(4,true)/10}`; }catch(e){}
+    }
+    // listen
+    pcStep('…','Listening to the pad for 8 seconds');
+    const cnt={}, seen=new Set(), fsStates=new Set(), live2={speed:null, incline:null, fsSpeed:null}; let fsBuf=[];
+    const fsParse=()=>{ for(;;){ const st=fsBuf.indexOf(0x02); if(st<0){ fsBuf=[]; return; } if(st>0) fsBuf.splice(0,st); let got=false;
+        for(let j=3;j<fsBuf.length;j++){ if(fsBuf[j]!==0x03) continue; let x=0; for(let i=1;i<j-1;i++) x=(x+fsBuf[i])&255; if((x^0x5a)===fsBuf[j-1]){ const b=fsBuf.slice(1,j-1); fsBuf.splice(0,j+1); got=true;
+          if(b[0]===0x51 && b.length>=3){ fsStates.add(b[1]); live2.fsSpeed=(b[1]===3||b[1]===4)?b[2]/10:0; if(b.length>=12) R.fsSteps=true; } break; } }
+        if(!got){ if(fsBuf.length>40) fsBuf.shift(); else return; } } };
+    for(const [k,c] of Object.entries(chars)){ if(!(c.properties.notify||c.properties.indicate)) continue;
+      try{ await c.startNotifications(); c.addEventListener('characteristicvaluechanged',e=>{ const v=e.target.value; cnt[k]=(cnt[k]||0)+1;
+        if(k==='1826/2acd'){ const d=parseTreadmill(v); Object.keys(d).forEach(f=>seen.add(f)); if(d.speed!=null) live2.speed=d.speed; if(d.incline!=null) live2.incline=d.incline; }
+        if(k==='1826/2ad9' && v.getUint8(0)===0x80){ (R.cpReplies=R.cpReplies||[]).push(`op${v.getUint8(1)}=${v.getUint8(2)}`); }
+        if(k==='fff0/fff1'){ fsBuf.push(...new Uint8Array(v.buffer.slice(v.byteOffset,v.byteOffset+v.byteLength))); fsParse(); }
+        if(!R.samples) R.samples={}; if(!R.samples[k]) R.samples[k]=hex(new Uint8Array(v.buffer.slice(v.byteOffset,v.byteOffset+v.byteLength))); }); }catch(e){} }
+    const fsSend=async bytes=>{ if(!R.fitshow) return; const f=urFrame(bytes), c=chars['fff0/fff2']; await (c.writeValueWithResponse?c.writeValueWithResponse(f):c.writeValue(f)); };
+    if(R.fitshow){ try{ await fsSend([0x51]); }catch(e){} }
+    for(let i=0;i<8;i++){ await sleep(1000); if(R.fitshow && i%2===1) try{ await fsSend([0x51]); }catch(e){} }
+    R.packets=cnt; R.ftmsFields=[...seen];
+    const dataOk=(cnt['1826/2acd']||0)>0 || fsStates.size>0;
+    pcSetLast(dataOk?'✓':'⚠️', dataOk?`Pad is sending live data${seen.size?` (${[...seen].join(', ')})`:''}${fsStates.size?' on the FFF0 channel':''}`:'No live data in 8 seconds – the pad may need the belt running, or it uses a channel WalkPilot doesn\'t know yet');
+    // control test
+    R.ctrl={tried:false};
+    if((R.ftms||R.fitshow) && confirm('Control test: the belt will start at 1.5 km/h for about 10 seconds, then stop.\n\nStand BESIDE the pad, not on it. Safety key in.\n\nRun the control test?')){
+      R.ctrl.tried=true;
+      const cp=chars['1826/2ad9'];
+      const ftmsW=async(bytes)=>{ await (cp.writeValueWithResponse?cp.writeValueWithResponse(new Uint8Array(bytes)):cp.writeValue(new Uint8Array(bytes))); };
+      const wait=async(fn,ms)=>{ const t=Date.now(); while(Date.now()-t<ms){ if(fn()) return true; await sleep(300); } return false; };
+      try{
+        if(R.fitshow){ pcStep('…','Starting the belt (FitShow/UREVO commands)'); await fsSend([0x53,0x01,0,0,8,7,0,0,0,0]);
+          const ran=await wait(()=>fsStates.has(3),9000); if(ran){ await fsSend([0x53,0x02,15,0]); }
+          R.ctrl.start=ran; R.ctrl.speed=ran && await wait(()=>live2.fsSpeed!=null && live2.fsSpeed>=1.2,8000); R.ctrl.via='FFF0';
+          await fsSend([0x53,0x03]); }
+        else {
+          pcStep('…','Asking the pad for control (FTMS)'); await ftmsW([0x00]); await sleep(800);
+          await ftmsW([0x07]); await sleep(1200); await ftmsW([0x02,150,0]);
+          pcSetLast('…','Belt starting – waiting for it to reach about 1.5 km/h');
+          R.ctrl.speed=await wait(()=>live2.speed!=null && live2.speed>=1.2,12000); R.ctrl.start=R.ctrl.speed||(live2.speed>0); R.ctrl.via='FTMS';
+          if(R.ctrl.speed && R.canIncline!==false && (R.reportsIncline||R.canIncline)){ const i0=live2.incline||0; await ftmsW([0x03,20,0]); R.ctrl.incline=await wait(()=>live2.incline!=null && live2.incline>i0+0.5,8000); await ftmsW([0x03,0,0]); }
+          await ftmsW([0x08,0x01]); }
+        pcSetLast(R.ctrl.speed?'✓':'✗', R.ctrl.speed?`WalkPilot can start the belt and set its speed${R.ctrl.incline?' and incline':R.ctrl.incline===false?' (incline didn\'t respond)':''}`:`The belt didn't reach the test speed${R.cpReplies?` (pad replied ${R.cpReplies.join(', ')})`:''}`);
+      }catch(e){ R.ctrl.error=e.message; pcStep('✗','Control test failed: '+xmlEsc(e.message)); try{ if(R.fitshow) await fsSend([0x53,0x03]); else if(cp) await ftmsW([0x08,0x01]); }catch(_){} }
+    }
+    try{ dev.gatt.disconnect(); }catch(e){}
+    // verdict
+    const v = R.ctrl.speed ? ['ok','✅ Works with WalkPilot – it can read and control this pad.'] : (R.ftms||R.fitshow) ? ['part', R.ctrl.tried?'⚠️ WalkPilot can read this pad but couldn\'t control it in the test. Please send the report.':'⚠️ WalkPilot can read this pad. Run the control test to check speed control.'] : ['no','❌ This pad uses a protocol WalkPilot doesn\'t support yet. Please send the report – it helps us add your pad.'];
+    R.verdict=v[0];
+    S.padProfiles=S.padProfiles||{}; S.padProfiles[R.name]={tested:Date.now(), verdict:v[0], ftms:R.ftms, fitshow:R.fitshow, speed:!!R.ctrl.speed, incline:R.ctrl.incline??null}; saveSettings();
+    const txt=padReport(R);
+    $('pcOut').innerHTML=`<div class="pc-verdict" style="margin-top:10px;background:${v[0]==='ok'?'#e7f5f0':v[0]==='part'?'#fff7ed':'#fdecec'};color:${v[0]==='ok'?'#07704f':v[0]==='part'?'#9a3412':'#7f1d1d'}">${v[1]}</div>
+      <label for="pcRep" style="margin-top:10px">Report</label><textarea id="pcRep" class="pc-rep" readonly>${xmlEsc(txt)}</textarea>
+      <div class="row" style="margin-top:8px"><button class="primary" id="pcShare">Share report</button><button id="pcCopy">Copy</button></div>
+      <div class="hint">Nothing personal is in the report – just your pad's name and what it can do.</div>`;
+    $('pcCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(txt); toast('Report copied'); }catch(e){ $('pcRep').select(); document.execCommand('copy'); toast('Report copied'); } };
+    $('pcShare').onclick=async()=>{ if(navigator.share){ try{ await navigator.share({title:'WalkPilot Pad check – '+R.name, text:txt}); }catch(e){} } else $('pcCopy').onclick(); };
+  }catch(e){ if(!/cancel/i.test(e.message)) pcStep('✗','Pad check stopped: '+xmlEsc(e.message)); else pcStep('–','Cancelled'); }
+  finally{ PC.on=false; $('pcGo').disabled=false; renderPadProfiles(); }
+}
+function padReport(R){
+  const L=[`WalkPilot Pad check · ${R.when.slice(0,16).replace('T',' ')} · app ${R.app}`,`Pad: ${R.name}${R.maker?` · maker ${R.maker}`:''}${R.model?` · model ${R.model}`:''}${R.fw?` · fw ${R.fw}`:''}`,
+    `Verdict: ${R.verdict}`, `FTMS: ${R.ftms?'yes':'no'}${R.ftms?` · speed control ${R.canSpeed??'?'} · incline control ${R.canIncline??'?'} · features ${R.ftmsFeatures||'?'}`:''}`,
+    R.speedRange?`Speed range: ${R.speedRange}`:null, R.inclRange?`Incline range: ${R.inclRange}`:null,
+    `FitShow/UREVO FFF0: ${R.fitshow?'yes':'no'}${R.fsSteps?' · step count in status':''} · KingSmith FE00: ${R.ks?'yes':'no'} · HR service: ${R.hrSvc?'yes':'no'}`,
+    `FTMS data fields: ${(R.ftmsFields||[]).join(', ')||'none'}`, `Packets in 8 s: ${Object.entries(R.packets||{}).map(([k,n])=>k+'='+n).join(' ')||'none'}`,
+    `Control test: ${R.ctrl&&R.ctrl.tried?`via ${R.ctrl.via} · start ${!!R.ctrl.start} · speed ${!!R.ctrl.speed} · incline ${R.ctrl.incline??'n/a'}${R.ctrl.error?` · error ${R.ctrl.error}`:''}${R.cpReplies?` · replies ${R.cpReplies.join(' ')}`:''}`:'not run'}`,
+    'Layout:', ...(R.layout||[]).map(x=>'  '+x), 'First packet per channel:', ...Object.entries(R.samples||{}).map(([k,v])=>`  ${k}: ${v}`), `Phone: ${R.ua}`];
+  return L.filter(x=>x!=null).join('\n');
+}
+function renderPadProfiles(){ const el=$('pcTested'); if(!el) return; const P=S.padProfiles||{}, k=Object.keys(P);
+  el.innerHTML=k.length?`<h2 style="margin-top:4px">Pads tested on this phone</h2>${k.map(n=>{ const p=P[n]; return `<div class="pc-step"><i>${p.verdict==='ok'?'✅':p.verdict==='part'?'⚠️':'❌'}</i><span><b>${xmlEsc(n)}</b><br><small style="color:var(--muted)">${new Date(p.tested).toLocaleDateString([], {day:'numeric',month:'short'})} · ${p.ftms?'FTMS':''}${p.ftms&&p.fitshow?' + ':''}${p.fitshow?'FFF0':''}${!p.ftms&&!p.fitshow?'unknown protocol':''} · speed ${p.speed?'✓':'✗'}${p.incline!=null?` · incline ${p.incline?'✓':'✗'}`:''}</small></span></div>`; }).join('')}`:''; }
+
+/* ---- Personal records & badges ---- */
+function dayTotals(){ const m={}; store.get('wpad.history',[]).forEach(h=>{ const k=dayKey(h.start); m[k]=(m[k]||0)+(h.steps||0); }); const t=today(); if(t.steps) m[t.day]=(m[t.day]||0)+t.steps; return m; }
+function recordsData(){
+  const H=store.get('wpad.history',[]), dt=dayTotals(), wk={};
+  Object.entries(dt).forEach(([k,v])=>{ const ws=weekStart(new Date(k+'T12:00').getTime()); wk[ws]=(wk[ws]||0)+v; });
+  const best=(arr,f)=>arr.reduce((b,x)=>f(x)>(b?f(b):-1)?x:b,null);
+  const dBest=Object.entries(dt).reduce((b,x)=>x[1]>(b?b[1]:-1)?x:b,null), wBest=Object.entries(wk).reduce((b,x)=>x[1]>(b?b[1]:-1)?x:b,null);
+  const lw=best(H.filter(h=>!h.imported),h=>h.active||0), cl=best(H.filter(h=>!h.imported),h=>h.elev||0), dw=best(H,h=>h.dist||0);
+  const fmtD=ts=>new Date(ts).toLocaleDateString([], {weekday:'short',day:'numeric',month:'short'});
+  return [
+    {k:'day',e:'👣',n:'Most steps in a day',v:dBest?fmtInt(dBest[1]):'–',raw:dBest?dBest[1]:0,d:dBest?fmtD(new Date(dBest[0]+'T12:00').getTime()):''},
+    {k:'long',e:'⏱️',n:'Longest walk',v:lw?(lw.active>=3600?`${Math.floor(lw.active/3600)} h ${Math.round(lw.active%3600/60)} min`:`${Math.round(lw.active/60)} min`):'–',raw:lw?lw.active:0,d:lw?fmtD(lw.start):''},
+    {k:'dist',e:'📏',n:'Furthest walk',v:dw?`${(dw.dist/1000).toFixed(2)} km`:'–',raw:dw?dw.dist:0,d:dw?fmtD(dw.start):''},
+    {k:'climb',e:'⛰️',n:'Biggest climb',v:cl&&cl.elev>0?`${Math.round(cl.elev)} m`:'–',raw:cl?cl.elev||0:0,d:cl&&cl.elev>0?fmtD(cl.start):''},
+    {k:'week',e:'🏅',n:'Best week',v:wBest?fmtInt(wBest[1]):'–',raw:wBest?wBest[1]:0,d:wBest?`w/c ${new Date(+wBest[0]).toLocaleDateString([], {day:'numeric',month:'short'})}`:''}];
+}
+const BADGES=[
+  ['first','👟','First walk',D=>D.n>=1],['w10','🔟','10 walks',D=>D.n>=10],['w50','5️⃣','50 walks',D=>D.n>=50],['w100','💯','100 walks',D=>D.n>=100],
+  ['k10','🛣️','10 km in total',D=>D.km>=10],['k100','🚶','100 km in total',D=>D.km>=100],['k500','🌍','500 km in total',D=>D.km>=500],
+  ['s7','🔥','7-day streak',D=>D.best>=7],['s30','⚡','30-day streak',D=>D.best>=30],['s100','🏆','100-day streak',D=>D.best>=100],
+  ['d10k','🎯','10,000 steps in a day',D=>D.maxDay>=10000],['wk','✅','First workout completed',D=>D.wkDone>=1],['act150','💚','150 active minutes in a week',D=>D.act150],
+  ['fit','📈','Fitness Check done',D=>D.fits>=1],['lvl','⬆️','Fitness up a level',D=>D.lvlUp],['chk10','📝','10 check-ins',D=>D.chk>=10],
+  ['desk10','💻','10 hours of Desk Walk',D=>D.deskH>=10],['snow','🏔️','Snowdon climbed (1,085 m)',D=>D.climb>=1085],['ben','🗻','Ben Nevis climbed (1,345 m)',D=>D.climb>=1345],['three','🇬🇧','National Three Peaks (3,408 m)',D=>D.climb>=3408]];
+function badgeData(){
+  const H=store.get('wpad.history',[]), sd=statsData(), dt=dayTotals(), F=store.get('wpad.fit',[]).filter(x=>x.vo2);
+  const rs=F.map(x=>['Poor','Fair','Good','Excellent','Superior'].indexOf(rating(percentile(x.vo2,S.sex,x.age||S.hAge))));
+  const weeks={}; H.forEach(h=>{ const w=weekStart(h.start); weeks[w]=(weeks[w]||0)+activeSecs(h); });
+  return {n:H.length, km:H.reduce((a,h)=>a+(h.dist||0),0)/1000, best:sd.best, maxDay:Math.max(0,...Object.values(dt)), wkDone:H.filter(h=>h.wk&&h.reached&&!h.imported).length,
+    act150:Object.values(weeks).some(v=>v>=150*60), fits:F.length, lvlUp:rs.some((r,i)=>i>0&&r>Math.min(...rs.slice(0,i))), chk:H.filter(h=>h.chk).length,
+    deskH:H.filter(h=>h.desk).reduce((a,h)=>a+(h.active||0),0)/3600, climb:H.filter(h=>!h.imported).reduce((a,h)=>a+(h.elev||0),0)};
+}
+function checkAwards(quiet){
+  let D; try{ D=badgeData(); }catch(e){ return []; }
+  S.badges=S.badges||{}; const got=[];
+  BADGES.forEach(([id,e,n,f])=>{ if(!S.badges[id] && f(D)){ S.badges[id]=Date.now(); got.push(`${e} ${n}`); } });
+  S.recs=S.recs||{}; const newRec=[];
+  recordsData().forEach(r=>{ const prev=S.recs[r.k]; if(r.raw>0 && (prev==null || r.raw>prev+0.5)){ if(prev!=null && prev>0) newRec.push(r.n.toLowerCase()); S.recs[r.k]=r.raw; } });
+  if(got.length||newRec.length) saveSettings();
+  if(!quiet){ if(got.length) toast(`🏅 New badge: ${got.join(', ')}`,5000); else if(newRec.length) toast(`🎉 New record: ${newRec.join(', ')}`,5000); }
+  return {got,newRec};
+}
+function recordsCard(){ return mkCard('recCard'); }
+function renderRecords(){
+  const c=$('recCard'); if(!c) return; const R=recordsData(), D=badgeData(), B=S.badges||{}, n=BADGES.filter(b=>B[b[0]]).length;
+  c.innerHTML=`<h2>Personal records</h2>${R.map(r=>`<div class="rec-row"><span>${r.e}</span><div><small>${r.n}</small><br><b style="font-size:17px">${r.v}</b></div><small>${r.d}</small></div>`).join('')}
+    <h2 style="margin-top:16px">Badges · ${n} of ${BADGES.length}</h2>
+    <div class="bdg-grid">${BADGES.map(([id,e,t])=>`<div class="bdg${B[id]?'':' off'}" title="${t}"><b>${e}</b>${t}${B[id]?`<small>${new Date(B[id]).toLocaleDateString([], {day:'numeric',month:'short'})}</small>`:''}</div>`).join('')}</div>
+    <div class="row" style="margin-top:12px"><button id="recShare">Share my records</button></div>`;
+  $('recShare').onclick=async()=>{ const t=`My WalkPilot records\n${R.filter(r=>r.raw>0).map(r=>`${r.e} ${r.n}: ${r.v}`).join('\n')}\n🏅 ${n} badges`; if(navigator.share){ try{ await navigator.share({title:'My WalkPilot records',text:t}); }catch(e){} } else { try{ await navigator.clipboard.writeText(t); toast('Copied – paste it anywhere'); }catch(e){} } };
+}
+CARDS.records={n:'Records & badges', c:'#ca8a04', i:'trophy', go:'records', r:D=>{ const B=S.badges||{}, got=BADGES.filter(b=>B[b[0]]).sort((a,b)=>B[b[0]]-B[a[0]]), R=recordsData();
+  return `<div class="sc-big">🏅 ${got.length} <span class="sc-sub" style="font-size:13px">of ${BADGES.length} badges</span></div>${got[0]?`<div class="sc-sub">Latest: ${got[0][1]} ${got[0][2]}</div>`:'<div class="sc-sub">Walk to earn your first badge.</div>'}
+   <div class="sc-foot" style="font-size:12px;display:flex;flex-direction:column;gap:2px">${R.filter(r=>r.raw>0).slice(0,3).map(r=>`<span>${r.e} ${r.v}</span>`).join('')}</div>`; }};
+CARD_DEF.push('records'); if(!S.cards.order.includes('records')) S.cards.order.push('records');
+{ const _fs=finishSession; finishSession=function(reached){ _fs(reached); setTimeout(()=>{ const r=checkAwards(false); if(r && (r.got.length||r.newRec.length)){ const b=$('smBanner'); if(b && !$('sumView').classList.contains('hidden')) b.textContent+= (r.newRec.length?` 🎉 New record: ${r.newRec.join(', ')}.`:'')+(r.got.length?` 🏅 ${r.got.join(', ')}.`:''); } },200); }; }
+
+/* ---- Help & guide ---- */
+const HELP=[
+ ['Getting started',`<p>WalkPilot runs in <b>Chrome on Android</b> (or Chrome/Edge on a Windows or Mac computer with Bluetooth). Tap ⋮ › <b>Add to Home screen</b> to install it.</p><ul><li>Switch on the pad with the safety key in, then tap <b>Connect pad</b> and pick it from the list.</li><li>Optional: tap <b>Watch</b> to add heart rate from a watch that broadcasts it (Garmin: “Broadcast heart rate”).</li><li>Set your step target, then tap <b>Start walk</b>.</li></ul>`],
+ ['Which walking pads work?',`<p><b>Tested:</b> UREVO pads. <b>Should work:</b> pads that support standard Bluetooth fitness control (FTMS) – often sold as working with Kinomap or Zwift – and many pads that use the FitShow app.</p><p>Not sure? Run <b>Settings › Pad check</b>. It tests your pad in under a minute and makes a report you can send us.</p><p>If your pad isn't in the connect list, tap <b>Pad not in the list?</b> under Connect pad.</p>`],
+ ['Step target and added steps',`<p>Set a daily target in <b>Step target</b>. Add steps from your watch or phone under <b>Steps so far today</b> – each device keeps one figure, so entering it again later updates it. Add them <b>before</b> you walk on the pad, as your watch counts pad steps too.</p><p>The donut shows where today's steps came from.</p>`],
+ ['Workouts and heart-rate autopilot',`<p>Workouts change speed and incline for you. With a watch connected, <b>heart-rate zones</b> can hold you in a zone (for example zone 2) by adjusting speed, then incline.</p><p>Interval and hard workouts unlock after 10 walks – or tap <b>Unlock now</b> in Workouts. Too quick? Tap <b>Too fast</b> during a walk.</p>`],
+ ['Fitness Check',`<p>A 10-minute walking test on the pad that estimates your VO2 max and fitness age, and sets your comfortable pace and top speed. A heart-rate watch gives the best result. Retest every 4 weeks.</p><p>These are estimates for general wellness, not medical measurements.</p>`],
+ ['Desk Walk',`<p>A quiet, compact screen for walking while you work: speed presets for typing, calls and thinking, a meeting button, a workday step goal and pad rest reminders. Customise it in Desk Walk › Customise.</p>`],
+ ['My Stats, plan and check-in',`<p><b>My Stats</b> shows your day, week, last 4 weeks, plan, fitness, effort, records and more – tap <b>Edit</b> to choose cards.</p><p>After each walk, tap how hard it was and how you feel. WalkPilot uses it to adjust your pace and ease your plan when you're tired. Change goals in <b>Settings › My goals</b>.</p>`],
+ ['Import, export and backup',`<p><b>History › Import walks</b> brings in TCX or GPX files from Garmin Connect, Strava and others. <b>Export</b> saves a walk as TCX to upload elsewhere.</p><p><b>Backup</b> saves everything to a file – keep it in Google Drive, and use <b>Restore</b> on a new phone.</p>`],
+ ['Troubleshooting',`<ul><li><b>Pad won't connect:</b> close the pad maker's app, switch the pad off and on, and try again. Only one app can connect at a time.</li><li><b>Connection dropped mid-walk:</b> your walk is saved. Tap <b>Restart connection</b>; WalkPilot carries on counting.</li><li><b>Pad pauses itself at very slow speeds:</b> its foot sensor lost you – walk nearer the middle or a little faster.</li><li><b>No heart rate:</b> turn on heart-rate broadcast on your watch, then tap Watch.</li><li><b>iPhone:</b> Apple doesn't allow Bluetooth in web pages, so pad control needs the future iPhone app.</li></ul>`],
+ ['Safety',`<p>Keep the safety key clipped on. Start slowly, and stop if you feel dizzy, breathless, in pain or unwell. If you have a heart condition, are pregnant or have other health concerns, check with your GP before starting. WalkPilot is not a medical device.</p>`]];
+function helpCard(){ return mkCard('helpCard',`<div class="hint" style="margin-top:0">Tap a topic.</div>${HELP.map(([t,b])=>`<details class="dd help-dd"><summary><span><b>${t}</b></span></summary><div class="dd-in">${b}</div></details>`).join('')}
+  <div class="row" style="margin-top:10px"><a class="btn" href="privacy.html" target="_blank" rel="noopener" style="flex:1;text-align:center;padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--ink)">Privacy &amp; terms</a></div>`); }
+
+/* ---- WalkPilot Pro (framework) ---- */
+// While WalkPilot is in testing every Pro feature is free. The Android app turns on the 14-day trial and the one-off unlock (Play Billing).
+const PRO_BETA=true, PRO_PRICE='£7.99', PRO_TRIAL_DAYS=14;
+if(!S.proStart) S.proStart=Date.now();
+function proState(){ if(PRO_BETA) return {pro:true, why:'beta'}; if(S.proUnlocked) return {pro:true, why:'unlocked'}; const left=Math.ceil(PRO_TRIAL_DAYS-(Date.now()-S.proStart)/DAYMS); return left>0?{pro:true, why:'trial', left}:{pro:false, why:'free'}; }
+const isPro=()=>proState().pro;
+const PRO_FEATURES=[['Heart-rate zone autopilot','Holds you in your chosen zone'],['All workouts and plans','Intervals, hills, tempo and goal-based plans'],['Fitness Check trends','Retests and your VO2 max over time'],['Training load and recovery advice','Know when to push and when to rest'],['Journeys and unlimited challenges','Coming soon'],['Effort trends','From your after-walk check-ins']];
+function proCard(){ return mkCard('proCard'); }
+function renderPro(){ const c=$('proCard'); if(!c) return; const P=proState();
+  c.innerHTML=`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">⭐</span><div><b style="font-size:18px">WalkPilot Pro</b><br><span class="hint" style="margin:0">${P.why==='beta'?'Free for everyone while WalkPilot is in testing':P.why==='unlocked'?'Unlocked – thank you!':P.why==='trial'?`Free trial: ${P.left} day${P.left===1?'':'s'} left`:'Free version'}</span></div></div>
+   <div style="margin-top:10px">${PRO_FEATURES.map(([t,d])=>`<div class="pc-step"><i>${P.pro?'✓':'🔒'}</i><span><b>${t}</b><br><small style="color:var(--muted)">${d}</small></span></div>`).join('')}</div>
+   <div class="hint">One-off ${PRO_PRICE} in the Android app – no subscription. Free always includes step targets, pad control, Desk Walk, My Stats, the first Fitness Check, check-ins, records and badges.</div>`; }
+
+// ---- add the sections ----
+(function(){
+  addSettingsSection('padcheck','Pad check','probe','#0891b2',[padCheckCard(), mkCard('pcTested')]);
+  addSettingsSection('help','Help & guide','help','#2563eb',[helpCard()]);
+  addSettingsSection('pro','WalkPilot Pro','star','#ca8a04',[proCard()]);
+  const tw=$('tab-workout'), g=tw.querySelector('.tiles'); makeSection(tw,g,'records','Records & badges','trophy','#ca8a04',[recordsCard()]); SEC.records.tile.remove();
+  $('pcGo').onclick=runPadCheck;
+  { const _os=openSec; openSec=function(id){ _os(id); if(id==='records') renderRecords(); if(id==='pro') renderPro(); if(id==='padcheck') renderPadProfiles(); }; }
+  { const _rt=refreshTiles; refreshTiles=function(){ _rt(); try{ const set=(id,t)=>{ const e=$(id); if(e && e.textContent!==t) e.textContent=t; };
+      const P=proState(); set('tv-pro', P.why==='beta'?'Free in testing':P.why==='trial'?`Trial · ${P.left} days`:P.why==='unlocked'?'Unlocked':'Free version');
+      const pp=Object.keys(S.padProfiles||{}); set('tv-padcheck', pp.length?`${pp.length} pad${pp.length>1?'s':''} tested`:'Test any pad'); set('tv-help','How to & fixes'); }catch(e){} }; }
+  const ab=$('btnShowWelcome').closest('.card'); if(ab){ const a=document.createElement('a'); a.href='privacy.html'; a.target='_blank'; a.rel='noopener'; a.textContent='Privacy & terms'; a.style.cssText='display:block;margin-top:10px'; ab.appendChild(a); }
+  checkAwards(true); renderPadProfiles(); refreshTiles();
+})();
+
+/* ================= v38: notifications (reminders + weekly update) and the weekly summary page ================= */
+// Settings live in S.notif. In this web version reminders show only while WalkPilot is open (as a phone
+// notification if allowed, otherwise a pop-up). The Android app will schedule the same reminders when it's closed.
+const NF_DEF={on:false, tone:'gentle', max:3, quiet:['21:00','07:00'],
+  walk:{on:true,time:'18:30',plan:true,days:[1,3,5,0]}, nudge:{on:true,time:'18:00'}, desk:{on:false,time:'09:00'}, streak:{on:false,time:'20:00'}, watch:{on:false,time:'12:00'},
+  fit:{on:true}, belt:{on:true}, unlock:{on:true}, weekly:{on:true,when:'sun'}};
+S.notif=Object.assign(JSON.parse(JSON.stringify(NF_DEF)), S.notif||{}); ['walk','nudge','desk','streak','watch','fit','belt','unlock','weekly'].forEach(k=>S.notif[k]=Object.assign({},NF_DEF[k],S.notif[k]||{}));
+S.nfSent=S.nfSent||{};
+const NF_ROWS=[['walk','🚶','Walk reminder'],['nudge','🎯','Step target nudge'],['desk','💻','Desk Walk'],['streak','🔥','Streak at risk'],['watch','⌚','Add your watch steps']];
+const NF_ONCE=[['fit','📈','Fitness Check due','Every 4 weeks after your last check'],['belt','🛠️','Belt care due',''],['unlock','🔓','New workouts unlocked','After your 10th walk']];
+const nfHm=t=>{ const [h,m]=String(t||'0:0').split(':').map(Number); return h*60+(m||0); };
+const nowMin=()=>{ const d=new Date(); return d.getHours()*60+d.getMinutes(); };
+function inQuiet(m){ const [a,b]=S.notif.quiet.map(nfHm); return a<=b ? (m>=a && m<b) : (m>=a || m<b); }
+function planDayToday(){ const p=S.plan; if(!p||!p.goal) return null; try{ const pl=makePlan(p,lastFit()), dow=(new Date().getDay()+6)%7; return pl.sched.find(x=>x.day===dow)||false; }catch(e){ return null; } }
+function stepsTodayAll(){ try{ return statsData().todaySteps; }catch(e){ return 0; } }
+function walkedToday(){ return store.get('wpad.history',[]).some(h=>dayKey(h.start)===dayKey(Date.now()) && (h.active||0)>=600); }
+function weekSummary(off){ // off 0 = this week, 1 = last week
+  const ws=weekStart(Date.now())-off*7*DAYMS, we=ws+7*DAYMS, H=store.get('wpad.history',[]), t=today();
+  const days=[]; for(let i=0;i<7;i++){ const ts=ws+i*DAYMS, k=dayKey(ts); days.push({k, lab:DNAME[i], ts, future:ts>Date.now(), steps:H.filter(h=>dayKey(h.start)===k).reduce((a,h)=>a+(h.steps||0),0)+(t.day===k?(t.steps||0):0)}); }
+  const inW=H.filter(h=>h.start>=ws && h.start<we), prevW=H.filter(h=>h.start>=ws-7*DAYMS && h.start<Math.min(ws, Date.now()-7*DAYMS));
+  const steps=days.reduce((a,d)=>a+d.steps,0), prevSteps=prevW.reduce((a,h)=>a+(h.steps||0),0);
+  const act=Math.round(inW.reduce((a,h)=>a+activeSecs(h),0)/60), walks=inW.filter(h=>(h.active||0)>=600).length, hit=days.filter(d=>d.steps>=S.target).length;
+  let best=true; for(let k=1;k<=26;k++){ const a=ws-k*7*DAYMS, s2=H.filter(h=>h.start>=a && h.start<a+7*DAYMS).reduce((x,h)=>x+(h.steps||0),0); if(s2>=steps){ best=false; break; } }
+  return {ws, we, days, steps, prevSteps, act, walks, hit, best:best&&steps>0, chk:inW.filter(h=>h.chk)};
+}
+function nfText(kind){
+  const G=S.notif.tone!=='coach', sd=stepsTodayAll(), left=Math.max(0,S.target-sd), mins=Math.max(5,Math.round(left*S.stride/100000/Math.max(pace(),2)*60));
+  if(kind==='walk'){ const pd=planDayToday(); const w=pd?`${pd.name} · ${pd.mins} min`:`${fmtInt(walkTarget())} steps`; return ['Time for your walk 🚶', G?`When you're ready: ${w}.`:`Let's go – ${w}!`]; }
+  if(kind==='nudge') return [`${fmtInt(left)} steps to go today`, G?`About a ${mins}-minute walk gets you to ${fmtInt(S.target)}.`:`${mins} minutes on the pad and it's done 💪`];
+  if(kind==='desk') return ['Walk while you work?', G?`Your workday goal is ${fmtInt(S.desk.goal)} steps. A slow Desk Walk counts.`:`Desk Walk time – ${fmtInt(S.desk.goal)} work steps to hit!`];
+  if(kind==='streak'){ const st=statsData().streak; return [`Keep your ${st}-day streak 🔥`, `${fmtInt(left)} steps to go today – about ${mins} minutes.`]; }
+  if(kind==='watch') return ['Add your watch steps ⌚','Add today\'s steps from your watch so your target and donut are right.'];
+  if(kind==='fit') return ['Time for a Fitness Check 📈','It\'s 4 weeks since your last one – see if your fitness has improved.'];
+  if(kind==='belt') return ['Belt care due 🛠️',`You've walked ${S.belt.every} km since the belt was last serviced – time to clean and lubricate it.`];
+  if(kind==='unlock') return ['New workouts unlocked 🔓','You\'ve done 10 walks – intervals and hard workouts are now open.'];
+  if(kind==='weekly'){ const W=weekSummary(S.notif.weekly.when==='mon'?1:0); return ['Your week with WalkPilot 📊', `${fmtInt(W.steps)} steps (${Math.round(W.steps/Math.max(1,S.weekGoal)*100)}% of goal) · ${W.walks} walk${W.walks===1?'':'s'} · ${W.act} active min${W.best?' · your best week so far!':''}`]; }
+  return ['WalkPilot',''];
+}
+async function nfShow(kind, test){
+  const [title,body]=nfText(kind), go=kind==='weekly'?'week':kind==='fit'?'fitness':kind==='belt'?'glance':kind==='watch'||kind==='nudge'?'target':'';
+  let shown=false;
+  try{ if('Notification' in window && Notification.permission==='granted' && navigator.serviceWorker){ const reg=await navigator.serviceWorker.getRegistration(); if(reg){ await reg.showNotification(title,{body, icon:'wp-icon-192.png', badge:'wp-icon-192.png', tag:'wp-'+kind, data:{go}}); shown=true; } } }catch(e){}
+  if(!shown || document.visibilityState==='visible') toast(`${title} – ${body}`,6000);
+  if(!test){ S.nfSent[kind]=kind==='weekly'?'w'+weekStart(Date.now()):kind==='fit'||kind==='belt'||kind==='unlock'?(S.nfSent[kind]||'')+'|'+nfOnceKey(kind):dayKey(Date.now()); const c=S.nfSent.count||{}; if(c.day!==dayKey(Date.now())){ c.day=dayKey(Date.now()); c.n=0; } c.n++; S.nfSent.count=c; saveSettings(); }
+}
+function nfOnceKey(kind){ if(kind==='fit'){ const l=[...store.get('wpad.fit',[])].reverse().find(x=>x.vo2); return l?String(l.date):'none'; } if(kind==='belt') return String(S.belt.last); return 'once'; }
+function nfDue(){
+  const N=S.notif; if(!N.on || (session && session.state==='running')) return null;
+  const m=nowMin(), dk=dayKey(Date.now()), dow=new Date().getDay(), c=S.nfSent.count||{};
+  if(inQuiet(m) || (c.day===dk && c.n>=N.max)) return null;
+  const due=(k)=>N[k].on && S.nfSent[k]!==dk && m>=nfHm(N[k].time) && m<nfHm(N[k].time)+180;
+  if(due('walk') && !walkedToday()){ const pd=planDayToday(); if(N.walk.plan && pd!==null ? !!pd : N.walk.days.includes(dow)) return 'walk'; }
+  if(due('nudge') && stepsTodayAll()<S.target) return 'nudge';
+  if(due('desk') && isWorkday(Date.now())) return 'desk';
+  if(due('streak') && statsData().streak>0 && stepsTodayAll()<S.target) return 'streak';
+  if(due('watch') && !(today().steps>0)) return 'watch';
+  if(N.weekly.on && S.nfSent.weekly!=='w'+weekStart(Date.now()) && ((N.weekly.when==='sun' && dow===0 && m>=nfHm('19:00')) || (N.weekly.when==='mon' && dow===1 && m>=nfHm('08:00')))) return 'weekly';
+  const once=(k,cond)=>N[k].on && cond && !(S.nfSent[k]||'').split('|').includes(nfOnceKey(k)) && m>=nfHm('10:00');
+  const lf=[...store.get('wpad.fit',[])].reverse().find(x=>x.vo2);
+  if(once('fit', lf && lf.date && Date.now()-lf.date>=28*DAYMS)) return 'fit';
+  try{ if(once('belt', statsData().beltDue<=0 && statsData().totalKm>0)) return 'belt'; }catch(e){}
+  if(once('unlock', !S.unlockAll && walksDone()>=UNLOCK_WALKS)) return 'unlock';
+  return null;
+}
+setInterval(()=>{ try{ const k=nfDue(); if(k) nfShow(k); }catch(e){} }, 60000);
+setTimeout(()=>{ try{ const k=nfDue(); if(k) nfShow(k); }catch(e){} }, 8000);
+
+function nfCard(){ return mkCard('nfCard'); }
+function renderNotif(){
+  const c=$('nfCard'); if(!c) return; const N=S.notif;
+  const sw=(id,on)=>`<label class="sw"><input type="checkbox" id="${id}"${on?' checked':''}><span></span></label>`;
+  const perm='Notification' in window ? Notification.permission : 'unsupported';
+  c.innerHTML=`<div class="nf-row"><span class="t"><b style="font-size:16px">Notifications</b><small>Reminders and your weekly update</small></span>${sw('nfOn',N.on)}</div>
+    ${N.on && perm==='denied'?'<div class="hint" style="color:#c2410c">Notifications are blocked for this site in Chrome, so reminders show as pop-ups while WalkPilot is open. To allow them: tap the icon left of the address › Permissions › Notifications.</div>':''}
+    <div class="${N.on?'':'nf-off'}">
+    <h2 style="margin-top:14px">Daily reminders</h2>
+    ${NF_ROWS.map(([k,e,t])=>{ const sub=k==='walk'?(N.walk.plan&&S.plan&&S.plan.goal?'On your plan days':'On the days you pick'):k==='nudge'?'Only if you\'re short of your target':k==='desk'?'On your workdays':k==='streak'?'Only when a streak is going':'Until the app counts phone steps';
+      return `<div class="nf-row"><span class="e">${e}</span><span class="t"><b>${t}</b><small>${sub}</small></span><input type="time" id="nfT_${k}" value="${N[k].time}" aria-label="${t} time">${sw('nfS_'+k,N[k].on)}</div>${k==='walk'?`<div class="nf-days" id="nfDays">${S.plan&&S.plan.goal?`<button data-plan="1" class="${N.walk.plan?'sel':''}">Follow my plan</button>`:''}${[1,2,3,4,5,6,0].map(d=>`<button data-d="${d}" class="${(!N.walk.plan||!(S.plan&&S.plan.goal))&&N.walk.days.includes(d)?'sel':''}">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][d]}</button>`).join('')}</div>`:''}`; }).join('')}
+    <h2 style="margin-top:14px">Now and then</h2>
+    ${NF_ONCE.map(([k,e,t,sub])=>`<div class="nf-row"><span class="e">${e}</span><span class="t"><b>${t}</b><small>${sub||`When you've walked ${S.belt.every} km`}</small></span>${sw('nfS_'+k,N[k].on)}</div>`).join('')}
+    <h2 style="margin-top:14px">Weekly update</h2>
+    <div class="nf-row"><span class="e">📊</span><span class="t"><b>Weekly update</b><small>Your week in one notification – tap it to see the full page</small></span>${sw('nfS_weekly',N.weekly.on)}</div>
+    <div class="nf-days" id="nfWk"><button data-w="sun" class="${N.weekly.when==='sun'?'sel':''}">Sunday 19:00</button><button data-w="mon" class="${N.weekly.when==='mon'?'sel':''}">Monday 08:00</button></div>
+    <h2 style="margin-top:14px">Keep it calm</h2>
+    <div class="nf-row wrap"><span class="t"><b>Quiet hours</b><small>Nothing is sent between these times</small></span><input type="time" id="nfQ0" value="${N.quiet[0]}" aria-label="Quiet from"><span>–</span><input type="time" id="nfQ1" value="${N.quiet[1]}" aria-label="Quiet until"></div>
+    <div class="nf-row"><span class="t"><b>Most per day</b><small>Never more than this</small></span><div class="nf-days" style="padding:0" id="nfMax">${[2,3,5].map(n=>`<button data-m="${n}" class="${N.max===n?'sel':''}">${n}</button>`).join('')}</div></div>
+    <div class="nf-row"><span class="t"><b>Tone</b><small>${N.tone==='coach'?'"Let\'s go – 20 minutes gets it done!"':'"When you\'re ready, a 30-minute walk…"'}</small></span><div class="nf-days" style="padding:0" id="nfTone"><button data-t="gentle" class="${N.tone!=='coach'?'sel':''}">Gentle</button><button data-t="coach" class="${N.tone==='coach'?'sel':''}">Coach</button></div></div>
+    </div>
+    <div class="row" style="margin-top:12px"><button id="nfTest">Send a test</button><button id="nfWeekBtn">See this week</button></div>
+    <div class="hint">In this web version, reminders only appear while WalkPilot is open. The Android app will send them when it's closed.</div>`;
+  const sv=()=>{ saveSettings(); renderNotif(); refreshTiles(); };
+  $('nfOn').onchange=async e=>{ N.on=e.target.checked; if(N.on && 'Notification' in window && Notification.permission==='default'){ try{ await Notification.requestPermission(); }catch(_){} } sv(); };
+  NF_ROWS.forEach(([k])=>{ $('nfS_'+k).onchange=e=>{ N[k].on=e.target.checked; sv(); }; $('nfT_'+k).onchange=e=>{ if(e.target.value){ N[k].time=e.target.value; delete S.nfSent[k]; saveSettings(); refreshTiles(); } }; });
+  NF_ONCE.forEach(([k])=>{ $('nfS_'+k).onchange=e=>{ N[k].on=e.target.checked; sv(); }; });
+  $('nfS_weekly').onchange=e=>{ N.weekly.on=e.target.checked; sv(); };
+  $('nfDays').querySelectorAll('button').forEach(b=>b.onclick=()=>{ if(b.dataset.plan){ N.walk.plan=!N.walk.plan; } else { N.walk.plan=false; const d=+b.dataset.d, a=N.walk.days; if(a.includes(d)) a.splice(a.indexOf(d),1); else a.push(d); } sv(); });
+  $('nfWk').querySelectorAll('button').forEach(b=>b.onclick=()=>{ N.weekly.when=b.dataset.w; sv(); });
+  $('nfMax').querySelectorAll('button').forEach(b=>b.onclick=()=>{ N.max=+b.dataset.m; sv(); });
+  $('nfTone').querySelectorAll('button').forEach(b=>b.onclick=()=>{ N.tone=b.dataset.t; sv(); });
+  $('nfQ0').onchange=e=>{ if(e.target.value){ N.quiet[0]=e.target.value; saveSettings(); } }; $('nfQ1').onchange=e=>{ if(e.target.value){ N.quiet[1]=e.target.value; saveSettings(); } };
+  $('nfTest').onclick=async()=>{ if('Notification' in window && Notification.permission==='default'){ try{ await Notification.requestPermission(); }catch(_){} } nfShow(N.walk.on?'walk':'weekly',true); };
+  $('nfWeekBtn').onclick=()=>{ closeSec(); setTimeout(()=>{ document.querySelector('nav button[data-tab="workout"]').click(); openSec('week'); },60); };
+}
+
+/* ---- Your week ---- */
+let weekOff=0;
+function weekCard(){ return mkCard('weekCard'); }
+function renderWeek(){
+  const c=$('weekCard'); if(!c) return; const W=weekSummary(weekOff), P=planNow?planNow():null;
+  const fmt=ts=>new Date(ts).toLocaleDateString([], {day:'numeric',month:'short'});
+  const pct=W.prevSteps&&W.steps?Math.round((W.steps-W.prevSteps)/W.prevSteps*100):null;
+  const head=W.steps===0?'No walks yet this week':W.best?'Your best week so far 🎉':W.steps>=S.weekGoal?'Weekly goal reached ✅':pct!=null&&pct>0?'Up on last week 📈':'Every step counts – keep going';
+  const planWalks=P?P.p.days:null, mx=Math.max(S.target,...W.days.map(d=>d.steps),1);
+  const eff=W.chk.length?(W.chk.reduce((a,h)=>a+h.chk.eff,0)/W.chk.length):null;
+  const nextPl=P?makePlan(P.p,lastFit()).sched:null;
+  c.innerHTML=`<div class="nf-days" style="padding:0 0 10px"><button data-o="0" class="${weekOff===0?'sel':''}">This week</button><button data-o="1" class="${weekOff===1?'sel':''}">Last week</button></div>
+   <div class="wk-hero"><small>${fmt(W.ws)} – ${fmt(W.we-DAYMS)}${P?` · ${xmlEsc(P.pl.title)}`:''}</small><b>${head}</b><span style="font-size:14px;opacity:.92">Daily target hit ${W.hit} of 7 days${pct!=null?` · ${pct>=0?pct+'% more':(-pct)+'% fewer'} steps than ${weekOff===0?'the same days last week':'the week before'}`:''}</span></div>
+   <div class="wk-stats">
+    <div class="wk-st"><small>Steps</small><b>${fmtInt(W.steps)}</b><span>of ${fmtInt(S.weekGoal)}</span><div class="wk-bar"><i style="width:${Math.min(100,W.steps/S.weekGoal*100).toFixed(0)}%;background:var(--accent)"></i></div></div>
+    <div class="wk-st"><small>${planWalks?'Planned walks':'Walks'}</small><b>${W.walks}${planWalks?` of ${planWalks}`:''}</b><span>${planWalks&&W.walks>=planWalks?'all done ✅':'of 10 min or more'}</span><div class="wk-bar"><i style="width:${Math.min(100,W.walks/(planWalks||5)*100).toFixed(0)}%;background:#2563eb"></i></div></div>
+    <div class="wk-st"><small>Active minutes</small><b>${W.act}</b><span>of 150 (NHS)</span><div class="wk-bar"><i style="width:${Math.min(100,W.act/150*100).toFixed(0)}%;background:#f2c14e"></i></div></div>
+    <div class="wk-st"><small>${eff!=null?'Average effort':'Streak'}</small><b>${eff!=null?`${eff.toFixed(1)} · ${EFF_WORD(Math.round(eff))}`:`🔥 ${statsData().streak} days`}</b><span>${eff!=null?`${W.chk.length} check-in${W.chk.length>1?'s':''}`:`best ${statsData().best} days`}</span></div>
+   </div>
+   <div class="wk-st" style="margin-top:10px"><div style="display:flex;justify-content:space-between;font-size:13px"><b style="font-size:14px;display:inline">Steps each day</b><span>target ${fmtInt(S.target)}</span></div>
+    <div style="position:relative;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;align-items:end;height:80px;margin-top:8px">${W.days.map(d=>`<i title="${d.lab} ${fmtInt(d.steps)}" style="display:block;height:${Math.max(3,d.steps/mx*80).toFixed(0)}px;border-radius:5px;background:var(--accent);opacity:${d.future?0.15:d.steps>=S.target?1:0.45}"></i>`).join('')}<div style="position:absolute;left:0;right:0;bottom:${(S.target/mx*80).toFixed(0)}px;border-top:2px dashed var(--muted)"></div></div>
+    <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;font-size:11px;color:var(--muted);text-align:center;margin-top:4px">${W.days.map(d=>`<span>${d.lab[0]}</span>`).join('')}</div></div>
+   ${nextPl?`<div class="wk-st" style="margin-top:10px"><b style="font-size:14px;display:block;margin-bottom:6px">${weekOff===1?'This week':'Your plan each week'}</b>${nextPl.map(x=>`<div style="display:flex;justify-content:space-between;font-size:14px;padding:2px 0"><span>${x.name}</span><span style="color:var(--muted)">${DNAME[x.day]} · ${x.mins} min</span></div>`).join('')}<span style="font-size:12px;color:var(--muted)">Aim ${fmtInt(S.target)} a day · ${fmtInt(S.weekGoal)} a week</span></div>`:`<div class="hint">Set your goals in Settings › My goals to get a weekly plan here.</div>`}
+   <div class="row" style="margin-top:10px"><button id="wkShare">Share my week</button></div>`;
+  c.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{ weekOff=+b.dataset.o; renderWeek(); });
+  $('wkShare').onclick=async()=>{ const t=`My week with WalkPilot (${fmt(W.ws)}–${fmt(W.we-DAYMS)})\n👣 ${fmtInt(W.steps)} steps · ${W.walks} walks · ${W.act} active min\n🎯 Target hit ${W.hit} of 7 days`; if(navigator.share){ try{ await navigator.share({title:'My week',text:t}); }catch(e){} } else { try{ await navigator.clipboard.writeText(t); toast('Copied'); }catch(e){} } };
+}
+(function(){
+  addSettingsSection('notif','Notifications','clock','#7c3aed',[nfCard()]);
+  const ts=$('tab-settings'), gs=ts.querySelector('.tiles'); if(SEC.goals) gs.insertBefore(SEC.notif.tile, SEC.goals.tile.nextSibling);
+  const tw=$('tab-workout'), g=tw.querySelector('.tiles'); makeSection(tw,g,'week','Your week','glance','#0a8f6a',[weekCard()]); SEC.week.tile.remove();
+  { const _os=openSec; openSec=function(id){ if(id==='week' && document.querySelector('nav button[data-tab="workout"]') && !$('tab-workout').classList.contains('active')){} _os(id); if(id==='notif') renderNotif(); if(id==='week'){ weekOff=(new Date().getDay()===1 && S.notif.weekly.when==='mon')?1:0; renderWeek(); } }; }
+  { const _rt=refreshTiles; refreshTiles=function(){ _rt(); try{ const e=$('tv-notif'), N=S.notif, n=['walk','nudge','desk','streak','watch','weekly'].filter(k=>N[k].on).length, t=N.on?`${n} on${N.weekly.on?' · weekly update':''}`:'Off'; if(e && e.textContent!==t) e.textContent=t; }catch(e){} }; }
+  const goTo=g=>{ if(!g) return; const tab=['week','glance','target','fitness'].includes(g)?'workout':null; if(tab){ const b=document.querySelector(`nav button[data-tab="${tab}"]`); if(b) b.click(); } setTimeout(()=>openSec(g),80); };
+  if(navigator.serviceWorker) navigator.serviceWorker.addEventListener('message',e=>{ if(e.data && e.data.go) goTo(e.data.go); });
+  const m=location.hash.match(/go=(\w+)/); if(m){ history.replaceState(null,'',location.pathname); setTimeout(()=>goTo(m[1]),600); }
+  refreshTiles();
+})();
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
