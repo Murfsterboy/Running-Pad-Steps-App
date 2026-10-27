@@ -126,6 +126,13 @@ body{padding-bottom:150px}
 .sc-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:11px;color:var(--muted);text-align:center}.sc-days .ok{color:var(--accent);font-weight:700}
 .sc-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;align-items:end;height:62px}.sc-bars i{display:block;border-radius:4px;background:var(--accent);min-height:3px}.sc-bars i.lo{opacity:.45}.sc-bars i.today{outline:2px solid var(--ink);outline-offset:1px}
 .sc-w{grid-column:1/-1;min-height:0}
+.ci-bars{display:grid;gap:6px;align-items:end;position:relative;margin-top:10px}.ci-bars i{display:block;border-radius:5px;min-height:3px}
+.ci-lab{display:grid;gap:6px;font-size:11px;color:var(--muted);text-align:center;margin-top:4px}
+.ci-line{position:absolute;left:0;right:0;border-top:2px dashed var(--muted)}
+.ci-big{font-size:30px;font-weight:800;line-height:1.1}.ci-sub{font-size:13px;color:var(--muted)}
+.ci-cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:10px}.ci-cal span{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--bg);color:var(--muted)}
+.ci-cal span.hit{background:var(--accent);color:var(--accent-ink);font-weight:700}.ci-cal span.part{background:color-mix(in srgb,var(--accent) 30%,var(--bg));color:var(--ink)}.ci-cal span.today{outline:2px solid var(--ink)}.ci-cal span.fut{opacity:.35}
+.ci-row{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}.ci-row:last-child{border:0}
 .sw{position:relative;flex:0 0 46px;width:46px;height:28px;margin:0}.sw input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
 .sw span{position:absolute;inset:0;border-radius:99px;background:#c5ced6;transition:background .15s}.sw span::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:left .15s}
 .sw input:checked+span{background:var(--accent)}.sw input:checked+span::after{left:21px}.sw input:focus-visible+span{outline:2px solid var(--ink);outline-offset:2px}
@@ -302,7 +309,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v40</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v41</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -546,7 +553,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v40</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v41</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1659,7 +1666,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v40 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v41 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2289,18 +2296,20 @@ function makeSection(tab, grid, id, name, icon, color, cards, hero){
   t.onclick=()=>openSec(id); sec.querySelector('.sec-back').onclick=closeSec; done.onclick=closeSec;
   SEC[id]={sec,tab,tile:t};
 }
+let secDepth=0, secNoPush=false;   // sections can open on top of each other (My Stats › a card); Back returns one level
 function openSec(id){
   const o=SEC[id]; if(!o) return;
   if(secOpen) hideSec();
   o.tab.classList.add('in-sec'); o.sec.classList.remove('hidden'); secOpen=id; window.scrollTo(0,0);
-  try{ history.pushState({wpSec:id},''); }catch(e){}
+  if(!secNoPush){ try{ history.pushState({wpSec:id, d:secDepth+1},''); secDepth++; }catch(e){} }
   if(id==='glance'){ try{ renderHistory(); }catch(e){} }
   setTimeout(()=>window.dispatchEvent(new Event('resize')),50);   // charts drawn while hidden size themselves now
 }
 function hideSec(){ if(!secOpen) return; const o=SEC[secOpen]; o.sec.classList.add('hidden'); o.tab.classList.remove('in-sec'); secOpen=null; window.scrollTo(0,0); refreshTiles(); }
 function closeSec(){ if(history.state && history.state.wpSec){ history.back(); } else hideSec(); }
-window.addEventListener('popstate',()=>hideSec());
-document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{ if(secOpen) closeSec(); }));
+function closeAllSec(){ if(secDepth>0 && history.state && history.state.wpSec) history.go(-secDepth); else hideSec(); }
+window.addEventListener('popstate',e=>{ const st=e.state||{}; secDepth=st.d||0; const id=st.wpSec; if(id && SEC[id]){ if(id!==secOpen){ secNoPush=true; try{ openSec(id); }finally{ secNoPush=false; } } } else hideSec(); });
+document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>{ if(secOpen) closeAllSec(); }));
 
 // ---- workout list (replaces the dropdown; the dropdown stays hidden and drives the logic) ----
 function renderWkList(){
@@ -3215,7 +3224,7 @@ function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
   <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
 async function runPadCheck(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
-  const R=PC.rep={when:new Date().toISOString(), app:'v40', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  const R=PC.rep={when:new Date().toISOString(), app:'v41', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
   try{
     if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
     PC.on=true;
@@ -3583,13 +3592,61 @@ setInterval(()=>{ const s=session; if(!s || s.state!=='running' || live.demo || 
   const show=()=>{ const el=$('log'); if(el) el.textContent=buf.slice(0,6000)+(buf.length>6000?'\n… (older lines are in the shared or saved log)':''); };
   let saveT=0; const persist=()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){ buf=buf.slice(0,LOGMAX/2); } },1500); };
   log=function(msg){ const d=new Date(); const t=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB'); buf=`${t} ${msg}\n`+buf; if(buf.length>LOGMAX) buf=buf.slice(0,LOGMAX); show(); persist(); };
-  window.logText=()=>`WalkPilot log · app v40 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
+  window.logText=()=>`WalkPilot log · app v41 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
   show(); log('app opened');
   addEventListener('pagehide',()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){} });
 }
 $('btnShareLog').onclick=async()=>{ const t=logText(); if(navigator.share){ try{ await navigator.share({title:'WalkPilot log', text:t}); $('copyMsg').textContent='Shared.'; return; }catch(e){ if(e.name==='AbortError') return; } } $('btnSaveLog').onclick(); };
 $('btnSaveLog').onclick=()=>{ const d=new Date(), n=`walkpilot-log-${dayKey(d.getTime())}-${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}.txt`; downloadText(n, logText(), 'text/plain'); $('copyMsg').textContent=`Saved ${n} to Downloads – attach it in the chat with the + button.`; };
 $('btnCopyLog').onclick=()=>copyText(logText(),'Log copied – paste it into the chat.');
+
+/* ================= v41: every My Stats card opens its own detail page (no more empty "More graphs") ================= */
+function ciBars(vals, labels, opt){ opt=opt||{}; const H=opt.h||110, mx=Math.max(opt.line||0,...vals,1), n=vals.length, col=opt.col||'var(--accent)';
+  return `<div class="ci-bars" style="grid-template-columns:repeat(${n},minmax(0,1fr));height:${H}px">${vals.map((v,i)=>`<i title="${labels[i]}: ${v}" style="height:${Math.max(3,v/mx*H).toFixed(0)}px;background:${(opt.cols&&opt.cols[i])||col};${opt.line&&v<opt.line?'opacity:.5;':''}${opt.hl===i?'outline:2px solid var(--ink);outline-offset:1px;':''}"></i>`).join('')}${opt.line?`<div class="ci-line" style="bottom:${(opt.line/mx*H).toFixed(0)}px"></div>`:''}</div>
+   <div class="ci-lab" style="grid-template-columns:repeat(${n},minmax(0,1fr))">${labels.map(l=>`<span>${l}</span>`).join('')}</div>`; }
+function lastNDays(n){ const out=[], t=new Date(); t.setHours(12,0,0,0); for(let i=n-1;i>=0;i--){ const ts=t.getTime()-i*DAYMS; out.push({ts,k:dayKey(ts)}); } return out; }
+const CI={
+  active:{t:'Active minutes', r:()=>{ const H=store.get('wpad.history',[]), ws=weekStart(Date.now()), wk=[3,2,1,0].map(k=>{ const a=ws-k*7*DAYMS; return Math.round(H.filter(h=>h.start>=a&&h.start<a+7*DAYMS).reduce((x,h)=>x+activeSecs(h),0)/60); });
+      const days=[0,1,2,3,4,5,6].map(i=>{ const ts=ws+i*DAYMS; return Math.round(H.filter(h=>dayKey(h.start)===dayKey(ts)).reduce((x,h)=>x+activeSecs(h),0)/60); });
+      return `<div class="ci-big">${wk[3]} <span class="ci-sub">of 150 minutes this week</span></div><div class="ci-sub">${wk[3]>=150?'✅ NHS weekly target reached':`${150-wk[3]} minutes to go – about ${Math.ceil((150-wk[3])/30)} more 30-minute brisk walk${Math.ceil((150-wk[3])/30)>1?'s':''}`}</div>
+        <h2 style="margin-top:16px">This week</h2>${ciBars(days, DNAME.map(d=>d[0]), {hl:(new Date().getDay()+6)%7, col:'#f2c14e'})}
+        <h2 style="margin-top:16px">Last 4 weeks</h2>${ciBars(wk, ['3 wks ago','2 wks ago','Last wk','This wk'], {line:150, col:'#f2c14e'})}
+        <p class="hint">Active minutes are time in heart-rate zone 2 or above when your watch is connected, or walking at 4 km/h or faster without it. The NHS suggests at least 150 minutes of moderate activity a week.</p>`; }},
+  streak:{t:'Streak', r:()=>{ const D=statsData(), dt=dayTotals(), ws=weekStart(Date.now())-4*7*DAYMS, now=Date.now();
+      let cal=''; for(let i=0;i<35;i++){ const ts=ws+i*DAYMS+12*3600e3, k=dayKey(ts), v=dt[k]||0, fut=ts>now+12*3600e3, td=k===dayKey(now);
+        cal+=`<span class="${v>=S.target?'hit':v>0?'part':''}${td?' today':''}${fut?' fut':''}" title="${k}: ${fmtInt(v)} steps">${new Date(ts).getDate()}</span>`; }
+      const mk=dayKey(now).slice(0,7), hitM=Object.entries(dt).filter(([k,v])=>k.startsWith(mk)&&v>=S.target).length;
+      return `<div class="ci-big">🔥 ${D.streak} day${D.streak===1?'':'s'}</div><div class="ci-sub">daily target of ${fmtInt(S.target)} steps hit in a row · best ${D.best} days · ${hitM} days this month</div>
+        <div class="ci-cal" style="margin-top:14px">${DNAME.map(d=>`<b style="font-size:11px;text-align:center;color:var(--muted)">${d[0]}</b>`).join('')}</div><div class="ci-cal" style="margin-top:4px">${cal}</div>
+        <p class="hint">Green = target hit · light green = some steps · outlined = today. Steps include walks on the pad, imported walks and steps you added from other devices.</p>`; }},
+  kcal:{t:'Calories', r:()=>{ const H=store.get('wpad.history',[]), d=lastNDays(14), v=d.map(x=>Math.round(H.filter(h=>dayKey(h.start)===x.k).reduce((a,h)=>a+(h.kcal||0),0))), D=statsData();
+      return `<div class="ci-big">${fmtInt(Math.round(D.kcalWeek))} <span class="ci-sub">kcal walking this week</span></div><div class="ci-sub">${fmtInt(Math.round(D.kcalToday))} today · ${fmtInt(v.reduce((a,b)=>a+b,0))} in the last 14 days</div>
+        <h2 style="margin-top:16px">Last 14 days</h2>${ciBars(v, d.map(x=>new Date(x.ts).toLocaleDateString('en-GB',{weekday:'narrow'})), {col:'#ff8a3d', hl:13})}
+        <p class="hint">An estimate from your weight, speed and incline (or the pad's own figure if you chose that in Pad &amp; alerts). Only walking calories, not your whole day.</p>`; }},
+  effort:{t:'Effort', r:()=>{ const ws=store.get('wpad.history',[]).filter(x=>x.chk).slice(0,20);
+      if(!ws.length) return `<p class="hint" style="margin-top:0">No check-ins yet. After each walk, tap how hard it was and how you feel – WalkPilot uses it to set your next workouts. You can also add one to any walk in History.</p>`;
+      const r=ws.slice().reverse(), avg=ws.slice(0,10).reduce((a,x)=>a+x.chk.eff,0)/Math.min(10,ws.length);
+      return `<div class="ci-big">${avg.toFixed(1)} <span class="ci-sub">average effort, last ${Math.min(10,ws.length)} walks · ${EFF_WORD(Math.round(avg))}</span></div>
+        ${ciBars(r.map(x=>x.chk.eff), r.map(x=>new Date(x.start).toLocaleDateString('en-GB',{day:'numeric'})), {cols:r.map(x=>EFF_COL[x.chk.eff-1]), h:100})}
+        <h2 style="margin-top:16px">Recent check-ins</h2>${ws.slice(0,10).map(x=>`<div class="ci-row"><span>${new Date(x.start).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}<br><small style="color:var(--muted)">${x.wk||'Free walk'}</small></span><span style="text-align:right">${ckTags(x.chk)}</span></div>`).join('')}`; }},
+  load:{t:'Training load', r:()=>{ const L=statsData().load, ratio=L.base>5?L.now/L.base:null, st=ratio==null?'Building':ratio<0.8?'Low':ratio>1.3?'High':'Balanced';
+      const msg={Building:'WalkPilot needs about 3 weeks of walks to learn your usual load.', Low:'You\'ve done less than usual this week – fine for an easy week, or add a walk to keep your fitness.', Balanced:'A steady amount compared with your usual – good for building fitness safely.', High:'Much more than usual – make sure you have easy days to recover.'}[st];
+      return `<div class="ci-big">${st}</div><div class="ci-sub">${msg}</div>
+        <h2 style="margin-top:16px">Load by week</h2>${ciBars(L.bars.map(v=>Math.round(v)), ['3 wks ago','2 wks ago','Last wk','Last 7 days'], {cols:['var(--line)','var(--line)','var(--line)','#f2c14e']})}
+        <p class="hint">Load counts minutes in each heart-rate zone, weighted by zone (zone 1 = 1 point a minute … zone 5 = 5). Without a watch it uses walking time. "Your usual" is the average of the three weeks before.</p>`; }},
+};
+function ciCard(){ return mkCard('ciCard'); }
+let ciKey=null;
+function openCardInfo(k){ ciKey=k; const sec=SEC.cardinfo; if(!sec) return; sec.sec.querySelector('.sec-head b').textContent=CI[k].t; openSec('cardinfo'); }
+function renderCardInfo(){ const c=$('ciCard'); if(!c||!ciKey||!CI[ciKey]) return; try{ c.innerHTML=CI[ciKey].r(); }catch(e){ c.innerHTML='<p class="hint">Nothing to show yet.</p>'; } }
+function openWalkDetail(){ const h=store.get('wpad.history',[])[0]; if(!h){ toast('No walks yet – your last walk will show here.'); return; }
+  const b=document.querySelector('nav button[data-tab="history"]'); if(b) b.click(); setTimeout(()=>showDetail(h.id),250); }
+(function(){
+  const tw=$('tab-workout'), g=tw.querySelector('.tiles'); makeSection(tw,g,'cardinfo','Details','glance','#0a8f6a',[ciCard()]); SEC.cardinfo.tile.remove();
+  { const _os=openSec; openSec=function(id){ _os(id); if(id==='cardinfo') renderCardInfo(); }; }
+  { const _rs=renderStats; renderStats=function(){ _rs(); const g2=$('statsGrid'); if(!g2) return;
+      g2.querySelectorAll('[data-card]').forEach(b=>{ const k=b.dataset.card; if(CI[k]) b.onclick=()=>openCardInfo(k); else if(k==='last'||k==='hr') b.onclick=openWalkDetail; }); }; }
+})();
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
