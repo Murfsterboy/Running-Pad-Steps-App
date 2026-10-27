@@ -302,7 +302,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v38</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v40</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -546,7 +546,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v38</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v40</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -556,7 +556,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   </div>
   <div class="card">
     <h2>Bluetooth log</h2>
-    <div class="row" style="margin-bottom:8px"><button id="btnCopyLog">Copy log</button><button id="btnPadReport">Copy pad data report</button></div>
+    <div class="row" style="margin-bottom:8px"><button class="primary" id="btnShareLog">Share log</button><button id="btnSaveLog">Save log file</button><button id="btnCopyLog">Copy log</button><button id="btnPadReport">Copy pad data report</button></div>
     <div class="hint" id="copyMsg" style="margin:0 0 6px"></div>
     <div id="log"></div>
   </div>
@@ -840,7 +840,7 @@ const padIncline=lvl=>{
   const raw=Math.max(0,Math.min(255,Math.round(lvl*UR.inclScale))), before=UR.inclRaw;
   UR.inclWant=raw;
   clearTimeout(UR.inclTimer);
-  UR.inclTimer=setTimeout(()=>{ if(UR.inclWant===raw && UR.inclRaw===before && before!==raw){ log('pad did not move on UREVO incline – trying FTMS'); ftms(); } },6000);
+  UR.inclTimer=setTimeout(()=>{ if(UR.inclWant===raw && UR.inclRaw===before && before!==raw){ if(urInclTrusted()){ log('incline still moving – UREVO incline works on this pad, so no FTMS fallback'); return; } if(session && session.state==='running' && live.speed>0.3){ log('incline not moved yet – FTMS fallback skipped while the belt is running'); return; } log('pad did not move on UREVO incline – trying FTMS'); ftms(); } },12000);
   return urSend([0x53,0x02,Math.round(setSpeed*10),raw],`incline ${lvl} (UREVO raw ${raw})`);
 };
 
@@ -947,7 +947,7 @@ async function attachPad(){
     });
     try{ const st=await svc.getCharacteristic(C_STATUS); await st.startNotifications();
       st.addEventListener('characteristicvaluechanged', e=>{ const op=e.target.value.getUint8(0);
-        if(op===0x02) log('pad stopped/paused (remote or safety key)'); if(op===0x04) log('pad started'); });
+        if(op===0x02){ log('pad stopped/paused (remote or safety key)'); if(!UR.ch) padStoppedItself('ftms'); } if(op===0x04) log('pad started'); });
     }catch(e){}
     const td = await svc.getCharacteristic(C_TREAD);
     await td.startNotifications();
@@ -1659,7 +1659,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v38 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v40 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -3215,7 +3215,7 @@ function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
   <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
 async function runPadCheck(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
-  const R=PC.rep={when:new Date().toISOString(), app:'v38', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  const R=PC.rep={when:new Date().toISOString(), app:'v40', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
   try{
     if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
     PC.on=true;
@@ -3552,6 +3552,44 @@ function renderWeek(){
   const m=location.hash.match(/go=(\w+)/); if(m){ history.replaceState(null,'',location.pathname); setTimeout(()=>goTo(m[1]),600); }
   refreshTiles();
 })();
+
+/* ================= v39: when the pad stops itself mid-walk, WalkPilot pauses too (one tap to resume) ================= */
+function urInclTrusted(){ const n=(device&&device.name)||PS.devName||''; return !!(S.urInclOk||{})[n]; }
+function padStoppedItself(why){
+  const s=session; if(!s || s.state!=='running' || live.demo) return;
+  s.padStopped=true; s.padStops=(s.padStops||0)+1;
+  log(`⏸️ pad stopped itself (${why}) – WalkPilot paused the walk`);
+  pauseSession(true);
+  setConnMsg('⏸️ <b>The pad stopped</b> – from its remote, safety key or foot sensor. Your walk is saved. Tap <b>Resume</b> when you\'re ready.');
+  try{ announce('The pad stopped. Tap resume when you are ready.', true); }catch(e){}
+  if(navigator.vibrate) navigator.vibrate([400,200,400]);
+}
+{ const _uf=urFrameIn; urFrameIn=function(b){ const prev=UR.state, prevIncl=UR.inclRaw, want=UR.inclWant; _uf(b);
+    if(b[0]!==0x51 || b.length<2) return; const st=UR.state;
+    if(want!=null && prevIncl!=null && UR.inclRaw!==prevIncl && UR.inclRaw===want && !urInclTrusted()){ const n=(device&&device.name)||PS.devName||''; if(n){ S.urInclOk=S.urInclOk||{}; S.urInclOk[n]=true; saveSettings(); log('UREVO incline confirmed on this pad'); } }
+    if([3,4].includes(prev) && [0,1,10].includes(st)) padStoppedItself('pad state '+(UR_STATES[st]??st));
+  }; }
+{ const _ss=startSession; startSession=async function(){ if(session && session.padStopped){ session.padStopped=false; setConnMsg(''); } return _ss(); }; }
+$('btnStart').onclick=()=>startSession();
+// Pads without status reports: if the belt has been at 0 km/h for 8 s mid-walk although WalkPilot asked for a speed, treat it as stopped.
+setInterval(()=>{ const s=session; if(!s || s.state!=='running' || live.demo || !live.connected || UR.ch) { if(s) s.zeroSince=null; return; }
+  if(live.speed>0.1){ s.everMoved=true; s.zeroSince=null; return; }
+  if(!s.everMoved || setSpeed<0.5) return;
+  s.zeroSince=s.zeroSince||Date.now(); if(Date.now()-s.zeroSince>8000){ s.zeroSince=null; padStoppedItself('belt at 0 km/h'); } },1000);
+
+/* ================= v40: a longer log that survives closing the app, plus Share / Save as file ================= */
+// Keeps the last 40,000 characters (several hours of walking), newest first, with the date on each line.
+{ const LOGMAX=40000; let buf=store.get('wpad.log','') || $('log').textContent || '';
+  const show=()=>{ const el=$('log'); if(el) el.textContent=buf.slice(0,6000)+(buf.length>6000?'\n… (older lines are in the shared or saved log)':''); };
+  let saveT=0; const persist=()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){ buf=buf.slice(0,LOGMAX/2); } },1500); };
+  log=function(msg){ const d=new Date(); const t=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB'); buf=`${t} ${msg}\n`+buf; if(buf.length>LOGMAX) buf=buf.slice(0,LOGMAX); show(); persist(); };
+  window.logText=()=>`WalkPilot log · app v40 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
+  show(); log('app opened');
+  addEventListener('pagehide',()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){} });
+}
+$('btnShareLog').onclick=async()=>{ const t=logText(); if(navigator.share){ try{ await navigator.share({title:'WalkPilot log', text:t}); $('copyMsg').textContent='Shared.'; return; }catch(e){ if(e.name==='AbortError') return; } } $('btnSaveLog').onclick(); };
+$('btnSaveLog').onclick=()=>{ const d=new Date(), n=`walkpilot-log-${dayKey(d.getTime())}-${String(d.getHours()).padStart(2,'0')}${String(d.getMinutes()).padStart(2,'0')}.txt`; downloadText(n, logText(), 'text/plain'); $('copyMsg').textContent=`Saved ${n} to Downloads – attach it in the chat with the + button.`; };
+$('btnCopyLog').onclick=()=>copyText(logText(),'Log copied – paste it into the chat.');
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
