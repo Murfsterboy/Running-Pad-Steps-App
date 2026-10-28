@@ -126,6 +126,7 @@ body{padding-bottom:150px}
 .sc-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:11px;color:var(--muted);text-align:center}.sc-days .ok{color:var(--accent);font-weight:700}
 .sc-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;align-items:end;height:62px}.sc-bars i{display:block;border-radius:4px;background:var(--accent);min-height:3px}.sc-bars i.lo{opacity:.45}.sc-bars i.today{outline:2px solid var(--ink);outline-offset:1px}
 .sc-w{grid-column:1/-1;min-height:0}
+.tile.sc-flash{animation:scFlash 1.4s ease-out}
 @keyframes scFlash{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 3px transparent}}.sc-flash{animation:scFlash 1.4s ease-out}
 .ci-bars{display:grid;gap:6px;align-items:end;position:relative;margin-top:10px}.ci-bars i{display:block;border-radius:5px;min-height:3px}
 .ci-lab{display:grid;gap:6px;font-size:11px;color:var(--muted);text-align:center;margin-top:4px}
@@ -310,7 +311,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v43</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v44</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -554,7 +555,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v43</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v44</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1667,7 +1668,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v43 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v44 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2424,10 +2425,10 @@ function chime(){ try{ const c=new (window.AudioContext||window.webkitAudioConte
 { const _zc=zoneControl; zoneControl=function(now){ if(session && session.desk) return; _zc(now); }; }
 { const _uc=userCap; userCap=function(){ const c=_uc(); return (session && session.desk) ? Math.min(c, deskCap()) : c; }; }
 { const _fs=finishSession; finishSession=function(){ const s=session, r=_fs.apply(this,arguments);
-    if(s && s.desk){ const h=store.get('wpad.history',[]); if(h[0] && h[0].id===s.start){ h[0].wk='Desk walk'; h[0].desk=true; store.set('wpad.history',h); try{ renderHistory(); }catch(e){} } }
+    if(s && s.desk){ const h=store.get('wpad.history',[]); if(h[0] && h[0].id===s.start){ h[0].wk='Desk Mode'; h[0].desk=true; store.set('wpad.history',h); try{ renderHistory(); }catch(e){} } }
     return r; }; }
 { const _ss=showSummary; showSummary=function(s,reached){ _ss(s,reached); if(s && s.desk && !$('sumView').classList.contains('hidden')){
-    $('smTitle').textContent='Desk walk – saved'; const w=workSteps(), g=D().goal;
+    $('smTitle').textContent='Desk Mode – saved'; const w=workSteps(), g=D().goal;
     $('smBanner').textContent = !(isWorkday(s.start) && inWorkHours(s.start)) ? 'Saved to History. This walk was outside your work hours, so it doesn\'t count towards the workday goal.' : w>=g ? `🎉 Workday goal reached: ${fmtInt(w)} of ${fmtInt(g)} steps.` : `Workday so far: ${fmtInt(w)} of ${fmtInt(g)} steps – ${fmtInt(g-w)} to go.`; } }; }
 
 async function startDesk(){
@@ -2483,7 +2484,7 @@ function deskApply(){
   const sh=D().show; rv.classList.toggle('dk-nohr',!sh.hr); rv.classList.toggle('dk-noctl',!sh.ctl); rv.classList.toggle('dk-nostats',!sh.stats); rv.classList.toggle('dk-noprog',!sh.prog);
   rv.classList.toggle('dk-big',D().size==='big'); rv.classList.toggle('dk-small',D().size==='small');
   const p=deskPreset(s.preset||D().sel);
-  $('rvTitle').textContent = s.meeting ? 'Desk walk · in a meeting' : `Desk walk · ${p.n}`;
+  $('rvTitle').textContent = s.meeting ? 'Desk Mode · in a meeting' : `Desk Mode · ${p.n}`;
   $('rvStepsSub').textContent = (isWorkday(Date.now()) && inWorkHours(Date.now())) ? `this walk · workday ${fmtInt(workSteps())} / ${fmtInt(D().goal)}` : 'this walk · outside work hours';
   $('dkMeet').textContent = s.meeting ? '▶ End meeting' : '🔇 Meeting';
   $('dkMeet').classList.toggle('primary', !!s.meeting);
@@ -2517,13 +2518,13 @@ function deskCard(){
   <div class="bar"><div id="dkBar"></div></div><div class="hint" id="dkHint" style="margin-top:2px"></div>
   <h2 style="margin-top:16px">What are you doing?</h2>
   <div class="dk-presets" id="dkPresets"></div>
-  <button class="primary" id="dkStart">▶ Start desk walk</button>
+  <button class="primary" id="dkStart">▶ Start Desk Mode</button>
   <div class="hint" id="dkInfo"></div>
-  <details id="dkCustom"><summary>Customise Desk Walk</summary>
+  <details id="dkCustom"><summary>Customise Desk Mode</summary>
    <h3>Task speeds</h3><div id="dkEdit"></div><button id="dkAdd" style="margin-top:8px;width:100%">+ Add your own (up to 2)</button>
-   <div class="hint">Tip: during a desk walk, set a speed that feels right and tap <b>Save speed</b>, then the preset.</div>
+   <div class="hint">Tip: in Desk Mode, set a speed that feels right and tap <b>Save speed</b>, then the preset.</div>
    <h3>Quiet mode</h3>
-   <label><input type="checkbox" id="dkQuiet" style="width:auto"> Quiet during desk walks (no spoken alerts)</label>
+   <label><input type="checkbox" id="dkQuiet" style="width:auto"> Quiet in Desk Mode (no spoken alerts)</label>
    <label for="dkQA">Alerts while quiet</label><select id="dkQA"><option value="vibrate">Vibrate only</option><option value="chime">Soft chime</option><option value="none">Nothing</option></select>
    <h3>Meeting button</h3>
    <div class="dk-row"><div><label for="dkMA">When tapped</label><select id="dkMA"><option value="slow">Slow the belt</option><option value="pause">Pause the belt</option></select></div>
@@ -2550,13 +2551,13 @@ function renderDesk(){
   if(!$('deskCard')) return;
   const w=workSteps(), g=D().goal, wd=isWorkday(Date.now());
   $('dkWork').textContent=fmtInt(w); $('dkGoal').textContent=fmtInt(g); $('dkBar').style.width=Math.min(100,w/g*100)+'%';
-  $('dkHint').textContent = wd ? (w>=g?'🎉 Workday goal reached.':`${fmtInt(g-w)} to go · ${D().start}–${D().end}`) : 'Not a workday – desk walks still count towards your step target.';
+  $('dkHint').textContent = wd ? (w>=g?'🎉 Workday goal reached.':`${fmtInt(g-w)} to go · ${D().start}–${D().end}`) : 'Not a workday – Desk Mode walks still count towards your step target.';
   const pr=$('dkPresets'), key=JSON.stringify([deskPresets().map(x=>[x.k,x.n,x.speed]),D().sel]);
   if(pr.dataset.key!==key){ pr.dataset.key=key;
     pr.innerHTML=deskPresets().map(x=>`<button class="dk-p${x.k===D().sel?' sel':''}" data-k="${x.k}"><b>${x.n}</b><small>${x.speed.toFixed(1)} km/h</small></button>`).join('');
     pr.querySelectorAll('button').forEach(b=>b.onclick=()=>deskSetPreset(b.dataset.k)); }
   const run=session && (session.state==='running'||session.state==='paused');
-  $('dkStart').textContent = run ? (session.desk ? '▶ Back to desk walk' : '▶ Switch this walk to desk mode') : '▶ Start desk walk';
+  $('dkStart').textContent = run ? (session.desk ? '▶ Back to Desk Mode' : '▶ Switch this walk to Desk Mode') : '▶ Start Desk Mode';
   $('dkInfo').innerHTML = `${D().quiet?'Quiet mode on':'Spoken alerts on'} · speed capped at ${deskCap().toFixed(1)} km/h · incline off`;
 }
 function fillDeskForm(){
@@ -2589,7 +2590,7 @@ function wireDeskForm(){
 }
 (function(){
   const g=document.querySelector('#tab-workout .tiles');
-  makeSection($('tab-workout'), g, 'desk', 'Desk Walk', 'desk', '#0891b2', [deskCard()]);
+  makeSection($('tab-workout'), g, 'desk', 'Desk Mode', 'desk', '#0891b2', [deskCard()]);
   const t=SEC.desk.tile; t.classList.add('wide'); const b=t.querySelector('b'), sm=t.querySelector('small'); const w=document.createElement('span'); w.className='tw'; w.append(b,sm); t.append(w); g.prepend(t);
   wireDeskForm(); fillDeskForm(); renderDesk();
   { const _rt=refreshTiles; refreshTiles=function(){ _rt(); try{ const e=$('tv-desk'); if(e){ const txt=isWorkday(Date.now()) ? `${fmtInt(workSteps())} / ${fmtInt(D().goal)} work steps today` : 'Typing, calls & thinking speeds'; if(e.textContent!==txt) e.textContent=txt; } if(secOpen==='desk') renderDesk(); }catch(e){} }; }
@@ -2607,7 +2608,7 @@ if(!S.weekGoal) S.weekGoal=50000;
 S.belt=Object.assign({every:300,last:0}, S.belt||{});
 const DAYMS=86400000, DNAME=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 function weekStart(ts){ const d=new Date(ts); d.setHours(0,0,0,0); return d.getTime()-((d.getDay()+6)%7)*DAYMS; }
-function walksAll(){ const h=store.get('wpad.history',[]); const list=h.slice(); if(session && session.state!=='done' && !h.some(x=>x.id===session.start)) list.unshift({id:session.start,start:session.start,steps:Math.round(steps(session)),dist:session.dist,kcal:kcalOf(session),active:session.active,samples:session.samples,desk:!!session.desk,wk:session.wk?WK[session.wk.id].name:(session.desk?'Desk walk':null),live:true}); return list; }
+function walksAll(){ const h=store.get('wpad.history',[]); const list=h.slice(); if(session && session.state!=='done' && !h.some(x=>x.id===session.start)) list.unshift({id:session.start,start:session.start,steps:Math.round(steps(session)),dist:session.dist,kcal:kcalOf(session),active:session.active,samples:session.samples,desk:!!session.desk,wk:session.wk?WK[session.wk.id].name:(session.desk?'Desk Mode':null),live:true}); return list; }
 function zoneSecs(w){ const z=[0,0,0,0,0,0]; const sm=(w.samples||[]).filter(x=>x && x.t!=null); for(let i=1;i<sm.length;i++){ const dt=Math.min(30,Math.max(0,sm[i].t-sm[i-1].t)); const hr=sm[i].hr; z[hr?zoneOf(hr):0]+=dt; } return z; }
 function activeSecs(w){ const z=zoneSecs(w), hrSecs=z[1]+z[2]+z[3]+z[4]+z[5]; if(hrSecs>60) return z[2]+z[3]+z[4]+z[5]; const kmh=w.active>0?(w.dist/1000)/(w.active/3600):0; return kmh>=4.0 ? (w.active||0) : 0; }
 function loadOf(w){ const z=zoneSecs(w), hrSecs=z[1]+z[2]+z[3]+z[4]+z[5]; if(hrSecs>60) return (z[1]*1+z[2]*2+z[3]*3+z[4]*4+z[5]*5)/60; return (w.active||0)/60*1.5; }
@@ -2651,7 +2652,7 @@ const CARDS={
   hr:{n:'Heart rate', c:'#ff6b6b', i:'heart', r:D=>{ const w=D.last, hrs=w?(w.samples||[]).map(x=>x.hr).filter(Boolean):[]; if(!hrs.length) return `<div class="sc-sub" style="margin-top:10px">No heart rate on your last walk. Connect your watch before walking.</div>${S.hRest?`<div class="sc-foot">resting <b>${S.hRest}</b></div>`:''}`;
       const avg=Math.round(hrs.reduce((a,x)=>a+x,0)/hrs.length), mx=Math.max(...hrs), lo=S.hRest||50, hi=S.hMax||180;
       return `<div class="sc-c">${gaugeSvg([['#94a3b8',1.2],['#3b82f6',1],['#22c55e',1],['#f59e0b',0.8],['#ef4444',0.8]],(avg-lo)/Math.max(1,hi-lo),String(avg))}</div><div class="sc-sub" style="text-align:center;margin-top:-6px">avg bpm · last walk</div><div class="sc-foot" style="display:flex;justify-content:space-between;font-size:13px"><span>max <b>${mx}</b></span>${S.hRest?`<span>rest <b>${S.hRest}</b></span>`:''}</div>`; }},
-  workday:{n:'Workday', c:'#22b8cf', i:'desk', go:'desk', r:D=>{ const w=workSteps(), g=S.desk.goal; return `<div class="sc-big">${fmtInt(w)}</div><div class="sc-sub">of ${fmtInt(g)} work steps</div><div class="sc-bar" style="margin-top:10px"><i style="width:${Math.min(100,w/g*100).toFixed(1)}%;background:#22b8cf"></i></div><div class="sc-sub sc-foot">${isWorkday(Date.now())?`${S.desk.start}–${S.desk.end}`:'Not a workday'}<br>${D.deskMin} min desk walking this week</div>`; }},
+  workday:{n:'Workday', c:'#22b8cf', i:'desk', go:'desk', r:D=>{ const w=workSteps(), g=S.desk.goal; return `<div class="sc-big">${fmtInt(w)}</div><div class="sc-sub">of ${fmtInt(g)} work steps</div><div class="sc-bar" style="margin-top:10px"><i style="width:${Math.min(100,w/g*100).toFixed(1)}%;background:#22b8cf"></i></div><div class="sc-sub sc-foot">${isWorkday(Date.now())?`${S.desk.start}–${S.desk.end}`:'Not a workday'}<br>${D.deskMin} min in Desk Mode this week</div>`; }},
   streak:{n:'Streak', c:'#22c592', i:'check', r:D=>`<div class="sc-big" style="font-size:30px">🔥 ${D.streak} <span class="sc-sub" style="font-size:14px">day${D.streak===1?'':'s'}</span></div><div class="sc-sub">daily target hit</div><div class="sc-sub" style="margin-top:8px">Best: ${D.best} day${D.best===1?'':'s'}</div><div class="sc-days sc-foot">${D.days.map(d=>`<span class="${d.steps>=S.target?'ok':''}">${d.steps>=S.target?'✓':d.lab[0]}</span>`).join('')}</div>`},
   kcal:{n:'Calories', c:'#ff8a3d', i:'fire', r:D=>`<div class="sc-big">${fmtInt(Math.round(D.kcalWeek))}</div><div class="sc-sub">kcal walking this week (estimate)</div><div class="sc-bar sc-foot"><i style="width:${D.kcalWeek?(D.kcalToday/D.kcalWeek*100).toFixed(1):0}%;background:#ef4444"></i><i style="flex:1;background:#3b82f6"></i></div><div style="display:flex;justify-content:space-between;font-size:12px"><span><b>${fmtInt(Math.round(D.kcalToday))}</b> today</span><span><b>${fmtInt(Math.round(D.kcalWeek-D.kcalToday))}</b> earlier</span></div>`},
   dist:{n:'Distance', c:'#a78bfa', i:'dist', r:D=>`<div class="sc-big">${D.kmWeek.toFixed(1)} km</div><div class="sc-sub">this week on the pad</div><div class="sc-sub" style="margin-top:8px">${D.beltDue>0?`Belt care due in ${D.beltDue} km`:'⚠️ Belt care due now'}</div><div class="sc-bar sc-foot"><i style="width:${Math.min(100,(S.belt.every-D.beltDue)/S.belt.every*100).toFixed(1)}%;background:#a78bfa"></i></div><div class="sc-sub">tap to mark the belt as serviced</div>`},
@@ -2695,7 +2696,7 @@ function renderStatsEdit(){
 // ---- customise home screen ----
 const HOME_DEF={big:['desk','glance'], small:['target','workouts','fitness','zones','speed'], hidden:[], chart:true};
 S.home=Object.assign(JSON.parse(JSON.stringify(HOME_DEF)), S.home||{});
-const HNAME={desk:'Desk Walk',glance:'My Stats',target:'Step target',workouts:'Workouts',fitness:'Fitness & check',zones:'Heart-rate zones',speed:'Speed & incline'};
+const HNAME={desk:'Desk Mode',glance:'My Stats',target:'Step target',workouts:'Workouts',fitness:'Fitness & check',zones:'Heart-rate zones',speed:'Speed & incline'};
 function applyHome(){
   const g=document.querySelector('#tab-workout .tiles'); if(!g) return;
   S.home.big.forEach(id=>{ const t=SEC[id]&&SEC[id].tile; if(t){ t.classList.add('wide'); t.classList.remove('hidden'); g.appendChild(t); } });
@@ -2922,7 +2923,7 @@ function makePlan(p, fit){
   const ids=PLAN_WK[p.goal]||PLAN_WK.move, gentleStart=p.act==='sit'||p.goal==='recover'||S.gentle;
   let swapped=false; const days=p.goal==='desk'?[0,1,2,3,4,5,6].slice(0,p.days):(PLAN_DAYS[p.days]||PLAN_DAYS[3]);
   const sched=days.map((d,i)=>{ let id=ids[i%ids.length]; if(WK[id] && (wkLocked(id) || (gentleStart && WK[id].lvl!=='Easy'))){ id=gentleStart?'recovery':'z2'; swapped=true; }
-    const mins=WK[id]?Math.round(WK[id].total/60):p.mins; return {day:d, id, name:WK[id]?WK[id].name:(id==='desk'?'Desk Walk':'Free walk'), mins}; });
+    const mins=WK[id]?Math.round(WK[id].total/60):p.mins; return {day:d, id, name:WK[id]?WK[id].name:(id==='desk'?'Desk Mode':'Free walk'), mins}; });
   const wks=planWeeks(p), end=p.weeks==='date'?p.end:(wks?(p.start||Date.now())+wks*7*DAYMS:null);
   let now=null, aim=null; if(fit && fit.vo2){ now={vo2:fit.vo2, r:rating(fit.pct)}; const R=['Poor','Fair','Good','Excellent','Superior']; aim=R[Math.min(4,R.indexOf(now.r)+(['fitter','endurance','c25k','5k'].includes(p.goal)?1:0))]; }
   const title=GOAL_NAME[p.goal]+(p.weeks==='date'&&end?` by ${new Date(end).toLocaleDateString([], {day:'numeric',month:'short'})}`:wks?` in ${wks} weeks`:'');
@@ -2957,7 +2958,7 @@ const SRC_COL={pad:'#3b82f6', desk:'#22b8cf', watch:'#22c55e', imp:'#a78bfa'};
 function todayParts(){
   const tk=dayKey(Date.now()), W=walksAll().filter(x=>dayKey(x.start)===tk), parts=[];
   const sum=f=>W.filter(f).reduce((a,x)=>a+(x.steps||0),0);
-  const pad=sum(x=>!x.imported&&!x.desk), desk=sum(x=>!x.imported&&x.desk); if(pad) parts.push({k:'pad',n:'Pad workouts',v:pad,c:SRC_COL.pad}); if(desk) parts.push({k:'desk',n:'Desk walking',v:desk,c:SRC_COL.desk});
+  const pad=sum(x=>!x.imported&&!x.desk), desk=sum(x=>!x.imported&&x.desk); if(pad) parts.push({k:'pad',n:'Pad workouts',v:pad,c:SRC_COL.pad}); if(desk) parts.push({k:'desk',n:'Desk Mode',v:desk,c:SRC_COL.desk});
   const srcs={}; W.filter(x=>x.imported).forEach(x=>{ const n=x.src||'Imported'; srcs[n]=(srcs[n]||0)+(x.steps||0); });
   Object.entries(srcs).forEach(([n,v],i)=>{ if(v) parts.push({k:'imp',n:`${n} walks`,v,c:i?'#8b5cf6':SRC_COL.imp}); });
   const w=today().steps||0; if(w){ const d=Object.keys(addedSrc()).filter(k=>addedSrc()[k]>0); parts.push({k:'watch',n:d.length===1?`Added steps (${ADD_DEV[d[0]]?ADD_DEV[d[0]].short:'device'})`:'Added steps',v:w,c:SRC_COL.watch}); }
@@ -3225,7 +3226,7 @@ function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
   <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
 async function runPadCheck(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
-  const R=PC.rep={when:new Date().toISOString(), app:'v43', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  const R=PC.rep={when:new Date().toISOString(), app:'v44', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
   try{
     if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
     PC.on=true;
@@ -3343,7 +3344,7 @@ const BADGES=[
   ['s7','🔥','7-day streak',D=>D.best>=7],['s30','⚡','30-day streak',D=>D.best>=30],['s100','🏆','100-day streak',D=>D.best>=100],
   ['d10k','🎯','10,000 steps in a day',D=>D.maxDay>=10000],['wk','✅','First workout completed',D=>D.wkDone>=1],['act150','💚','150 active minutes in a week',D=>D.act150],
   ['fit','📈','Fitness Check done',D=>D.fits>=1],['lvl','⬆️','Fitness up a level',D=>D.lvlUp],['chk10','📝','10 check-ins',D=>D.chk>=10],
-  ['desk10','💻','10 hours of Desk Walk',D=>D.deskH>=10],['snow','🏔️','Snowdon climbed (1,085 m)',D=>D.climb>=1085],['ben','🗻','Ben Nevis climbed (1,345 m)',D=>D.climb>=1345],['three','🇬🇧','National Three Peaks (3,408 m)',D=>D.climb>=3408]];
+  ['desk10','💻','10 hours of Desk Mode',D=>D.deskH>=10],['snow','🏔️','Snowdon climbed (1,085 m)',D=>D.climb>=1085],['ben','🗻','Ben Nevis climbed (1,345 m)',D=>D.climb>=1345],['three','🇬🇧','National Three Peaks (3,408 m)',D=>D.climb>=3408]];
 function badgeData(){
   const H=store.get('wpad.history',[]), sd=statsData(), dt=dayTotals(), F=store.get('wpad.fit',[]).filter(x=>x.vo2);
   const rs=F.map(x=>['Poor','Fair','Good','Excellent','Superior'].indexOf(rating(percentile(x.vo2,S.sex,x.age||S.hAge))));
@@ -3384,7 +3385,7 @@ const HELP=[
  ['Step target and added steps',`<p>Set a daily target in <b>Step target</b>. Add steps from your watch or phone under <b>Steps so far today</b> – each device keeps one figure, so entering it again later updates it. Add them <b>before</b> you walk on the pad, as your watch counts pad steps too.</p><p>The donut shows where today's steps came from.</p>`],
  ['Workouts and heart-rate autopilot',`<p>Workouts change speed and incline for you. With a watch connected, <b>heart-rate zones</b> can hold you in a zone (for example zone 2) by adjusting speed, then incline.</p><p>Interval and hard workouts unlock after 10 walks – or tap <b>Unlock now</b> in Workouts. Too quick? Tap <b>Too fast</b> during a walk.</p>`],
  ['Fitness Check',`<p>A 10-minute walking test on the pad that estimates your VO2 max and fitness age, and sets your comfortable pace and top speed. A heart-rate watch gives the best result. Retest every 4 weeks.</p><p>These are estimates for general wellness, not medical measurements.</p>`],
- ['Desk Walk',`<p>A quiet, compact screen for walking while you work: speed presets for typing, calls and thinking, a meeting button, a workday step goal and pad rest reminders. Customise it in Desk Walk › Customise.</p>`],
+ ['Desk Mode',`<p>A quiet, compact screen for walking while you work: speed presets for typing, calls and thinking, a meeting button, a workday step goal and pad rest reminders. Customise it in Desk Mode › Customise.</p>`],
  ['My Stats, plan and check-in',`<p><b>My Stats</b> shows your day, week, last 4 weeks, plan, fitness, effort, records and more – tap <b>Edit</b> to choose cards.</p><p>After each walk, tap how hard it was and how you feel. WalkPilot uses it to adjust your pace and ease your plan when you're tired. Change goals in <b>Settings › My goals</b>.</p>`],
  ['Import, export and backup',`<p><b>History › Import walks</b> brings in TCX or GPX files from Garmin Connect, Strava and others. <b>Export</b> saves a walk as TCX to upload elsewhere.</p><p><b>Backup</b> saves everything to a file – keep it in Google Drive, and use <b>Restore</b> on a new phone.</p>`],
  ['Troubleshooting',`<ul><li><b>Pad won't connect:</b> close the pad maker's app, switch the pad off and on, and try again. Only one app can connect at a time.</li><li><b>Connection dropped mid-walk:</b> your walk is saved. Tap <b>Restart connection</b>; WalkPilot carries on counting.</li><li><b>Pad pauses itself at very slow speeds:</b> its foot sensor lost you – walk nearer the middle or a little faster.</li><li><b>No heart rate:</b> turn on heart-rate broadcast on your watch, then tap Watch.</li><li><b>iPhone:</b> Apple doesn't allow Bluetooth in web pages, so pad control needs the future iPhone app.</li></ul>`],
@@ -3403,7 +3404,7 @@ function proCard(){ return mkCard('proCard'); }
 function renderPro(){ const c=$('proCard'); if(!c) return; const P=proState();
   c.innerHTML=`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">⭐</span><div><b style="font-size:18px">WalkPilot Pro</b><br><span class="hint" style="margin:0">${P.why==='beta'?'Free for everyone while WalkPilot is in testing':P.why==='unlocked'?'Unlocked – thank you!':P.why==='trial'?`Free trial: ${P.left} day${P.left===1?'':'s'} left`:'Free version'}</span></div></div>
    <div style="margin-top:10px">${PRO_FEATURES.map(([t,d])=>`<div class="pc-step"><i>${P.pro?'✓':'🔒'}</i><span><b>${t}</b><br><small style="color:var(--muted)">${d}</small></span></div>`).join('')}</div>
-   <div class="hint">One-off ${PRO_PRICE} in the Android app – no subscription. Free always includes step targets, pad control, Desk Walk, My Stats, the first Fitness Check, check-ins, records and badges.</div>`; }
+   <div class="hint">One-off ${PRO_PRICE} in the Android app – no subscription. Free always includes step targets, pad control, Desk Mode, My Stats, the first Fitness Check, check-ins, records and badges.</div>`; }
 
 // ---- add the sections ----
 (function(){
@@ -3428,7 +3429,7 @@ const NF_DEF={on:false, tone:'gentle', max:3, quiet:['21:00','07:00'],
   fit:{on:true}, belt:{on:true}, unlock:{on:true}, weekly:{on:true,when:'sun'}};
 S.notif=Object.assign(JSON.parse(JSON.stringify(NF_DEF)), S.notif||{}); ['walk','nudge','desk','streak','watch','fit','belt','unlock','weekly'].forEach(k=>S.notif[k]=Object.assign({},NF_DEF[k],S.notif[k]||{}));
 S.nfSent=S.nfSent||{};
-const NF_ROWS=[['walk','🚶','Walk reminder'],['nudge','🎯','Step target nudge'],['desk','💻','Desk Walk'],['streak','🔥','Streak at risk'],['watch','⌚','Add your watch steps']];
+const NF_ROWS=[['walk','🚶','Walk reminder'],['nudge','🎯','Step target nudge'],['desk','💻','Desk Mode'],['streak','🔥','Streak at risk'],['watch','⌚','Add your watch steps']];
 const NF_ONCE=[['fit','📈','Fitness Check due','Every 4 weeks after your last check'],['belt','🛠️','Belt care due',''],['unlock','🔓','New workouts unlocked','After your 10th walk']];
 const nfHm=t=>{ const [h,m]=String(t||'0:0').split(':').map(Number); return h*60+(m||0); };
 const nowMin=()=>{ const d=new Date(); return d.getHours()*60+d.getMinutes(); };
@@ -3449,7 +3450,7 @@ function nfText(kind){
   const G=S.notif.tone!=='coach', sd=stepsTodayAll(), left=Math.max(0,S.target-sd), mins=Math.max(5,Math.round(left*S.stride/100000/Math.max(pace(),2)*60));
   if(kind==='walk'){ const pd=planDayToday(); const w=pd?`${pd.name} · ${pd.mins} min`:`${fmtInt(walkTarget())} steps`; return ['Time for your walk 🚶', G?`When you're ready: ${w}.`:`Let's go – ${w}!`]; }
   if(kind==='nudge') return [`${fmtInt(left)} steps to go today`, G?`About a ${mins}-minute walk gets you to ${fmtInt(S.target)}.`:`${mins} minutes on the pad and it's done 💪`];
-  if(kind==='desk') return ['Walk while you work?', G?`Your workday goal is ${fmtInt(S.desk.goal)} steps. A slow Desk Walk counts.`:`Desk Walk time – ${fmtInt(S.desk.goal)} work steps to hit!`];
+  if(kind==='desk') return ['Walk while you work?', G?`Your workday goal is ${fmtInt(S.desk.goal)} steps. A slow walk in Desk Mode counts.`:`Desk Mode time – ${fmtInt(S.desk.goal)} work steps to hit!`];
   if(kind==='streak'){ const st=statsData().streak; return [`Keep your ${st}-day streak 🔥`, `${fmtInt(left)} steps to go today – about ${mins} minutes.`]; }
   if(kind==='watch') return ['Add your watch steps ⌚','Add today\'s steps from your watch so your target and donut are right.'];
   if(kind==='fit') return ['Time for a Fitness Check 📈','It\'s 4 weeks since your last one – see if your fitness has improved.'];
@@ -3593,7 +3594,7 @@ setInterval(()=>{ const s=session; if(!s || s.state!=='running' || live.demo || 
   const show=()=>{ const el=$('log'); if(el) el.textContent=buf.slice(0,6000)+(buf.length>6000?'\n… (older lines are in the shared or saved log)':''); };
   let saveT=0; const persist=()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){ buf=buf.slice(0,LOGMAX/2); } },1500); };
   log=function(msg){ const d=new Date(); const t=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB'); buf=`${t} ${msg}\n`+buf; if(buf.length>LOGMAX) buf=buf.slice(0,LOGMAX); show(); persist(); };
-  window.logText=()=>`WalkPilot log · app v43 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
+  window.logText=()=>`WalkPilot log · app v44 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
   show(); log('app opened');
   addEventListener('pagehide',()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){} });
 }
@@ -3689,6 +3690,51 @@ document.addEventListener('click',e=>{ const c=e.target.closest && e.target.clos
         const k=secTapped[id], el=k && document.querySelector(`#sec-${id} [data-card="${k}"]`);
         if(el){ const r=el.getBoundingClientRect(); if(r.top<60 || r.bottom>innerHeight-130) el.scrollIntoView({block:'center'}); el.classList.remove('sc-flash'); void el.offsetWidth; el.classList.add('sc-flash'); } };
       requestAnimationFrame(()=>requestAnimationFrame(go)); setTimeout(go,120); } }; }
+
+/* ================= v44: Desk Mode name; Back from a home or Settings tile returns to it; My Stats gauges spring to life ================= */
+{ const H=store.get('wpad.history',[]); let ch=false; H.forEach(h=>{ if(h.wk==='Desk walk'){ h.wk='Desk Mode'; ch=true; } }); if(ch) store.set('wpad.history',H); }
+const reduceMotion=()=>{ try{ return matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } };
+// ---- Back to the tile you tapped on the home screen or in Settings ----
+const tabReturn={}; let secOpening=false;
+{ const _hs=hideSec; hideSec=function(){ const id=secOpen; _hs(); if(secOpening || !id || !SEC[id]) return; const r=tabReturn[id]; delete tabReturn[id];
+    if(!r || !SEC[id].tab.classList.contains('active')) return; const t=SEC[id].tile;
+    const go=()=>{ window.scrollTo(0,r.y); if(t && t.isConnected && !t.classList.contains('hidden')){ const b=t.getBoundingClientRect(); if(b.top<60||b.bottom>innerHeight-130) t.scrollIntoView({block:'center'}); t.classList.remove('sc-flash'); void t.offsetWidth; t.classList.add('sc-flash'); } };
+    requestAnimationFrame(()=>requestAnimationFrame(go)); }; }
+// ---- My Stats: gauges, rings, bars and numbers spring to life (only when opened from the Workout page) ----
+{ const _g=gaugeSvg; gaugeSvg=function(segs,frac,label,w){ w=w||116; const svg=_g(segs,frac,label,w), i=svg.lastIndexOf('<circle cx=');
+    return i<0?svg:svg.slice(0,i)+`<circle class="gneedle" data-w="${w}" data-f="${Math.max(0,Math.min(1,frac))}" `+svg.slice(i+8); }; }
+const springE=t=>1-Math.exp(-6*t)*Math.cos(10*t);            // overshoots, then settles like a needle
+const outE=t=>1-Math.pow(1-t,3);
+let statsAnimUntil=0;
+function animateStats(){
+  const g=$('statsGrid'); if(!g || reduceMotion()) return; statsAnimUntil=Date.now()+2200; const T0=performance.now();
+  // needles: sweep to full scale, then spring back to the reading – like a dashboard at power-on
+  const needles=[...g.querySelectorAll('.gneedle')].map(n=>({n, w:+n.dataset.w, f:+n.dataset.f}));
+  // rings and donut segments: fill from empty with a little overshoot
+  const arcs=[...g.querySelectorAll('circle[stroke-dasharray]')].map(c=>{ const [a,b]=c.getAttribute('stroke-dasharray').split(/[ ,]+/).map(Number); return {c,a,b}; }).filter(x=>x.a>0);
+  // numbers count up
+  const nums=[]; g.querySelectorAll('.sc-big, svg text').forEach(el=>{ const tn=[...el.childNodes].find(n=>n.nodeType===3 && /\d/.test(n.textContent)); if(!tn) return; const m=tn.textContent.match(/\d[\d,]*(\.\d+)?/); if(!m) return;
+    const v=parseFloat(m[0].replace(/,/g,'')), dec=(m[1]||'').length-1; if(!(v>0) || /\//.test(tn.textContent.slice(0,m.index))) return; nums.push({tn, pre:tn.textContent.slice(0,m.index), post:tn.textContent.slice(m.index+m[0].length), v, dec:Math.max(0,dec), comma:m[0].includes(',')}); });
+  const fmtN=(x,o)=>o.dec?x.toFixed(o.dec):(o.comma||x>=1000?Math.round(x).toLocaleString('en-GB'):String(Math.round(x)));
+  arcs.forEach(x=>x.c.setAttribute('stroke-dasharray',`0 ${x.b}`)); needles.forEach(x=>x.n.style.opacity='1');
+  const frame=now=>{ const t=(now-T0)/1000;
+    needles.forEach(x=>{ const cx=x.w/2, cy=x.w/2, r=x.w/2-10; let f; if(t<0.45) f=outE(t/0.45); else f=1+(x.f-1)*springE(Math.min(1,(t-0.45)/1.2));
+      const a=(150+240*Math.max(0,Math.min(1.04,f)))*Math.PI/180; x.n.setAttribute('cx',(cx+r*Math.cos(a)).toFixed(1)); x.n.setAttribute('cy',(cy+r*Math.sin(a)).toFixed(1)); });
+    const k=Math.min(1,t/1.3), e=springE(k); arcs.forEach(x=>x.c.setAttribute('stroke-dasharray',`${Math.max(0,x.a*Math.min(1.06,e)).toFixed(1)} ${x.b}`));
+    const kn=outE(Math.min(1,t/1.1)); nums.forEach(o=>{ o.tn.textContent=o.pre+fmtN(o.v*kn,o)+o.post; });
+    if(t<1.7) requestAnimationFrame(frame); else { arcs.forEach(x=>x.c.setAttribute('stroke-dasharray',`${x.a} ${x.b}`)); nums.forEach(o=>{ o.tn.textContent=o.pre+fmtN(o.v,o)+o.post; }); } };
+  requestAnimationFrame(frame);
+  // bars grow up from the floor (and sideways for progress bars), one after another
+  const grow=(els,origin,axis,step)=>els.forEach((el,i)=>{ el.style.transformOrigin=origin; el.style.transform=`scale${axis}(0)`; el.style.transition='none';
+    setTimeout(()=>{ el.style.transition=`transform .8s cubic-bezier(.34,1.56,.64,1) ${i*step}ms`; el.style.transform=`scale${axis}(1)`; },30); });
+  grow([...g.querySelectorAll('.sc-bars i, .sc-foot[style*="grid"] > i, svg ~ .x')],'bottom','Y',45);
+  grow([...g.querySelectorAll('.sc-bar > i, .wk-bar > i')],'left','X',60);
+  grow([...g.querySelectorAll('.dots4 i')],'center','',18);
+}
+{ const _rs=renderStats; renderStats=function(){ if(Date.now()<statsAnimUntil && !statsEdit && $('statsGrid') && !$('statsGrid').classList.contains('hidden')) return; _rs(); }; }
+{ const _os=openSec; openSec=function(id){ const from=secOpen, back=secNoPush, y=window.scrollY; secOpening=true; try{ _os(id); } finally{ secOpening=false; }
+    if(!from && !back) tabReturn[id]={y};
+    if(id==='glance' && !from && !back) setTimeout(animateStats,30); }; }
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
