@@ -126,6 +126,7 @@ body{padding-bottom:150px}
 .sc-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:11px;color:var(--muted);text-align:center}.sc-days .ok{color:var(--accent);font-weight:700}
 .sc-bars{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;align-items:end;height:62px}.sc-bars i{display:block;border-radius:4px;background:var(--accent);min-height:3px}.sc-bars i.lo{opacity:.45}.sc-bars i.today{outline:2px solid var(--ink);outline-offset:1px}
 .sc-w{grid-column:1/-1;min-height:0}
+@keyframes scFlash{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 3px transparent}}.sc-flash{animation:scFlash 1.4s ease-out}
 .ci-bars{display:grid;gap:6px;align-items:end;position:relative;margin-top:10px}.ci-bars i{display:block;border-radius:5px;min-height:3px}
 .ci-lab{display:grid;gap:6px;font-size:11px;color:var(--muted);text-align:center;margin-top:4px}
 .ci-line{position:absolute;left:0;right:0;border-top:2px dashed var(--muted)}
@@ -309,7 +310,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v42</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v43</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -553,7 +554,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v42</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v43</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1666,7 +1667,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v42 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v43 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -3224,7 +3225,7 @@ function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
   <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
 async function runPadCheck(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
-  const R=PC.rep={when:new Date().toISOString(), app:'v42', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  const R=PC.rep={when:new Date().toISOString(), app:'v43', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
   try{
     if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
     PC.on=true;
@@ -3592,7 +3593,7 @@ setInterval(()=>{ const s=session; if(!s || s.state!=='running' || live.demo || 
   const show=()=>{ const el=$('log'); if(el) el.textContent=buf.slice(0,6000)+(buf.length>6000?'\n… (older lines are in the shared or saved log)':''); };
   let saveT=0; const persist=()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){ buf=buf.slice(0,LOGMAX/2); } },1500); };
   log=function(msg){ const d=new Date(); const t=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB'); buf=`${t} ${msg}\n`+buf; if(buf.length>LOGMAX) buf=buf.slice(0,LOGMAX); show(); persist(); };
-  window.logText=()=>`WalkPilot log · app v42 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
+  window.logText=()=>`WalkPilot log · app v43 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
   show(); log('app opened');
   addEventListener('pagehide',()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){} });
 }
@@ -3677,6 +3678,17 @@ CI.plan={t:'My plan', r:()=>{ const P=planNow(); if(!P) return `<p class="hint" 
     return `${planHtml(P.pl,P.p)}<div class="ci-row" style="margin-top:8px"><span>This week</span><span><b>${Math.min(P.done,P.p.days)} of ${P.p.days}</b> walks done</span></div><div class="ci-row"><span>Next</span><span><b>${P.next.name}</b> · ${P.nextToday?'today':DNAME[P.next.day]}</span></div>
       <div class="row" style="margin-top:10px"><button class="primary" id="ciGoals">Change my goals</button></div>`; },
   after:()=>{ const b=$('ciGoals'); if(b) b.onclick=()=>openSetup(3); }};
+
+/* ================= v43: Back returns to the same place on the page you came from ================= */
+// When a page opens on top of another (My Stats › a card), remember where you were and which card you tapped.
+const secScroll={}, secTapped={};
+document.addEventListener('click',e=>{ const c=e.target.closest && e.target.closest('[data-card]'); if(c && secOpen) secTapped[secOpen]=c.dataset.card; }, true);
+{ const _os=openSec; openSec=function(id){ const from=secOpen, y=window.scrollY, back=secNoPush; _os(id);
+    if(from && !back) secScroll[from]=y;
+    if(back && secScroll[id]!=null){ const go=()=>{ window.scrollTo(0,secScroll[id]);
+        const k=secTapped[id], el=k && document.querySelector(`#sec-${id} [data-card="${k}"]`);
+        if(el){ const r=el.getBoundingClientRect(); if(r.top<60 || r.bottom>innerHeight-130) el.scrollIntoView({block:'center'}); el.classList.remove('sc-flash'); void el.offsetWidth; el.classList.add('sc-flash'); } };
+      requestAnimationFrame(()=>requestAnimationFrame(go)); setTimeout(go,120); } }; }
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
