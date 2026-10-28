@@ -315,7 +315,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v51</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v52</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -559,7 +559,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v51</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v52</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1672,7 +1672,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v51 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v52 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -3230,7 +3230,7 @@ function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
   <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
 async function runPadCheck(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
-  const R=PC.rep={when:new Date().toISOString(), app:'v51', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  const R=PC.rep={when:new Date().toISOString(), app:'v52', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
   try{
     if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
     PC.on=true;
@@ -3598,7 +3598,7 @@ setInterval(()=>{ const s=session; if(!s || s.state!=='running' || live.demo || 
   const show=()=>{ const el=$('log'); if(el) el.textContent=buf.slice(0,6000)+(buf.length>6000?'\n… (older lines are in the shared or saved log)':''); };
   let saveT=0; const persist=()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){ buf=buf.slice(0,LOGMAX/2); } },1500); };
   log=function(msg){ const d=new Date(); const t=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB'); buf=`${t} ${msg}\n`+buf; if(buf.length>LOGMAX) buf=buf.slice(0,LOGMAX); show(); persist(); };
-  window.logText=()=>`WalkPilot log · app v51 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
+  window.logText=()=>`WalkPilot log · app v52 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
   show(); log('app opened');
   addEventListener('pagehide',()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){} });
 }
@@ -3836,10 +3836,11 @@ animateStats=function(){
   const card=k=>g.querySelector(`[data-card="${k}"]`), wk=card('week'), st=card('steps');
   const steps=[];
   if(wk){ const P=scParts(wk);
-    steps.push(()=>runParts(Object.assign({},P,{dots:[]}), CARD_PACE.week||1.8));                                   // 1. This week bars and total
-    if(P.dots.length) steps.push(()=>runParts({needles:[],arcs:[],nums:[],vbars:[],hbars:[],dots:P.dots}, 1.3, 35));  // 2. last 4 weeks, dot by dot
+    // 1. This week bars and total, with the last-4-weeks dots popping in at the same time
+    steps.push(()=>Math.max(runParts(Object.assign({},P,{dots:[]}), CARD_PACE.week||1.8), P.dots.length?runParts({needles:[],arcs:[],nums:[],vbars:[],hbars:[],dots:P.dots}, 1.3, 35):0));
     statsPending.delete('week'); wk._animated=true; }
-  if(st){ steps.push(()=>runParts(scParts(st), CARD_PACE.steps||2.4)); statsPending.delete('steps'); st._animated=true; }   // 3. Steps today
+  if(st){ steps.push(()=>{ const ms=runParts(scParts(st), 4.8); statsIntro=false; setTimeout(()=>checkPendingCards(),50); return ms; });   // 2. Steps today – slow and steady
+    statsPending.delete('steps'); st._animated=true; }   // 3. Steps today
   const next=i=>{ if(secOpen!=='glance' || !statsPending){ statsIntro=false; return; }
     if(i>=steps.length){ statsIntro=false; statsAnimUntil=Date.now()+300; checkPendingCards(false); return; }
     const ms=steps[i](); setTimeout(()=>next(i+1), ms); };
