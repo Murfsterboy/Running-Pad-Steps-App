@@ -315,7 +315,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v54</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v55</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -559,7 +559,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v54</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v55</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1105,7 +1105,7 @@ function finishSession(reached){
   if(live.demo) demoBelt.running=false;
   padStop();
   session.state='done'; keepAwake(false);
-  if(session.dist>5){
+  if(session.dist>5 && !session.demo){
     const s=session, hist=store.get('wpad.history',[]);
     let smp=s.samples; if(smp.length>720){ const k=Math.ceil(smp.length/720); smp=smp.filter((_,i)=>i%k===0); }
     hist.unshift({id:s.start, start:s.start, end:Date.now(), target:s.target, steps:Math.round(steps(s)), dist:s.dist, kcal:kcalOf(s),
@@ -1672,7 +1672,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v54 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v55 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2660,7 +2660,7 @@ const CARDS={
   streak:{n:'Streak', c:'#22c592', i:'check', r:D=>`<div class="sc-big" style="font-size:30px">🔥 ${D.streak} <span class="sc-sub" style="font-size:14px">day${D.streak===1?'':'s'}</span></div><div class="sc-sub">daily target hit</div><div class="sc-sub" style="margin-top:8px">Best: ${D.best} day${D.best===1?'':'s'}</div><div class="sc-days sc-foot">${D.days.map(d=>`<span class="${d.steps>=S.target?'ok':''}">${d.steps>=S.target?'✓':d.lab[0]}</span>`).join('')}</div>`},
   kcal:{n:'Calories', c:'#ff8a3d', i:'fire', r:D=>`<div class="sc-big">${fmtInt(Math.round(D.kcalWeek))}</div><div class="sc-sub">kcal walking this week (estimate)</div><div class="sc-bar sc-foot"><i style="width:${D.kcalWeek?(D.kcalToday/D.kcalWeek*100).toFixed(1):0}%;background:#ef4444"></i><i style="flex:1;background:#3b82f6"></i></div><div style="display:flex;justify-content:space-between;font-size:12px"><span><b>${fmtInt(Math.round(D.kcalToday))}</b> today</span><span><b>${fmtInt(Math.round(D.kcalWeek-D.kcalToday))}</b> earlier</span></div>`},
   dist:{n:'Distance', c:'#a78bfa', i:'dist', r:D=>`<div class="sc-big">${D.kmWeek.toFixed(1)} km</div><div class="sc-sub">this week on the pad</div><div class="sc-sub" style="margin-top:8px">${D.beltDue>0?`Belt care due in ${D.beltDue} km`:'⚠️ Belt care due now'}</div><div class="sc-bar sc-foot"><i style="width:${Math.min(100,(S.belt.every-D.beltDue)/S.belt.every*100).toFixed(1)}%;background:#a78bfa"></i></div><div class="sc-sub">tap to mark the belt as serviced</div>`},
-  load:{n:'Training load', c:'#f2c14e', i:'load', pro:true, r:D=>{ const L=D.load, ratio=L.base>5?L.now/L.base:null, st=ratio==null?'Building':ratio<0.8?'Low':ratio>1.3?'High':'Balanced', mx=Math.max(1,...L.bars);
+  load:{n:'Weekly load', c:'#f2c14e', i:'load', pro:true, r:D=>{ const L=D.load, ratio=L.base>5?L.now/L.base:null, st=ratio==null?'Building':ratio<0.8?'Low':ratio>1.3?'High':'Balanced', mx=Math.max(1,...L.bars);
       return `<div class="sc-big">${st}</div><div class="sc-sub">${ratio==null?'needs a few weeks of walks':'last 7 days vs your usual'}</div><div class="sc-foot" style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;align-items:end;height:46px">${L.bars.map((v,i)=>`<i style="display:block;height:${Math.max(3,v/mx*46).toFixed(0)}px;border-radius:4px;background:${i===3?'#f2c14e':'var(--line)'}"></i>`).join('')}</div><div class="sc-sub">last 4 weeks</div>`; }}
 };
 const CARD_DEF=Object.keys(CARDS);
@@ -3160,7 +3160,7 @@ function ckSave(w, st){
 let ckSum=null;
 { const _ss=showSummary; showSummary=function(s,reached){ _ss(s,reached);
     const sv=$('sumView'); let box=$('ckBox'); if(box) box.remove(); ckSum=null; $('smDone').textContent='Done';
-    if(!s || s.fit || s.desk || sv.classList.contains('hidden') || (s.dist||0)<=5) return;
+    if(!s || s.fit || s.desk || s.demo || sv.classList.contains('hidden') || (s.dist||0)<=5) return;
     box=document.createElement('div'); box.id='ckBox'; box.className='card'; box.style.margin='0';
     sv.querySelector('.sm-hero').after(box);
     const w={id:s.start, samples:s.samples, active:s.active, dist:s.dist, wkId:s.wk?s.wk.id:null};
@@ -3230,7 +3230,7 @@ function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
   <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
 async function runPadCheck(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
-  const R=PC.rep={when:new Date().toISOString(), app:'v54', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  const R=PC.rep={when:new Date().toISOString(), app:'v55', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
   try{
     if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
     PC.on=true;
@@ -3403,7 +3403,7 @@ const PRO_BETA=true, PRO_PRICE='£7.99', PRO_TRIAL_DAYS=14;
 if(!S.proStart) S.proStart=Date.now();
 function proState(){ if(PRO_BETA) return {pro:true, why:'beta'}; if(S.proUnlocked) return {pro:true, why:'unlocked'}; const left=Math.ceil(PRO_TRIAL_DAYS-(Date.now()-S.proStart)/DAYMS); return left>0?{pro:true, why:'trial', left}:{pro:false, why:'free'}; }
 const isPro=()=>proState().pro;
-const PRO_FEATURES=[['Heart-rate zone autopilot','Holds you in your chosen zone'],['All workouts and plans','Intervals, hills, tempo and goal-based plans'],['Fitness Check trends','Retests and your VO2 max over time'],['Training load and recovery advice','Know when to push and when to rest'],['Journeys and unlimited challenges','Coming soon'],['Effort trends','From your after-walk check-ins']];
+const PRO_FEATURES=[['Heart-rate zone autopilot','Holds you in your chosen zone'],['All workouts and plans','Intervals, hills, tempo and goal-based plans'],['Fitness Check trends','Retests and your VO2 max over time'],['Weekly load and recovery advice','Know when to push and when to rest'],['Journeys and unlimited challenges','Coming soon'],['Effort trends','From your after-walk check-ins']];
 function proCard(){ return mkCard('proCard'); }
 function renderPro(){ const c=$('proCard'); if(!c) return; const P=proState();
   c.innerHTML=`<div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px">⭐</span><div><b style="font-size:18px">WalkPilot Pro</b><br><span class="hint" style="margin:0">${P.why==='beta'?'Free for everyone while WalkPilot is in testing':P.why==='unlocked'?'Unlocked – thank you!':P.why==='trial'?`Free trial: ${P.left} day${P.left===1?'':'s'} left`:'Free version'}</span></div></div>
@@ -3598,7 +3598,7 @@ setInterval(()=>{ const s=session; if(!s || s.state!=='running' || live.demo || 
   const show=()=>{ const el=$('log'); if(el) el.textContent=buf.slice(0,6000)+(buf.length>6000?'\n… (older lines are in the shared or saved log)':''); };
   let saveT=0; const persist=()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){ buf=buf.slice(0,LOGMAX/2); } },1500); };
   log=function(msg){ const d=new Date(); const t=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB'); buf=`${t} ${msg}\n`+buf; if(buf.length>LOGMAX) buf=buf.slice(0,LOGMAX); show(); persist(); };
-  window.logText=()=>`WalkPilot log · app v54 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
+  window.logText=()=>`WalkPilot log · app v55 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
   show(); log('app opened');
   addEventListener('pagehide',()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){} });
 }
@@ -3635,7 +3635,7 @@ const CI={
       return `<div class="ci-big">${avg.toFixed(1)} <span class="ci-sub">average effort, last ${Math.min(10,ws.length)} walks · ${EFF_WORD(Math.round(avg))}</span></div>
         ${ciBars(r.map(x=>x.chk.eff), r.map(x=>new Date(x.start).toLocaleDateString('en-GB',{day:'numeric'})), {cols:r.map(x=>EFF_COL[x.chk.eff-1]), h:100})}
         <h2 style="margin-top:16px">Recent check-ins</h2>${ws.slice(0,10).map(x=>`<div class="ci-row"><span>${new Date(x.start).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}<br><small style="color:var(--muted)">${x.wk||'Free walk'}</small></span><span style="text-align:right">${ckTags(x.chk)}</span></div>`).join('')}`; }},
-  load:{t:'Training load', r:()=>{ const L=statsData().load, ratio=L.base>5?L.now/L.base:null, st=ratio==null?'Building':ratio<0.8?'Low':ratio>1.3?'High':'Balanced';
+  load:{t:'Weekly load', r:()=>{ const L=statsData().load, ratio=L.base>5?L.now/L.base:null, st=ratio==null?'Building':ratio<0.8?'Low':ratio>1.3?'High':'Balanced';
       const msg={Building:'WalkPilot needs about 3 weeks of walks to learn your usual load.', Low:'You\'ve done less than usual this week – fine for an easy week, or add a walk to keep your fitness.', Balanced:'A steady amount compared with your usual – good for building fitness safely.', High:'Much more than usual – make sure you have easy days to recover.'}[st];
       return `<div class="ci-big">${st}</div><div class="ci-sub">${msg}</div>
         <h2 style="margin-top:16px">Load by week</h2>${ciBars(L.bars.map(v=>Math.round(v)), ['3 wks ago','2 wks ago','Last wk','Last 7 days'], {cols:['var(--line)','var(--line)','var(--line)','#f2c14e']})}
@@ -3853,6 +3853,12 @@ checkPendingCards=function(){ const g=$('statsGrid'); if(statsIntro || !g || !st
   const rows={}; g.querySelectorAll('[data-card]').forEach(c=>{ if(!statsPending.has(c.dataset.card)) return; const t=Math.round(c.getBoundingClientRect().top/8); (rows[t]=rows[t]||[]).push(c); });
   Object.keys(rows).sort((a,b)=>a-b).map(k=>rows[k]).forEach(row=>{ if(!row.every(cardFullyIn)) return; const at=Math.max(Date.now(), rowNext), wait=at-Date.now(); rowNext=at+420;   // each row follows the one above it
     row.forEach((c,i)=>{ statsPending.delete(c.dataset.card); setTimeout(()=>animateCard(c), wait+i*120); }); }); };
+
+/* ================= v55: demo walks are never saved – History, My Stats, records and your plan only use real walks ================= */
+{ const _fs=finishSession; finishSession=function(reached){ const s=session; if(s && live.demo && !window.WP_TEST_SAVE_DEMO) s.demo=true; const r=_fs.apply(this,arguments);
+    if(s && s.demo){ const msg='🎮 Demo walk – not saved, so your History and My Stats only show real walks.';
+      [$('doneBanner'),$('smBanner')].forEach(b=>{ if(b){ b.textContent=msg; b.classList.remove('done'); b.style.color='var(--muted)'; b.style.borderColor='var(--line)'; } }); }
+    return r; }; }
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
