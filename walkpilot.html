@@ -315,7 +315,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v55</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v56</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -559,7 +559,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>About WalkPilot</h2>
     <div class="hint" style="margin-top:0">
-      <b>WalkPilot v55</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
+      <b>WalkPilot v56</b> – a free walking pad coach: step targets, heart-rate zone workouts, live graphs and history.<br><br>
       <b>Works with:</b> walking pads and treadmills that support standard Bluetooth fitness control (FTMS) – including many UREVO models and other brands that work with Kinomap or Zwift. Needs <b>Chrome on Android</b> (or desktop Chrome/Edge). iPhone browsers don't support Bluetooth.<br><br>
       <b>Privacy:</b> everything stays on your phone. WalkPilot has no account and sends no data anywhere. Use Backup &amp; restore in Settings to keep a copy.<br><br>
       <b>Safety:</b> WalkPilot is not a medical device and gives no medical advice. Heart-rate zones are estimates. Check with your GP before starting hard exercise, especially if you have a heart, blood-pressure or other health condition. Keep the pad's safety key attached and stop if you feel unwell.<br><br>
@@ -1672,7 +1672,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v55 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v56 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -3230,7 +3230,7 @@ function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
   <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
 async function runPadCheck(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
-  const R=PC.rep={when:new Date().toISOString(), app:'v55', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  const R=PC.rep={when:new Date().toISOString(), app:'v56', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
   try{
     if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
     PC.on=true;
@@ -3395,7 +3395,7 @@ const HELP=[
  ['Troubleshooting',`<ul><li><b>Pad won't connect:</b> close the pad maker's app, switch the pad off and on, and try again. Only one app can connect at a time.</li><li><b>Connection dropped mid-walk:</b> your walk is saved. Tap <b>Restart connection</b>; WalkPilot carries on counting.</li><li><b>Pad pauses itself at very slow speeds:</b> its foot sensor lost you – walk nearer the middle or a little faster.</li><li><b>No heart rate:</b> turn on heart-rate broadcast on your watch, then tap Watch.</li><li><b>iPhone:</b> Apple doesn't allow Bluetooth in web pages, so pad control needs the future iPhone app.</li></ul>`],
  ['Safety',`<p>Keep the safety key clipped on. Start slowly, and stop if you feel dizzy, breathless, in pain or unwell. If you have a heart condition, are pregnant or have other health concerns, check with your GP before starting. WalkPilot is not a medical device.</p>`]];
 function helpCard(){ return mkCard('helpCard',`<div class="hint" style="margin-top:0">Tap a topic.</div>${HELP.map(([t,b])=>`<details class="dd help-dd"><summary><span><b>${t}</b></span></summary><div class="dd-in">${b}</div></details>`).join('')}
-  <div class="row" style="margin-top:10px"><a class="btn" href="privacy.html" target="_blank" rel="noopener" style="flex:1;text-align:center;padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--ink)">Privacy &amp; terms</a></div>`); }
+  <div class="row" style="margin-top:10px"><a class="btn" href="privacy.html" target="_blank" rel="noopener" style="flex:1;text-align:center;padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--ink)">Privacy &amp; terms</a><a class="btn" href="mailto:walkpilot@outlook.com?subject=WalkPilot%20feedback" style="flex:1;text-align:center;padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--ink)">✉️ Contact us</a></div><p class="hint" style="text-align:center;margin-top:8px">Questions, ideas or problems: <a href="mailto:walkpilot@outlook.com?subject=WalkPilot%20feedback">walkpilot@outlook.com</a></p>`); }
 
 /* ---- WalkPilot Pro (framework) ---- */
 // While WalkPilot is in testing every Pro feature is free. The Android app turns on the 14-day trial and the one-off unlock (Play Billing).
@@ -3598,7 +3598,7 @@ setInterval(()=>{ const s=session; if(!s || s.state!=='running' || live.demo || 
   const show=()=>{ const el=$('log'); if(el) el.textContent=buf.slice(0,6000)+(buf.length>6000?'\n… (older lines are in the shared or saved log)':''); };
   let saveT=0; const persist=()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){ buf=buf.slice(0,LOGMAX/2); } },1500); };
   log=function(msg){ const d=new Date(); const t=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB'); buf=`${t} ${msg}\n`+buf; if(buf.length>LOGMAX) buf=buf.slice(0,LOGMAX); show(); persist(); };
-  window.logText=()=>`WalkPilot log · app v55 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
+  window.logText=()=>`WalkPilot log · app v56 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
   show(); log('app opened');
   addEventListener('pagehide',()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){} });
 }
