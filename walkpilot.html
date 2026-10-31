@@ -316,7 +316,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v59</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v60</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -571,6 +571,8 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
   <div class="card">
     <h2>Bluetooth log</h2>
     <div class="row" style="margin-bottom:8px"><button class="primary" id="btnEmailLog">✉️ Email log</button><button id="btnShareLog" hidden>Share log</button><button id="btnSaveLog">Save log file</button><button id="btnCopyLog" hidden>Copy log</button><button id="btnPadReport">✉️ Email pad data report</button></div>
+    <div class="row" style="margin-bottom:8px"><button id="btnSupportBackup">📎 Send backup to support</button><button id="btnBtDetail">🔬 Detailed Bluetooth logging</button></div>
+    <div class="hint" id="btDetailMsg" style="margin:0 0 6px">Turn on detailed logging just before you recreate a problem. It records every message from your pad for 10 minutes, then turns itself off.</div>
     <div class="hint" id="copyMsg" style="margin:0 0 6px"></div>
     <div id="log"></div>
   </div>
@@ -1673,7 +1675,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padDataReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v59 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v60 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -3231,7 +3233,7 @@ function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
   <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
 async function runPadCheck(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
-  const R=PC.rep={when:new Date().toISOString(), app:'v59', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  const R=PC.rep={when:new Date().toISOString(), app:'v60', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
   try{
     if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
     PC.on=true;
@@ -3599,8 +3601,8 @@ setInterval(()=>{ const s=session; if(!s || s.state!=='running' || live.demo || 
   const show=()=>{ const el=$('log'); if(el) el.textContent=buf.slice(0,6000)+(buf.length>6000?'\n… (older lines are in the shared or saved log)':''); };
   let saveT=0; const persist=()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){ buf=buf.slice(0,LOGMAX/2); } },1500); };
   log=function(msg){ const d=new Date(); const t=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB'); buf=`${t} ${msg}\n`+buf; if(buf.length>LOGMAX) buf=buf.slice(0,LOGMAX); show(); persist(); };
-  window.logText=()=>`WalkPilot log · app v59 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
-  show(); log('app opened');
+  window.logText=()=>`WalkPilot log · app v60 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
+  show(); log('app opened · '+((()=>{ try{ return matchMedia('(display-mode: standalone)').matches?'installed app':'browser tab'; }catch(e){ return 'browser tab'; } })()));
   addEventListener('pagehide',()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){} });
 }
 $('btnShareLog').onclick=async()=>{ const t=logText(); if(navigator.share){ try{ await navigator.share({title:'WalkPilot log', text:t}); $('copyMsg').textContent='Shared.'; return; }catch(e){ if(e.name==='AbortError') return; } } $('btnSaveLog').onclick(); };
@@ -3944,6 +3946,80 @@ $('btnEmailLog').onclick=()=>emailToSupport('WalkPilot log', logText());
     requestAnimationFrame(f);
     _ac(card); setTimeout(()=>{ P.arcs=segs; }, 1.7*sl*1000+300); }; }
 function donutSweepOnly(card, sl){ if(typeof donutSweep==='function') donutSweep(card, sl); }
+
+/* ================= v60: support diagnostics – summary at the top of every log email, errors recorded, detailed Bluetooth logging, backup for support ================= */
+const isInstalled=()=>{ try{ return matchMedia('(display-mode: standalone)').matches || navigator.standalone===true; }catch(e){ return false; } };
+// ---- app errors go into the log ----
+addEventListener('error',e=>{ try{ log(`⚠️ app error: ${e.message||e} @ ${(e.filename||'').split('/').pop()}:${e.lineno||'?'}`); }catch(_){} });
+addEventListener('unhandledrejection',e=>{ try{ const r=e.reason; log(`⚠️ app error (promise): ${(r&&r.message)||r}`); }catch(_){} });
+// ---- the phone putting the app to sleep (explains many mid-walk drops) ----
+document.addEventListener('visibilitychange',()=>{ const busy=live.connected || (session && session.state==='running') || (typeof watchDev!=='undefined' && watchDev && watchDev.gatt && watchDev.gatt.connected);
+  if(busy) log(document.hidden ? '📴 app in background / screen off' : '📱 app back on screen'); });
+addEventListener('online',()=>log('🌐 online')); addEventListener('offline',()=>log('🌐 offline'));
+// ---- remember how often the pad stopped itself on each walk ----
+{ const _fs=finishSession; finishSession=function(){ const s=session, stops=s&&s.padStops||0, tf=s&&s.tooFast||0, r=_fs.apply(this,arguments);
+    try{ if(s && !s.demo){ const H=store.get('wpad.history',[]); if(H[0] && H[0].id===s.start){ H[0].padStops=stops; store.set('wpad.history',H); } } }catch(e){}
+    try{ if(s && s.state==='done') log(`🏁 walk finished · ${s.wk?WK[s.wk.id].name:'Free walk'} · ${fmtTime(s.active||0)} · ${Math.round(steps(s))} steps · pad stops ${stops} · too fast ${tf}${s.demo?' · demo':''}`); }catch(e){}
+    return r; }; }
+
+// ---- detailed Bluetooth logging (10 minutes, repeats collapsed) ----
+const BTD={until:0, last:{}, n:{}, t:null};
+const btdHex=b=>Array.from(b,x=>x.toString(16).padStart(2,'0')).join(' ');
+function btdOn(){ return Date.now()<BTD.until; }
+function btdRaw(ch, bytes){ if(!btdOn()) return; const h=btdHex(bytes);
+  if(BTD.last[ch]===h){ BTD.n[ch]=(BTD.n[ch]||1)+1; return; }
+  if(BTD.n[ch]>1) log(`🔬 ${ch} (same ×${BTD.n[ch]})`);
+  BTD.last[ch]=h; BTD.n[ch]=1; log(`🔬 ${ch} ${h}`); }
+{ const _u=urFrameIn; urFrameIn=function(b){ try{ btdRaw('UREVO in', b); }catch(e){} return _u.apply(this,arguments); }; }
+{ const _p=parseTreadmill; parseTreadmill=function(dv){ try{ if(btdOn()) btdRaw('FTMS data', new Uint8Array(dv.buffer, dv.byteOffset, dv.byteLength)); }catch(e){} return _p.apply(this,arguments); }; }
+function btdTick(){ if(!btdOn()){ clearInterval(BTD.t); BTD.t=null; log('🔬 detailed Bluetooth logging off'); btdUi(); return; }
+  try{ log(`🔬 live · belt ${(+live.speed||0).toFixed(1)} km/h · set ${(+setSpeed||0).toFixed(1)} · incline ${live.incl??'-'} (set ${typeof setIncl!=='undefined'?setIncl:'-'}) · HR ${live.watchHr||live.hr||'-'} · pad ${live.connected?'connected':'not connected'} · walk ${session?session.state:'none'}${UR&&UR.ch?` · UREVO state ${UR.state}`:''}`); }catch(e){}
+  btdUi(); }
+function btdUi(){ const b=$('btnBtDetail'), m=$('btDetailMsg'); if(!b) return; const on=btdOn();
+  b.textContent=on?'⏹ Stop detailed logging':'🔬 Detailed Bluetooth logging'; b.classList.toggle('primary',on);
+  if(m) m.textContent=on?`Detailed logging is on – ${Math.ceil((BTD.until-Date.now())/60000)} min left. Recreate the problem now, then tap ✉️ Email log.`:'Turn on detailed logging just before you recreate a problem. It records every message from your pad for 10 minutes, then turns itself off.'; }
+$('btnBtDetail').onclick=()=>{ if(btdOn()){ BTD.until=0; btdTick(); return; } BTD.until=Date.now()+10*60000; BTD.last={}; BTD.n={}; log('🔬 detailed Bluetooth logging on for 10 minutes'); clearInterval(BTD.t); BTD.t=setInterval(btdTick,5000); btdUi(); };
+
+// ---- diagnostics summary ----
+function diagSummary(){
+  const L=[], H=store.get('wpad.history',[]), name=(typeof device!=='undefined'&&device&&device.name)||PS.devName||'none', prof=(S.padProfiles||{})[name], devs=store.get('wpad.devs',{})||{};
+  const wname=(typeof watchDev!=='undefined'&&watchDev&&watchDev.name)||(devs.watch&&devs.watch.name)||'none';
+  L.push('=== WALKPILOT DIAGNOSTICS ===');
+  L.push(`App: v60 · ${isInstalled()?'installed app':'browser tab'} · Bluetooth ${navigator.bluetooth?'available':'NOT available'} · ${navigator.onLine?'online':'offline'}`);
+  L.push(`Browser: ${navigator.userAgent}`);
+  L.push(`Screen: ${screen.width}×${screen.height} · theme ${S.theme||'auto'} · language ${navigator.language}`);
+  L.push(`Pad: ${name}${live.connected?' (connected now)':''}${live.demo?' (demo)':''} · protocol ${UR&&UR.ch?'UREVO':(typeof cpChar!=='undefined'&&cpChar?'FTMS':'?')}`);
+  L.push(`Pad check: ${prof?`${prof.verdict} · FTMS ${prof.ftms?'yes':'no'} · speed control ${prof.speed?'yes':'no'} · incline ${prof.incline??'?'} · tested ${new Date(prof.tested).toLocaleDateString('en-GB')}`:'not run'}`);
+  L.push(`Watch: ${wname}${live.watchHr?` (HR ${live.watchHr} now)`:''}`);
+  L.push(`Settings: target ${S.target} · comfortable pace ${S.comfort??'-'} km/h · top speed ${S.topSpeed??'-'} km/h · max incline ${S.inclMax??'-'} · incline unit ${S.inclUnit??1} · stride ${S.stride??'-'} cm`);
+  L.push(`Heart rate: zone control ${S.zOn?'on':'off'} · max ${S.hMax??'-'} · resting ${S.hRest??'-'} · age ${S.hAge??'-'}`);
+  L.push(`Walks saved: ${H.length}${H[0]?` · last ${new Date(H[0].start).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})} · ${H[0].wk||'Free walk'} · ${fmtTime(H[0].active||0)} · ${fmtInt(H[0].steps||0)} steps${H[0].padStops!=null?` · pad stops ${H[0].padStops}`:''}${H[0].tooFast?` · too fast ×${H[0].tooFast}`:''}`:''}`);
+  const raw=(window._wpLogRaw?window._wpLogRaw():''), errs=raw.split('\n').filter(l=>/⚠️ app error/.test(l));
+  L.push(`App errors in log: ${errs.length}${errs[0]?` · latest: ${errs[0].slice(0,160)}`:''}`);
+  L.push(`Detailed Bluetooth logging: ${btdOn()?'ON now':'off'}`);
+  return L.join('\n');
+}
+// ---- the log, with repeated "app opened" lines collapsed ----
+{ const _lt=window.logText; window._wpLogRaw=()=>{ const t=_lt(); const i=t.indexOf('\n\n'); return i<0?t:t.slice(i+2); };
+  window.logText=function(){ const lines=window._wpLogRaw().split('\n'), out=[];
+    for(let i=0;i<lines.length;i++){ const l=lines[i];
+      if(/^\S+ \S+ [\d:]+ app opened/.test(l)){ let j=i; while(j+1<lines.length && /^\S+ \S+ [\d:]+ app opened/.test(lines[j+1])) j++;
+        if(j>i){ const last=l.slice(0,15), first=lines[j].slice(0,15), how=(l.split('app opened')[1]||'').replace(/^ · /,''); out.push(`${first} – ${last}  app opened ×${j-i+1}${how?` (latest: ${how})`:''}`); i=j; continue; } }
+      out.push(l); }
+    return diagSummary()+'\n\n=== LOG (newest first) ===\n'+out.join('\n'); }; }
+// ---- email: prompts first, then diagnostics and log ----
+emailToSupport=function(subject, text){
+  const MAX=6500, body=text.length>MAX ? text.slice(0,MAX)+'\n\n… (shortened – tap "Save log file" in the app and attach it if we ask for more)' : text;
+  try{ navigator.clipboard && navigator.clipboard.writeText(text).catch(()=>{}); }catch(e){}
+  const prompts='What happened?\n\n\nAbout what time did it happen?\n\n\nPhone make and model:\n\n\n(A screenshot of the problem helps – please attach one if you can.)\n\n';
+  location.href=`mailto:walkpilot@outlook.com?subject=${encodeURIComponent(subject+' · '+((PS&&PS.devName)||'no pad')+' · '+new Date().toLocaleDateString('en-GB'))}&body=${encodeURIComponent(prompts+body)}`;
+  $('copyMsg').textContent='Opening your email app to send it to walkpilot@outlook.com.'; };
+$('btnEmailLog').onclick=()=>emailToSupport('WalkPilot log', logText());
+// ---- backup for support (when stats or history look wrong) ----
+$('btnSupportBackup').onclick=()=>{ $('btnBackup').onclick(); const n='walkpilot-backup-'+dayKey(Date.now())+'.json';
+  setTimeout(()=>{ location.href=`mailto:walkpilot@outlook.com?subject=${encodeURIComponent('WalkPilot backup for support · '+new Date().toLocaleDateString('en-GB'))}&body=${encodeURIComponent(`Please attach the file ${n} from your Downloads folder to this email.\n\nWhat looks wrong?\n\n\n`+diagSummary())}`; },600);
+  $('copyMsg').textContent=`Backup saved to Downloads as ${n}. Attach it to the email that opens – it goes to walkpilot@outlook.com.`; };
+btdUi();
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
