@@ -46,7 +46,7 @@
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding-bottom:76px}
-header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:10px;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px;border-bottom:1px solid var(--line)}
 header h1{font-size:18px;margin:0;flex:1}
 .pill{font-size:12px;padding:4px 10px;border-radius:99px;background:var(--card);border:1px solid var(--line);color:var(--muted);white-space:nowrap}
 .pill.on{color:var(--accent);border-color:var(--accent)}
@@ -316,7 +316,7 @@ details.wk-g>summary::-webkit-details-marker{display:none}details.wk-g>summary::
 </head>
 <body>
 <header>
-  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v60</small></h1>
+  <h1 style="display:flex;align-items:center;gap:8px"><img src="wp-logo.png" alt="" width="28" height="28" style="border-radius:7px" onerror="this.remove()">WalkPilot <small style="font-size:12px;color:var(--muted);font-weight:500">v62</small></h1>
   <span id="connPill" class="pill">Not connected</span>
 </header>
 
@@ -1675,7 +1675,7 @@ $('padAskNo').onclick=()=>$('padAsk').classList.add('hidden');
 updateStepSrc();
 
 function padDataReport(){
-  const L=['WALKPILOT PAD DATA REPORT', `App v60 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
+  const L=['WALKPILOT PAD DATA REPORT', `App v62 · ${new Date().toISOString()}`, `Pad: ${PS.devName||'-'} · connected ${live.connected} · demo ${live.demo}`,
     `Walking time seen: ${Math.round(PS.moving)}s · speed now ${live.speed} · raw distance ${live.rawDist??'-'} m`,
     `Step source: ${PS.found?'pad counter '+JSON.stringify(PS.found):PS.none?'estimated (none found)':'checking'} · stride ${S.stride} cm`,
     session?`Session: app steps ${Math.round(steps(session))}, dist ${Math.round(session.dist)} m, padDist ${Math.round(session.padDist)} m, state ${session.state}`:'No session', '', 'CHANNELS:', ...PS.layout.map(l=>'  '+l), '', 'EXTRA CHANNEL DATA:'];
@@ -2622,11 +2622,11 @@ function loadOf(w){ const z=zoneSecs(w), hrSecs=z[1]+z[2]+z[3]+z[4]+z[5]; if(hrS
 function statsData(){
   const W=walksAll(), now=Date.now(), tk=dayKey(now), ws=weekStart(now), watch=today().steps||0;
   const padOn=k=>W.filter(x=>dayKey(x.start)===k).reduce((a,x)=>a+(x.steps||0),0);
-  const days=[]; for(let i=0;i<7;i++){ const ts=ws+i*DAYMS, k=dayKey(ts); days.push({lab:DNAME[i], ts, k, today:k===tk, future:ts>now, steps:padOn(k)+(k===tk?watch:0)}); }
+  const days=[]; for(let i=0;i<7;i++){ const ts=ws+i*DAYMS, k=dayKey(ts); days.push({lab:DNAME[i], ts, k, today:k===tk, future:ts>now, steps:padOn(k)+(k===tk?watch:addedOn(k))}); }
   const inWeek=W.filter(x=>x.start>=ws);
   const todayW=W.filter(x=>dayKey(x.start)===tk);
   // streak of days hitting the daily target
-  const hit=k=>padOn(k)+(k===tk?watch:0)>=S.target;
+  const hit=k=>padOn(k)+(k===tk?watch:addedOn(k))>=S.target;
   let streak=0, d=new Date(); d.setHours(12,0,0,0); if(!hit(dayKey(d.getTime()))) d=new Date(d.getTime()-DAYMS);
   while(streak<400 && hit(dayKey(d.getTime()))){ streak++; d=new Date(d.getTime()-DAYMS); }
   let best=streak; if(W.length){ let run=0; const first=new Date(Math.min(...W.map(x=>x.start))); first.setHours(12,0,0,0); for(let t=first.getTime(); t<=now+DAYMS/2; t+=DAYMS){ if(hit(dayKey(t))){ run++; best=Math.max(best,run);} else run=0; } }
@@ -3233,7 +3233,7 @@ function padCheckCard(){ return mkCard('pcCard',`<h2>Pad check</h2>
   <div id="pcSteps" style="margin-top:10px"></div><div id="pcOut"></div>`); }
 async function runPadCheck(){
   if(!navigator.bluetooth){ showBtBanner(); return; }
-  const R=PC.rep={when:new Date().toISOString(), app:'v60', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
+  const R=PC.rep={when:new Date().toISOString(), app:'v62', ua:navigator.userAgent.replace(/\s+/g,' ').slice(0,160)}; PC.lines=[]; $('pcOut').innerHTML=''; $('pcGo').disabled=true;
   try{
     if(live.connected && !live.demo && device){ if(!confirm('WalkPilot will disconnect from your pad to test it. Carry on?')){ $('pcGo').disabled=false; return; } PC.on=true; try{ device.gatt.disconnect(); }catch(e){} await sleep(800); }
     PC.on=true;
@@ -3330,7 +3330,7 @@ function renderPadProfiles(){ const el=$('pcTested'); if(!el) return; const P=S.
   el.innerHTML=k.length?`<h2 style="margin-top:4px">Pads tested on this phone</h2>${k.map(n=>{ const p=P[n]; return `<div class="pc-step"><i>${p.verdict==='ok'?'✅':p.verdict==='part'?'⚠️':'❌'}</i><span><b>${xmlEsc(n)}</b><br><small style="color:var(--muted)">${new Date(p.tested).toLocaleDateString([], {day:'numeric',month:'short'})} · ${p.ftms?'FTMS':''}${p.ftms&&p.fitshow?' + ':''}${p.fitshow?'FFF0':''}${!p.ftms&&!p.fitshow?'unknown protocol':''} · speed ${p.speed?'✓':'✗'}${p.incline!=null?` · incline ${p.incline?'✓':'✗'}`:''}</small></span></div>`; }).join('')}`:''; }
 
 /* ---- Personal records & badges ---- */
-function dayTotals(){ const m={}; store.get('wpad.history',[]).forEach(h=>{ const k=dayKey(h.start); m[k]=(m[k]||0)+(h.steps||0); }); const t=today(); if(t.steps) m[t.day]=(m[t.day]||0)+t.steps; return m; }
+function dayTotals(){ const m={}; store.get('wpad.history',[]).forEach(h=>{ const k=dayKey(h.start); m[k]=(m[k]||0)+(h.steps||0); }); const t=today(); if(t.steps) m[t.day]=(m[t.day]||0)+t.steps; Object.entries(store.get('wpad.addedHist',{})).forEach(([k,v])=>{ if(k!==t.day && v>0) m[k]=(m[k]||0)+v; }); return m; }
 function recordsData(){
   const H=store.get('wpad.history',[]), dt=dayTotals(), wk={};
   Object.entries(dt).forEach(([k,v])=>{ const ws=weekStart(new Date(k+'T12:00').getTime()); wk[ws]=(wk[ws]||0)+v; });
@@ -3446,7 +3446,7 @@ function stepsTodayAll(){ try{ return statsData().todaySteps; }catch(e){ return 
 function walkedToday(){ return store.get('wpad.history',[]).some(h=>dayKey(h.start)===dayKey(Date.now()) && (h.active||0)>=600); }
 function weekSummary(off){ // off 0 = this week, 1 = last week
   const ws=weekStart(Date.now())-off*7*DAYMS, we=ws+7*DAYMS, H=store.get('wpad.history',[]), t=today();
-  const days=[]; for(let i=0;i<7;i++){ const ts=ws+i*DAYMS, k=dayKey(ts); days.push({k, lab:DNAME[i], ts, future:ts>Date.now(), steps:H.filter(h=>dayKey(h.start)===k).reduce((a,h)=>a+(h.steps||0),0)+(t.day===k?(t.steps||0):0)}); }
+  const days=[]; for(let i=0;i<7;i++){ const ts=ws+i*DAYMS, k=dayKey(ts); days.push({k, lab:DNAME[i], ts, future:ts>Date.now(), steps:H.filter(h=>dayKey(h.start)===k).reduce((a,h)=>a+(h.steps||0),0)+(t.day===k?(t.steps||0):addedOn(k))}); }
   const inW=H.filter(h=>h.start>=ws && h.start<we), prevW=H.filter(h=>h.start>=ws-7*DAYMS && h.start<Math.min(ws, Date.now()-7*DAYMS));
   const steps=days.reduce((a,d)=>a+d.steps,0), prevSteps=prevW.reduce((a,h)=>a+(h.steps||0),0);
   const act=Math.round(inW.reduce((a,h)=>a+activeSecs(h),0)/60), walks=inW.filter(h=>(h.active||0)>=600).length, hit=days.filter(d=>d.steps>=S.target).length;
@@ -3601,7 +3601,7 @@ setInterval(()=>{ const s=session; if(!s || s.state!=='running' || live.demo || 
   const show=()=>{ const el=$('log'); if(el) el.textContent=buf.slice(0,6000)+(buf.length>6000?'\n… (older lines are in the shared or saved log)':''); };
   let saveT=0; const persist=()=>{ clearTimeout(saveT); saveT=setTimeout(()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){ buf=buf.slice(0,LOGMAX/2); } },1500); };
   log=function(msg){ const d=new Date(); const t=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('en-GB'); buf=`${t} ${msg}\n`+buf; if(buf.length>LOGMAX) buf=buf.slice(0,LOGMAX); show(); persist(); };
-  window.logText=()=>`WalkPilot log · app v60 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
+  window.logText=()=>`WalkPilot log · app v62 · ${new Date().toLocaleString('en-GB')}\n${navigator.userAgent}\n\n`+buf;
   show(); log('app opened · '+((()=>{ try{ return matchMedia('(display-mode: standalone)').matches?'installed app':'browser tab'; }catch(e){ return 'browser tab'; } })()));
   addEventListener('pagehide',()=>{ try{ localStorage.setItem('wpad.log', JSON.stringify(buf)); }catch(e){} });
 }
@@ -3985,7 +3985,7 @@ function diagSummary(){
   const L=[], H=store.get('wpad.history',[]), name=(typeof device!=='undefined'&&device&&device.name)||PS.devName||'none', prof=(S.padProfiles||{})[name], devs=store.get('wpad.devs',{})||{};
   const wname=(typeof watchDev!=='undefined'&&watchDev&&watchDev.name)||(devs.watch&&devs.watch.name)||'none';
   L.push('=== WALKPILOT DIAGNOSTICS ===');
-  L.push(`App: v60 · ${isInstalled()?'installed app':'browser tab'} · Bluetooth ${navigator.bluetooth?'available':'NOT available'} · ${navigator.onLine?'online':'offline'}`);
+  L.push(`App: v62 · ${isInstalled()?'installed app':'browser tab'} · Bluetooth ${navigator.bluetooth?'available':'NOT available'} · ${navigator.onLine?'online':'offline'}`);
   L.push(`Browser: ${navigator.userAgent}`);
   L.push(`Screen: ${screen.width}×${screen.height} · theme ${S.theme||'auto'} · language ${navigator.language}`);
   L.push(`Pad: ${name}${live.connected?' (connected now)':''}${live.demo?' (demo)':''} · protocol ${UR&&UR.ch?'UREVO':(typeof cpChar!=='undefined'&&cpChar?'FTMS':'?')}`);
@@ -4020,6 +4020,42 @@ $('btnSupportBackup').onclick=()=>{ $('btnBackup').onclick(); const n='walkpilot
   setTimeout(()=>{ location.href=`mailto:walkpilot@outlook.com?subject=${encodeURIComponent('WalkPilot backup for support · '+new Date().toLocaleDateString('en-GB'))}&body=${encodeURIComponent(`Please attach the file ${n} from your Downloads folder to this email.\n\nWhat looks wrong?\n\n\n`+diagSummary())}`; },600);
   $('copyMsg').textContent=`Backup saved to Downloads as ${n}. Attach it to the email that opens – it goes to walkpilot@outlook.com.`; };
 btdUi();
+
+/* ================= v61: Heart rate card shows your live heart rate on a gauge while your watch is connected ================= */
+function hrLive(){ return live.watchHr && Date.now()-live.watchT<5000 ? live.watchHr : null; }
+function hrGaugeSegs(){ const lo=S.hRest||50, hi=S.hMax||180, b=[1,2,3,4,5].map(z=>zoneBounds(z)), edges=[lo, b[1][0], b[2][0], b[3][0], b[4][0], hi];
+  return [1,2,3,4,5].map(z=>[ZC[z], Math.max(0.15, edges[z]-edges[z-1])]); }
+const hrFrac=h=>{ const lo=S.hRest||50, hi=S.hMax||180; return Math.max(0,Math.min(1,(h-lo)/Math.max(1,hi-lo))); };
+{ const _r=CARDS.hr.r; CARDS.hr.r=function(D){ const h=hrLive(); if(!h) return _r(D);
+    const z=zoneOf(h), w=D.last, hrs=w?(w.samples||[]).map(x=>x.hr).filter(Boolean):[], avg=hrs.length?Math.round(hrs.reduce((a,x)=>a+x,0)/hrs.length):null;
+    return `<div class="sc-c hr-live">${gaugeSvg(hrGaugeSegs(), hrFrac(h), String(h))}</div><div class="sc-sub" style="text-align:center;margin-top:-6px"><span class="hr-dot"></span>live bpm · <b class="hr-z" style="color:${ZC[z]||'var(--muted)'}">${z?'Zone '+z:'resting'}</b></div><div class="sc-foot" style="display:flex;justify-content:space-between;font-size:13px">${avg?`<span>last walk <b>${avg}</b></span>`:'<span></span>'}${S.hRest?`<span>rest <b>${S.hRest}</b></span>`:''}</div>`; }; }
+(function(){ const st=document.createElement('style'); st.textContent='.hr-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#ef4444;margin-right:6px;vertical-align:1px;animation:hrBeat 1s ease-in-out infinite}@keyframes hrBeat{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.6}}'; document.head.appendChild(st); })();
+// Keep the card live: the needle glides to each new reading; the card redraws when the watch connects or drops
+let hrShown=null, hrWasLive=false;
+{ const _ac=animateCard; animateCard=function(card){ if(card && card.dataset.card==='hr' && !card._animated) card._animT=Date.now(); return _ac(card); }; }
+setInterval(()=>{ try{
+  if(secOpen!=='glance') { hrWasLive=false; return; }
+  const card=document.querySelector('#statsGrid [data-card="hr"]'); if(!card) return; const h=hrLive(), isLive=!!card.querySelector('.hr-live');
+  if(!!h!==isLive){ if(card._animated || !statsPending || !statsPending.has('hr')){ const c=CARDS.hr, D=statsData(); card.innerHTML=`<span class="sc-h">${svgIcon(c.i,c.c,18)}<span>${c.n}</span></span>${c.r(D)}`; card._parts=null; hrShown=h; } return; }
+  if(!h || !card._animated || Date.now()-(card._animT||0)<1700*(CARD_PACE.hr||4.8)+300) return;   // let the opening animation finish first
+  const n=card.querySelector('.gneedle'), t=card.querySelector('svg text'), zl=card.querySelector('.hr-z'); if(!n||!t) return;
+  const from=hrShown??h, to=h, w=+n.dataset.w, T0=performance.now(); hrShown=h; n.dataset.f=hrFrac(h);
+  const z=zoneOf(h); if(zl){ zl.textContent=z?'Zone '+z:'resting'; zl.style.color=ZC[z]||'var(--muted)'; }
+  const step=now=>{ const k=outE(Math.min(1,(now-T0)/700)), v=from+(to-from)*k; scNeedle({n,w}, hrFrac(v)); t.textContent=String(Math.round(v)); if(k<1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}catch(e){} },1000);
+
+/* ================= v62: steps added from your watch, phone or Health Connect are kept for each day (week, streaks, records) ================= */
+function addedOn(k){ const t=today(); if(k===t.day) return t.steps||0; const h=store.get('wpad.addedHist',{}); return h[k]||0; }
+function keepAddedDay(day, steps){ if(!day) return; const h=store.get('wpad.addedHist',{}); if(steps>0) h[day]=steps; else delete h[day];
+  const cut=dayKey(Date.now()-400*DAYMS); Object.keys(h).forEach(k=>{ if(k<cut) delete h[k]; }); store.set('wpad.addedHist',h); }
+// yesterday's figure is saved before today's replaces it
+(function(){ try{ const raw=store.get('wpad.today',null); if(raw && raw.day && raw.day!==dayKey(Date.now()) && raw.steps>0 && raw.use!==false){ const h=store.get('wpad.addedHist',{}); if(!(h[raw.day]>0)) keepAddedDay(raw.day, raw.steps); } }catch(e){} })();
+{ const _st=store.set.bind(store); const wrapSet=(k,v)=>{ if(k==='wpad.today'){ try{ const old=store.get('wpad.today',null); if(old && old.day && v && old.day!==v.day && old.steps>0 && old.use!==false){ const h=store.get('wpad.addedHist',{}); if(!(h[old.day]>0)) keepAddedDay(old.day, old.steps); } }catch(e){} }
+    const r=_st(k,v); if(k==='wpad.today' && v && v.day){ try{ const h=store.get('wpad.addedHist',{}); if(v.use!==false && v.steps>0) h[v.day]=v.steps; else delete h[v.day]; _st('wpad.addedHist',h); }catch(e){} } return r; };
+  store.set=wrapSet; }
+// past days filled in by the Android app (Health Connect or the phone's step counter)
+window.wpSetPastSteps=function(map, override){ const h=store.get('wpad.addedHist',{}), tk=dayKey(Date.now()); let n=0; Object.entries(map||{}).forEach(([k,v])=>{ v=Math.round(v); if(k<tk && v>0 && (override ? h[k]!==v : !(h[k]>0))){ h[k]=v; n++; } }); if(n){ store.set('wpad.addedHist',h); try{ refreshTiles(); }catch(e){} if(secOpen==='glance') try{ renderStats(); }catch(e){} } return n; };
 if(typeof module!=='undefined') module.exports={parseTreadmill};
 </script>
 </body>
